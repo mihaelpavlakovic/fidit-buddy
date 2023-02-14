@@ -1,7 +1,21 @@
 import "./App.css";
+import { Routes, Route } from "react-router-dom";
+import Navigation from "./Navigation";
+import Login from "./Login";
+import Registration from "./Registration";
+import Homepage from "./Homepage";
 
 function App() {
-  return <h1 className="text-3xl font-bold underline">FIDIT Buddy App</h1>;
+  return (
+    <>
+      <Navigation />
+      <Routes>
+        <Route path="/" element={<Homepage />} />
+        <Route path="/prijava" element={<Login />} />
+        <Route path="/registracija" element={<Registration />} />
+      </Routes>
+    </>
+  );
 }
 
 export default App;
