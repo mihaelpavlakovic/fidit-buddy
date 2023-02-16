@@ -2,7 +2,7 @@ import "./App.css";
 import { Routes, Route } from "react-router-dom";
 import Login from "./Login";
 import Registration from "./Registration";
-import Homepage from "./Homepage";
+import Homepage from "./Feed/Homepage";
 import PasswordReset from "./PasswordReset";
 import PrivateRoutes from "./PrivateRoutes";
 import Messages from "./Messages";

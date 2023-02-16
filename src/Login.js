@@ -51,7 +51,7 @@ const Login = () => {
       >
         <div className="text-gray-700  p-20">
           <h1 className="text-3xl pb-2">Prijavi se u svoj račun 👋</h1>
-          <p className="text-lg  text-gray-500">
+          <p className="text-lg text-gray-500">
             Očekujete nove vijesti na postavljena pitanja student-mentoru?
             Prijavite se i saznajte odgovore na ta pitanja.
           </p>
