@@ -1,6 +1,9 @@
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useNavigate } from "react-router-dom";
+import app from "./firebase";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { getFirestore, collection, addDoc } from "firebase/firestore";
 
 const Registration = () => {
   const navigate = useNavigate();
@@ -25,14 +28,37 @@ const Registration = () => {
         .min(8, "Lozinka je pre kratka - mora bit minimalno 8 znakova dugacka"),
       jmbag: Yup.string()
         .required("JMBAG je obavezan")
+        .matches(/^[0-9]+$/, "Mora sadržavat samo brojeve")
         .min(10, "Mora sadržavat točno 10 znamenki")
         .max(10, "Mora sadržavat točno 10 znamenki"),
     }),
 
-    onSubmit: values => {
-      console.log("form submitted");
-      console.log(values);
-      navigate("/");
+    onSubmit: async values => {
+      const authentication = getAuth(app);
+      const db = getFirestore(app);
+      try {
+        const res = await createUserWithEmailAndPassword(
+          authentication,
+          values.email,
+          values.password
+        );
+        const user = res.user;
+        await addDoc(collection(db, "users"), {
+          uid: user.uid,
+          name: values.name,
+          email: values.email,
+          jmbag: values.jmbag,
+        });
+        sessionStorage.setItem("Auth Token", res._tokenResponse.refreshToken);
+        navigate("/", {
+          state: {
+            email: res._tokenResponse.email,
+          },
+        });
+      } catch (err) {
+        console.error(err);
+        alert(err.message);
+      }
     },
   });
 
@@ -139,7 +165,7 @@ const Registration = () => {
               </label>
               <input
                 className="border-2 border-gray-500 p-2 rounded-md w-full focus:border-teal-500 focus:ring-teal-500"
-                type="number"
+                type="string"
                 name="jmbag"
                 placeholder="Unesi svoj JMBAG"
                 onChange={formik.handleChange}

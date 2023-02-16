@@ -1,6 +1,8 @@
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useNavigate } from "react-router-dom";
+import app from "./firebase";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -20,10 +22,24 @@ const Login = () => {
         .min(8, "Lozinka je pre kratka - mora bit minimalno 8 znakova dugacka"),
     }),
 
-    onSubmit: values => {
-      console.log("form submitted");
-      console.log(values);
-      navigate("/");
+    onSubmit: async values => {
+      const authentication = getAuth(app);
+      try {
+        const res = await signInWithEmailAndPassword(
+          authentication,
+          values.email,
+          values.password
+        );
+        sessionStorage.setItem("Auth Token", res._tokenResponse.refreshToken);
+        navigate("/", {
+          state: {
+            email: res._tokenResponse.email,
+          },
+        });
+      } catch (err) {
+        console.error(err);
+        alert(err.message);
+      }
     },
   });
 
@@ -98,6 +114,12 @@ const Login = () => {
             <p className="text-center text-gray-500 text-sm mt-5">
               Nemate kreiran račun? Možete ga kreirati{" "}
               <a href="/registracija" className="text-teal-500 underline">
+                ovdje
+              </a>
+            </p>
+            <p className="text-center text-gray-500 text-sm mt-5">
+              Zaboravili ste lozinku? Kliknite{" "}
+              <a href="/promjena-lozinke" className="text-teal-500 underline">
                 ovdje
               </a>
             </p>
