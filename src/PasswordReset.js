@@ -31,7 +31,7 @@ const PasswordReset = () => {
     <main className="h-screen items-center flex justify-center">
       <form
         onSubmit={formik.handleSubmit}
-        className="bg-white rounded-lg w-1/2 shadow-xl"
+        className="bg-white rounded-lg md:w-1/2 shadow-xl"
       >
         <div className="text-gray-700  p-20">
           <h1 className="text-3xl pb-2">Ponovno postavite vašu lozinku</h1>

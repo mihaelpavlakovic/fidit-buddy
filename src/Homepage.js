@@ -1,18 +1,11 @@
-import { useNavigate, useLocation } from "react-router-dom";
+import Navigation from "./Navigation";
 
 const Homepage = () => {
-  const navigate = useNavigate();
-  const { state } = useLocation();
-
-  const logoutHandler = () => {
-    sessionStorage.removeItem("Auth Token");
-    navigate("/prijava");
-  };
   return (
     <div>
+      <Navigation />
       <div>
-        <p>Logged in as {state.email}</p>
-        <button onClick={logoutHandler}>Logout</button>
+        <h1 className="text-3xl underline">FIDIT Budy App</h1>
       </div>
     </div>
   );
