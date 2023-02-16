@@ -19,6 +19,9 @@ const Navigation = () => {
           <Link to="/poruke">Poruke</Link>
         </li>
         <li>
+          <Link to="/kreiraj-objavu">Kreiraj Objavu</Link>
+        </li>
+        <li>
           <Link to="/profil">Profil</Link>
         </li>
         <li>

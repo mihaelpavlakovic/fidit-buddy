@@ -7,6 +7,7 @@ import PasswordReset from "./PasswordReset";
 import PrivateRoutes from "./PrivateRoutes";
 import Messages from "./Messages";
 import Profile from "./Profile";
+import CreatePost from "./CreatePost";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
           <Route path="/" element={<Homepage />} exact />
           <Route path="/poruke" element={<Messages />} />
           <Route path="/profil" element={<Profile />} />
+          <Route path="/kreiraj-objavu" element={<CreatePost />} />
         </Route>
         <Route path="/prijava" element={<Login />} />
         <Route path="/registracija" element={<Registration />} />
