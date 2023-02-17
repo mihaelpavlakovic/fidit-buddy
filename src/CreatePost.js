@@ -2,10 +2,65 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import Navigation from "./Navigation";
 import { getAuth } from "firebase/auth";
-import app from "./firebase";
-import { getFirestore, doc, getDoc } from "firebase/firestore";
+import { storage } from "./firebase";
+import { ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  addDoc,
+  collection,
+} from "firebase/firestore";
+import { useNavigate } from "react-router";
+import { useState } from "react";
+import { useAuthState } from "react-firebase-hooks/auth";
 
 const CreatePost = () => {
+  const [imgUrl, setImgUrl] = useState([]);
+  const [newFiles, setNewFiles] = useState([]);
+  const [progresspercent, setProgresspercent] = useState(0);
+  const navigate = useNavigate();
+  const auth = getAuth();
+  const [user, loading] = useAuthState(auth);
+
+  const uploadImages = () => {
+    const files = [...newFiles];
+    const promises = [];
+    const links = [];
+
+    if (!files) return;
+
+    files.forEach(item => {
+      const storageRef = ref(storage, `files/${item.name}`);
+      const uploadTask = uploadBytesResumable(storageRef, item);
+      promises.push(uploadTask);
+      uploadTask.on(
+        "state_changed",
+        snapshot => {
+          const progress = Math.round(
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+          );
+          setProgresspercent(progress);
+        },
+        error => {
+          alert(error);
+        },
+        async () => {
+          await getDownloadURL(uploadTask.snapshot.ref).then(downloadURLs => {
+            links.push(downloadURLs);
+          });
+        }
+      );
+    });
+
+    Promise.all(promises)
+      .then(() => console.log("All images uploaded"))
+      .catch(err => console.log(err));
+
+    setImgUrl(links);
+    setNewFiles([]);
+  };
+
   const formik = useFormik({
     initialValues: {
       postTitle: "",
@@ -22,7 +77,7 @@ const CreatePost = () => {
     }),
 
     onSubmit: async values => {
-      const userUid = getAuth(app).currentUser.uid;
+      const userUid = user.uid;
       const db = getFirestore();
       const docRef = doc(db, "users", userUid);
       const docSnap = await getDoc(docRef);
@@ -36,18 +91,26 @@ const CreatePost = () => {
           minute: "numeric",
         }),
         user: { ...docSnap.data() },
+        data: { ...imgUrl },
       };
-      console.log(createPost);
+
+      try {
+        addDoc(collection(db, "posts"), createPost);
+        console.log("Document created...");
+        navigate("/");
+      } catch (error) {
+        console.log(error);
+      }
     },
   });
 
-  return (
+  const formCode = (
     <>
       <Navigation />
-      <main className="md:w-5/6 mx-auto">
+      <main className="w-full flex justify-center">
         <form
           onSubmit={formik.handleSubmit}
-          className="bg-white rounded-lg md:w-1/2 shadow-xl"
+          className="bg-white rounded-lg sm:w-5/6 md:w-1/2 shadow-xl"
         >
           <div className="text-gray-700  p-20">
             <h1 className="text-3xl pb-2">Kreiraj objavu:</h1>
@@ -102,6 +165,37 @@ const CreatePost = () => {
                   onBlur={formik.handleBlur}
                 ></textarea>
               </div>
+              {/* File input field */}
+              <div className="pb-4">
+                <label htmlFor="fileInput" className={"block text-sm pb-2"}>
+                  Datoteke
+                </label>
+
+                <input
+                  className="border-2 border-gray-500 p-2 rounded-md w-full focus:outline-none focus:border-teal-500 focus:ring-teal-500"
+                  type="file"
+                  name="fileInput"
+                  multiple
+                  onChange={event => {
+                    const files = event.target.files;
+                    setNewFiles(files);
+                  }}
+                />
+                <div className="flex gap-2 items-center justify-center">
+                  <progress
+                    className="mt-2 rounded"
+                    value={progresspercent}
+                    max="100"
+                  />
+                  <button
+                    className="text-teal-500 text-sm rounded-lg border-2 border-teal-500 border-solid p-1 mt-2 hover:bg-teal-600 hover:font-semibold"
+                    type="button"
+                    onClick={uploadImages}
+                  >
+                    Upload
+                  </button>
+                </div>
+              </div>
               <button
                 type="submit"
                 className="bg-teal-500 text-sm text-white py-3 mt-6 rounded-lg w-full hover:bg-teal-600 hover:font-semibold"
@@ -114,6 +208,8 @@ const CreatePost = () => {
       </main>
     </>
   );
+
+  return <>{!loading ? formCode : "Loading"}</>;
 };
 
 export default CreatePost;

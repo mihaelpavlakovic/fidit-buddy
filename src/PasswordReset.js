@@ -1,6 +1,6 @@
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import app from "./firebase";
+import { app } from "./firebase";
 import { getAuth, sendPasswordResetEmail } from "firebase/auth";
 
 const PasswordReset = () => {
