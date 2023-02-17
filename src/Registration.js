@@ -3,7 +3,7 @@ import * as Yup from "yup";
 import { useNavigate } from "react-router-dom";
 import app from "./firebase";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-import { getFirestore, collection, addDoc } from "firebase/firestore";
+import { getFirestore, doc, setDoc } from "firebase/firestore";
 
 const Registration = () => {
   const navigate = useNavigate();
@@ -46,7 +46,8 @@ const Registration = () => {
           values.password
         );
         const user = res.user;
-        await addDoc(collection(db, "users"), {
+        const docRef = doc(db, "users", user.uid);
+        await setDoc(docRef, {
           uid: user.uid,
           name: values.name,
           email: values.email,
