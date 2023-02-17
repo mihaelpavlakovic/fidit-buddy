@@ -26,6 +26,9 @@ const Registration = () => {
       password: Yup.string()
         .required("Lozinka je obavezna")
         .min(8, "Lozinka je pre kratka - mora bit minimalno 8 znakova dugacka"),
+      passwordConfirmation: Yup.string()
+        .required("Potvrda lozinke je obavezna")
+        .oneOf([Yup.ref("password"), null], "Lozinke moraju biti iste"),
       jmbag: Yup.string()
         .required("JMBAG je obavezan")
         .matches(/^[0-9]+$/, "Mora sadržavat samo brojeve")
@@ -91,7 +94,7 @@ const Registration = () => {
                   : "Ime"}
               </label>
               <input
-                className="border-2 border-gray-500 p-2 rounded-md w-full focus:border-teal-500 focus:ring-teal-500 "
+                className="border-2 border-gray-500 p-2 rounded-md w-full focus:outline-none focus:border-teal-500 focus:ring-teal-500 "
                 type="text"
                 name="name"
                 placeholder="Unesi svoje ime"
@@ -116,7 +119,7 @@ const Registration = () => {
               </label>
 
               <input
-                className="border-2 border-gray-500 p-2 rounded-md w-full focus:border-teal-500 focus:ring-teal-500"
+                className="border-2 border-gray-500 p-2 rounded-md w-full focus:outline-none focus:border-teal-500 focus:ring-teal-500"
                 type="email"
                 name="email"
                 placeholder="Unesi svoju email adresu"
@@ -140,12 +143,38 @@ const Registration = () => {
                   : "Lozinka"}
               </label>
               <input
-                className="border-2 border-gray-500 p-2 rounded-md w-full focus:border-teal-500 focus:ring-teal-500"
+                className="border-2 border-gray-500 p-2 rounded-md w-full focus:outline-none focus:border-teal-500 focus:ring-teal-500"
                 type="password"
                 name="password"
                 placeholder="Unesi svoju lozinku"
                 onChange={formik.handleChange}
                 value={formik.values.password}
+                onBlur={formik.handleBlur}
+              />
+            </div>
+            {/* Password Confirmation input field */}
+            <div className="pb-4">
+              <label
+                htmlFor="passwordConfirmation"
+                className={`block text-sm pb-2 ${
+                  formik.touched.passwordConfirmation &&
+                  formik.errors.passwordConfirmation
+                    ? "text-red-400"
+                    : ""
+                }`}
+              >
+                {formik.touched.passwordConfirmation &&
+                formik.errors.passwordConfirmation
+                  ? formik.errors.passwordConfirmation
+                  : "Potvrda lozinke"}
+              </label>
+              <input
+                className="border-2 border-gray-500 p-2 rounded-md w-full focus:outline-none focus:border-teal-500 focus:ring-teal-500"
+                type="password"
+                name="passwordConfirmation"
+                placeholder="Ponovite svoju lozinku"
+                onChange={formik.handleChange}
+                value={formik.values.passwordConfirmation}
                 onBlur={formik.handleBlur}
               />
             </div>
@@ -164,7 +193,7 @@ const Registration = () => {
                   : "JMBAG"}
               </label>
               <input
-                className="border-2 border-gray-500 p-2 rounded-md w-full focus:border-teal-500 focus:ring-teal-500"
+                className="border-2 border-gray-500 p-2 rounded-md w-full focus:outline-none focus:border-teal-500 focus:ring-teal-500"
                 type="string"
                 name="jmbag"
                 placeholder="Unesi svoj JMBAG"
@@ -175,13 +204,16 @@ const Registration = () => {
             </div>
             <button
               type="submit"
-              className="bg-teal-500 text-sm text-white py-3 mt-6 rounded-lg w-full"
+              className="bg-teal-500 text-sm text-white py-3 mt-6 rounded-lg w-full hover:bg-teal-600 hover:font-semibold"
             >
               Kreiraj račun!
             </button>
             <p className="text-center text-gray-500 text-sm mt-5">
               Imate kreiran račun? Možete se prijaviti{" "}
-              <a href="/prijava" className="text-teal-500 underline">
+              <a
+                href="/prijava"
+                className="text-teal-500 underline hover:no-underline hover:font-semibold"
+              >
                 ovdje
               </a>
             </p>

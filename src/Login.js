@@ -3,9 +3,13 @@ import * as Yup from "yup";
 import { useNavigate } from "react-router-dom";
 import app from "./firebase";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import Modal from "./Modal";
+import { useState } from "react";
 
 const Login = () => {
   const navigate = useNavigate();
+  const [error, setError] = useState("");
+  const handleClose = () => setError("");
 
   const formik = useFormik({
     initialValues: {
@@ -19,7 +23,7 @@ const Login = () => {
         .required("Email je obavezan"),
       password: Yup.string()
         .required("Lozinka je obavezna")
-        .min(8, "Lozinka je pre kratka - mora bit minimalno 8 znakova dugacka"),
+        .min(8, "Lozinka je pre kratka - mora bit minimalno 8 znakova dugačka"),
     }),
 
     onSubmit: async values => {
@@ -31,20 +35,21 @@ const Login = () => {
           values.password
         );
         sessionStorage.setItem("Auth Token", res._tokenResponse.refreshToken);
+        setError("");
         navigate("/", {
           state: {
             email: res._tokenResponse.email,
           },
         });
       } catch (err) {
-        console.error(err);
-        alert(err.message);
+        setError(err);
       }
     },
   });
 
   return (
     <main className="h-screen items-center flex justify-center">
+      <Modal onClose={handleClose} displayModal={error} />
       <form
         onSubmit={formik.handleSubmit}
         className="bg-white rounded-lg md:w-1/2 shadow-xl"
@@ -107,19 +112,25 @@ const Login = () => {
             </div>
             <button
               type="submit"
-              className="bg-teal-500 text-sm text-white py-3 mt-6 rounded-lg w-full"
+              className="bg-teal-500 text-sm text-white py-3 mt-6 rounded-lg w-full hover:bg-teal-600 hover:font-semibold"
             >
               Prijavi se!
             </button>
             <p className="text-center text-gray-500 text-sm mt-5">
               Nemate kreiran račun? Možete ga kreirati{" "}
-              <a href="/registracija" className="text-teal-500 underline">
+              <a
+                href="/registracija"
+                className="text-teal-500 underline hover:no-underline hover:font-semibold"
+              >
                 ovdje
               </a>
             </p>
             <p className="text-center text-gray-500 text-sm mt-5">
               Zaboravili ste lozinku? Kliknite{" "}
-              <a href="/promjena-lozinke" className="text-teal-500 underline">
+              <a
+                href="/promjena-lozinke"
+                className="text-teal-500 underline hover:no-underline hover:font-semibold"
+              >
                 ovdje
               </a>
             </p>

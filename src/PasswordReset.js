@@ -63,10 +63,19 @@ const PasswordReset = () => {
             </div>
             <button
               type="submit"
-              className="bg-teal-500 text-sm text-white py-3 mt-6 rounded-lg w-full"
+              className="bg-teal-500 text-sm text-white py-3 mt-6 rounded-lg w-full hover:bg-teal-600 hover:font-semibold"
             >
               Pošalji
             </button>
+            <p className="text-center text-gray-500 text-sm mt-5">
+              Zalutali ste? Za povratak kliknite{" "}
+              <a
+                href="/prijava"
+                className="text-teal-500 underline hover:no-underline hover:font-semibold"
+              >
+                ovdje
+              </a>
+            </p>
           </div>
         </div>
       </form>
