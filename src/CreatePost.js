@@ -127,7 +127,7 @@ const CreatePost = () => {
                 >
                   {formik.touched.postTitle && formik.errors.postTitle
                     ? formik.errors.postTitle
-                    : "Naziv"}
+                    : "Naslov"}
                 </label>
                 <input
                   className="border-2 border-gray-500 p-2 rounded-md w-full focus:outline-none focus:border-teal-500 focus:ring-teal-500 "

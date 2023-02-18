@@ -1,7 +1,6 @@
 import PostComments from "./PostComments";
 
-const Post = props => {
-  const postDetail = props.postDetail;
+const Post = ({ postDetail }) => {
   return (
     <div className="sm: w-full md:w-5/6 lg:w-2/3 px-10 py-5 shadow-lg mx-auto my-8 drop-shadow-md">
       <div className="flex flex-col justify-between gap-4">
@@ -27,9 +26,11 @@ const Post = props => {
         </div>
         <p className="text-gray-500 mb-2">{postDetail.postText}</p>
         <div>
-          {postDetail.comments.map((item, index) => {
-            return <PostComments key={index} comments={item} />;
-          })}
+          {!postDetail.comments
+            ? "Nema komentara..."
+            : postDetail.comments.map((item, index) => {
+                return <PostComments key={index} comments={item} />;
+              })}
         </div>
         <form className="flex flex-row items-center gap-3">
           <textarea

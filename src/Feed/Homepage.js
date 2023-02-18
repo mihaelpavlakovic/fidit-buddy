@@ -1,8 +1,35 @@
 import Navigation from "../Navigation";
 import Post from "./Post";
-import posts from "./posts";
+import {
+  getFirestore,
+  collection,
+  onSnapshot,
+  orderBy,
+  query,
+} from "firebase/firestore";
+import { useState, useEffect } from "react";
 
 const Homepage = () => {
+  const [docs, setDocs] = useState([]);
+
+  useEffect(() => {
+    const db = getFirestore();
+    const collRef = collection(db, "posts");
+    const q = query(
+      collRef,
+      orderBy("createdDate", "desc"),
+      orderBy("createdTime", "desc")
+    );
+    const unsub = onSnapshot(q, snap => {
+      let documents = [];
+      snap.forEach(doc => {
+        documents.push({ ...doc.data(), docId: doc.id });
+      });
+      setDocs(documents);
+    });
+    return () => unsub();
+  }, []);
+
   return (
     <>
       <Navigation />
@@ -11,9 +38,11 @@ const Homepage = () => {
           <h1 className="text-3xl mt-5 font-semibold">
             Dobro došli studenti! 👋
           </h1>
-          {posts.map((item, index) => {
-            return <Post key={index} postDetail={item} />;
-          })}
+          {!docs
+            ? "Nema kreiranih objava"
+            : docs.map(item => {
+                return <Post key={item.docId} postDetail={item} />;
+              })}
         </div>
       </main>
     </>
