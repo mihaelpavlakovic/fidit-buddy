@@ -32,14 +32,14 @@ const Post = ({ postDetail }) => {
                 return <PostComments key={index} comments={item} />;
               })}
         </div>
-        <form className="flex flex-row items-center gap-3">
+        <form className="flex flex-col md:flex-row items-center gap-3">
           <textarea
-            className="w-5/6 p-2 text-gray-500 border-2 focus:border-teal-500 focus:ring-teal-500 focus:outline-none"
+            className="w-full md:w-4/6 p-2 text-gray-500 border-2 focus:border-teal-500 focus:ring-teal-500 focus:outline-none"
             rows="3"
             type="text"
             placeholder="Napiši svoj komentar"
           ></textarea>
-          <button className="w-1/6 bg-teal-500 text-sm text-white py-3 rounded-lg w-full hover:bg-teal-600 hover:font-semibold">
+          <button className="w-full md:w-2/6 bg-teal-500 text-sm text-white py-3 rounded-lg w-full hover:bg-teal-600 hover:font-semibold">
             Objavi komentar
           </button>
         </form>
