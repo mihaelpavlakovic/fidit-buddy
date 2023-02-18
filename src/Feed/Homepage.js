@@ -33,7 +33,7 @@ const Homepage = () => {
   return (
     <>
       <Navigation />
-      <main className="md:w-5/6 mx-auto">
+      <main className="xl:max-w-7xl xl:mx-auto max-w-full px-[8%]">
         <div className="flex flex-col">
           <h1 className="text-3xl mt-5 font-semibold">
             Dobro došli studenti! 👋
