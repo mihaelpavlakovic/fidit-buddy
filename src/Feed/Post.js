@@ -57,6 +57,7 @@ const Post = ({ postDetail }) => {
 
       try {
         updateDoc(docRef, createComment);
+        values.comment = ""
         console.log("Comment created...");
       } catch (error) {
         console.log(error);
@@ -97,11 +98,11 @@ const Post = ({ postDetail }) => {
         </div>
         <form
           onSubmit={formik.handleSubmit}
-          className="flex md:flex-row flex-col items-end gap-3"
+          className="flex md:flex-row flex-col items-center gap-3"
         >
           <textarea
-            className="w-full md:w-5/6 p-2 text-gray-500 border-2 focus:border-teal-500 focus:ring-teal-500 focus:outline-none"
-            rows="3"
+            className="w-full md:w-5/6 p-2 text-gray-500 rounded-md border-2 focus:border-teal-500 focus:ring-teal-500 focus:outline-none"
+            rows="1"
             type="text"
             name="comment"
             placeholder="Napiši svoj komentar"
@@ -110,7 +111,7 @@ const Post = ({ postDetail }) => {
           ></textarea>
           <button
             type="submit"
-            className="w-full md:w-1/6 bg-teal-500 text-sm text-white py-3 rounded-lg w-full hover:bg-teal-600"
+            className="w-full md:w-1/6 bg-teal-500 text-sm text-white py-3 rounded-lg hover:bg-teal-600"
           >
             <FiSend className="w-full" />
           </button>
