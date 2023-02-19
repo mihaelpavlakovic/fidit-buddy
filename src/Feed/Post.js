@@ -57,7 +57,7 @@ const Post = ({ postDetail }) => {
 
       try {
         updateDoc(docRef, createComment);
-        values.comment = ""
+        values.comment = "";
         console.log("Comment created...");
       } catch (error) {
         console.log(error);
@@ -89,6 +89,16 @@ const Post = ({ postDetail }) => {
           <h2 className="text-2xl font-semibold">{postDetail.postTitle}</h2>
         </div>
         <p className="text-gray-500 mb-2">{postDetail.postText}</p>
+        {postDetail.data &&
+          Object.entries(postDetail.data).map((item, index) => {
+            if (item[1].includes(".pdf"))
+              return (
+                <a key={index} href={item[1]} target="_blank" rel="noreferrer">
+                  Preuzmi dokument
+                </a>
+              );
+            return <img key={index} src={item[1]} alt={`Slika ${index}`} />;
+          })}
         <div>
           {!postDetail.comments
             ? "Nema komentara"
