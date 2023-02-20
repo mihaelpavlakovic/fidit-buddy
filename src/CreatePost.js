@@ -1,19 +1,19 @@
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import Navigation from "./Navigation";
-import { auth, db, storage } from "./firebase";
+import { db, storage } from "./firebase";
 import { ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";
 import { doc, getDoc, addDoc, collection } from "firebase/firestore";
 import { useNavigate } from "react-router";
-import { useState } from "react";
-import { useAuthState } from "react-firebase-hooks/auth";
+import { useState, useContext } from "react";
+import { AuthContext } from "./context/AuthContext";
 
 const CreatePost = () => {
   const [imgUrl, setImgUrl] = useState([]);
   const [newFiles, setNewFiles] = useState([]);
   const [progresspercent, setProgresspercent] = useState(0);
   const navigate = useNavigate();
-  const [user, loading] = useAuthState(auth);
+  const { currentUser } = useContext(AuthContext);
 
   const uploadImages = () => {
     const files = [...newFiles];
@@ -69,8 +69,7 @@ const CreatePost = () => {
     }),
 
     onSubmit: async values => {
-      const userUid = user.uid;
-      const docRef = doc(db, "users", userUid);
+      const docRef = doc(db, "users", currentUser.uid);
       const docSnap = await getDoc(docRef);
 
       const createPost = {
@@ -95,7 +94,7 @@ const CreatePost = () => {
     },
   });
 
-  const formCode = (
+  return (
     <>
       <Navigation />
       <main className="w-full flex justify-center">
@@ -199,8 +198,6 @@ const CreatePost = () => {
       </main>
     </>
   );
-
-  return <>{!loading ? formCode : "Loading"}</>;
 };
 
 export default CreatePost;

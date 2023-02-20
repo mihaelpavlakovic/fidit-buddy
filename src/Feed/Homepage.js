@@ -4,6 +4,7 @@ import { db } from "../firebase";
 import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 import { useState, useEffect, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
+import { Link } from "react-router-dom";
 
 const Homepage = () => {
   const [docs, setDocs] = useState([]);
@@ -34,11 +35,22 @@ const Homepage = () => {
           <h1 className="text-3xl mt-5 font-semibold">
             Dobro došli {currentUser.displayName}! 👋
           </h1>
-          {!docs
-            ? "Nema kreiranih objava"
-            : docs.map(item => {
-                return <Post key={item.docId} postDetail={item} />;
-              })}
+          {docs.lenght === 0 ? (
+            <p className="mt-5">
+              Trenutačno nema objava. Kreirajte prvu objavu{" "}
+              <Link
+                to="/kreiraj-objavu"
+                className="text-teal-500 hover:underline"
+              >
+                ovdje
+              </Link>
+              .
+            </p>
+          ) : (
+            docs.map(item => {
+              return <Post key={item.docId} postDetail={item} />;
+            })
+          )}
         </div>
       </main>
     </>
