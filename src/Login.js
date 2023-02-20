@@ -31,14 +31,12 @@ const Login = () => {
     }),
 
     onSubmit: async values => {
-      try {
-        setPersistence(auth, browserSessionPersistence).then(async () => {
+      setPersistence(auth, browserSessionPersistence)
+        .then(async () => {
           await signInWithEmailAndPassword(auth, values.email, values.password);
           navigate("/");
-        });
-      } catch (err) {
-        setError(err);
-      }
+        })
+        .catch(error => setError(error));
     },
   });
 

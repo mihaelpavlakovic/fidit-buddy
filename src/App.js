@@ -8,12 +8,17 @@ import PrivateRoutes from "./PrivateRoutes";
 import MessagesPage from "./Messages/MessagesPage";
 import Profile from "./Profile";
 import CreatePost from "./CreatePost";
+import Admin from "./Admin";
+import PermissionDenied from "./PermissionDenied";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route element={<PrivateRoutes />}>
+          <Route element={<PrivateRoutes isAdmin="true" />}>
+            <Route path="/admin" element={<Admin />} />
+          </Route>
           <Route path="/" element={<Homepage />} exact />
           <Route path="/poruke" element={<MessagesPage />} />
           <Route path="/profil" element={<Profile />} />
@@ -22,6 +27,7 @@ function App() {
         <Route path="/prijava" element={<Login />} />
         <Route path="/registracija" element={<Registration />} />
         <Route path="/promjena-lozinke" element={<PasswordReset />} />
+        <Route path="/odbijen-pristup" element={<PermissionDenied />} />
       </Routes>
     </BrowserRouter>
   );

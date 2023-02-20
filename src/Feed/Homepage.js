@@ -35,7 +35,16 @@ const Homepage = () => {
           <h1 className="text-3xl mt-5 font-semibold">
             Dobro došli {currentUser.displayName}! 👋
           </h1>
-          {docs.lenght === 0 ? (
+          {localStorage.getItem("isAdmin") !== "undefined" ? (
+            <p className="mt-5">
+              Prijavljeni ste kao administrator. Kako bi vidjeli
+              administratorsku ploču kliknite{" "}
+              <Link to="/admin" className="text-teal-500 hover:underline">
+                ovdje
+              </Link>
+              .
+            </p>
+          ) : docs.lenght === 0 ? (
             <p className="mt-5">
               Trenutačno nema objava. Kreirajte prvu objavu{" "}
               <Link

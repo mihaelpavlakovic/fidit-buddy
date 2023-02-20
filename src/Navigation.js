@@ -6,7 +6,33 @@ import { FiMenu } from "react-icons/fi";
 
 const Navigation = () => {
   const [open, setOpen] = useState(false);
-
+  const userNav = (
+    <>
+      <li>
+        <Link to="/" className="lg:px-5 py-2 block hover:font-semibold">
+          Naslovna
+        </Link>
+      </li>
+      <li>
+        <Link to="/poruke" className="lg:px-5 py-2 block hover:font-semibold">
+          Poruke
+        </Link>
+      </li>
+      <li>
+        <Link
+          to="/kreiraj-objavu"
+          className="lg:px-5 py-2 block hover:font-semibold"
+        >
+          Kreiraj Objavu
+        </Link>
+      </li>
+      <li>
+        <Link to="/profil" className="lg:px-5 py-2 block hover:font-semibold">
+          Profil
+        </Link>
+      </li>
+    </>
+  );
   return (
     <header className="bg-teal-500 p-4 text-white">
       <div className="flex items-center justify-between xl:max-w-7xl xl:mx-auto max-w-full px-[8%] flex-wrap">
@@ -21,35 +47,18 @@ const Navigation = () => {
           className={`${open ? "block" : "hidden"} w-full lg:flex lg:w-auto`}
         >
           <ul className="text-base lg:flex lg:justify-between lg:items-center text-center">
-            <li>
-              <Link to="/" className="lg:px-5 py-2 block  hover:font-semibold">
-                Naslovna
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/poruke"
-                className="lg:px-5 py-2 block  hover:font-semibold"
-              >
-                Poruke
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/kreiraj-objavu"
-                className="lg:px-5 py-2 block  hover:font-semibold"
-              >
-                Kreiraj Objavu
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/profil"
-                className="lg:px-5 py-2 block  hover:font-semibold"
-              >
-                Profil
-              </Link>
-            </li>
+            {localStorage.getItem("isAdmin") !== "undefined" ? (
+              <li>
+                <Link
+                  to="/admin"
+                  className="lg:px-5 py-2 block hover:font-semibold"
+                >
+                  Admin Ploča
+                </Link>
+              </li>
+            ) : (
+              userNav
+            )}
             <li>
               <button
                 onClick={() => signOut(auth)}
