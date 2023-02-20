@@ -13,9 +13,11 @@ const Navigation = () => {
   };
 
   return (
-    <header className="bg-teal-500 p-6 text-white">
+    <header className="bg-teal-500 p-4 text-white">
       <div className="flex items-center justify-between xl:max-w-7xl xl:mx-auto max-w-full px-[8%] flex-wrap">
-      <h1 className="text-3xl font-semibold">FIDIT Buddy</h1>
+        <Link to="/" className="text-2xl font-semibold">
+          FIDIT Buddy
+        </Link>
         <FiMenu
           className="lg:hidden block h-6 w-6 cursor-pointer"
           onClick={() => setOpen(!open)}

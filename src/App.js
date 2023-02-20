@@ -5,7 +5,7 @@ import Registration from "./Registration";
 import Homepage from "./Feed/Homepage";
 import PasswordReset from "./PasswordReset";
 import PrivateRoutes from "./PrivateRoutes";
-import Messages from "./Messages";
+import MessagesPage from "./Messages/MessagesPage";
 import Profile from "./Profile";
 import CreatePost from "./CreatePost";
 
@@ -15,7 +15,7 @@ function App() {
       <Routes>
         <Route element={<PrivateRoutes />}>
           <Route path="/" element={<Homepage />} exact />
-          <Route path="/poruke" element={<Messages />} />
+          <Route path="/poruke" element={<MessagesPage />} />
           <Route path="/profil" element={<Profile />} />
           <Route path="/kreiraj-objavu" element={<CreatePost />} />
         </Route>
