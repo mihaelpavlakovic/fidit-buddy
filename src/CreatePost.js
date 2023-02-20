@@ -1,16 +1,9 @@
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import Navigation from "./Navigation";
-import { getAuth } from "firebase/auth";
-import { storage } from "./firebase";
+import { auth, db, storage } from "./firebase";
 import { ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";
-import {
-  getFirestore,
-  doc,
-  getDoc,
-  addDoc,
-  collection,
-} from "firebase/firestore";
+import { doc, getDoc, addDoc, collection } from "firebase/firestore";
 import { useNavigate } from "react-router";
 import { useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -20,7 +13,6 @@ const CreatePost = () => {
   const [newFiles, setNewFiles] = useState([]);
   const [progresspercent, setProgresspercent] = useState(0);
   const navigate = useNavigate();
-  const auth = getAuth();
   const [user, loading] = useAuthState(auth);
 
   const uploadImages = () => {
@@ -78,7 +70,6 @@ const CreatePost = () => {
 
     onSubmit: async values => {
       const userUid = user.uid;
-      const db = getFirestore();
       const docRef = doc(db, "users", userUid);
       const docSnap = await getDoc(docRef);
 

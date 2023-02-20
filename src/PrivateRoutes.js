@@ -1,11 +1,10 @@
 import { Outlet, Navigate } from "react-router";
+import { useContext } from "react";
+import { AuthContext } from "./context/AuthContext";
 
 const PrivateRoutes = () => {
-  let auth = { token: false };
-  if (sessionStorage.getItem("Auth Token")) {
-    auth = { token: true };
-  }
-  return auth.token ? <Outlet /> : <Navigate to={"/prijava"} />;
+  const { currentUser } = useContext(AuthContext);
+  return currentUser ? <Outlet /> : <Navigate to={"/prijava"} replace />;
 };
 
 export default PrivateRoutes;

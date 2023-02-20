@@ -1,12 +1,11 @@
 import PostComments from "./PostComments";
 import { FiSend } from "react-icons/fi";
 import { useFormik } from "formik";
-import { getFirestore, doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { getAuth } from "firebase/auth";
+import { auth, db } from "../firebase";
 
 const Post = ({ postDetail }) => {
-  const auth = getAuth();
   const [user, loading] = useAuthState(auth);
 
   const formik = useFormik({
@@ -16,7 +15,6 @@ const Post = ({ postDetail }) => {
 
     onSubmit: async values => {
       const userUid = user.uid;
-      const db = getFirestore();
       const userRef = doc(db, "users", userUid);
       const userDocSnap = await getDoc(userRef);
       const docRef = doc(db, "posts", postDetail.docId);
@@ -72,7 +70,7 @@ const Post = ({ postDetail }) => {
           <div className="flex flex-row items-center gap-4 text-sm">
             <img
               className="w-11 h-11 rounded-md"
-              src={postDetail.user.photoUrl}
+              src={postDetail.user.photoURL}
               alt="Slika profila student-mentora"
             />
             <div className="flex flex-col justify-start">

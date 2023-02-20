@@ -1,8 +1,8 @@
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { useNavigate } from "react-router-dom";
-import { app } from "./firebase";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { useNavigate, Link } from "react-router-dom";
+import { auth } from "./firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import Modal from "./Modal";
 import { useState } from "react";
 
@@ -27,20 +27,9 @@ const Login = () => {
     }),
 
     onSubmit: async values => {
-      const authentication = getAuth(app);
       try {
-        const res = await signInWithEmailAndPassword(
-          authentication,
-          values.email,
-          values.password
-        );
-        sessionStorage.setItem("Auth Token", res._tokenResponse.refreshToken);
-        setError("");
-        navigate("/", {
-          state: {
-            email: res._tokenResponse.email,
-          },
-        });
+        await signInWithEmailAndPassword(auth, values.email, values.password);
+        navigate("/");
       } catch (err) {
         setError(err);
       }
@@ -118,21 +107,21 @@ const Login = () => {
             </button>
             <p className="text-center text-gray-500 text-sm mt-5">
               Nemate kreiran račun? Možete ga kreirati{" "}
-              <a
-                href="/registracija"
+              <Link
+                to="/registracija"
                 className="text-teal-500 underline hover:no-underline hover:font-semibold"
               >
                 ovdje
-              </a>
+              </Link>
             </p>
             <p className="text-center text-gray-500 text-sm mt-5">
               Zaboravili ste lozinku? Kliknite{" "}
-              <a
-                href="/promjena-lozinke"
+              <Link
+                to="/promjena-lozinke"
                 className="text-teal-500 underline hover:no-underline hover:font-semibold"
               >
                 ovdje
-              </a>
+              </Link>
             </p>
           </div>
         </div>

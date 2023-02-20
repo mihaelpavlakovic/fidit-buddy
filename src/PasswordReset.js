@@ -1,7 +1,8 @@
+import { Link } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { app } from "./firebase";
-import { getAuth, sendPasswordResetEmail } from "firebase/auth";
+import { auth } from "./firebase";
+import { sendPasswordResetEmail } from "firebase/auth";
 
 const PasswordReset = () => {
   const formik = useFormik({
@@ -17,9 +18,8 @@ const PasswordReset = () => {
     }),
 
     onSubmit: async values => {
-      const authentication = getAuth(app);
       try {
-        await sendPasswordResetEmail(authentication, values.email);
+        await sendPasswordResetEmail(auth, values.email);
         alert("Password reset link sent!");
       } catch (err) {
         console.error(err);
@@ -69,12 +69,12 @@ const PasswordReset = () => {
             </button>
             <p className="text-center text-gray-500 text-sm mt-5">
               Zalutali ste? Za povratak kliknite{" "}
-              <a
-                href="/prijava"
+              <Link
+                to="/prijava"
                 className="text-teal-500 underline hover:no-underline hover:font-semibold"
               >
                 ovdje
-              </a>
+              </Link>
             </p>
           </div>
         </div>

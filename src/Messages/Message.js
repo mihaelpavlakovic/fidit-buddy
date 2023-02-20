@@ -1,12 +1,37 @@
-import React from "react";
+import { useContext, useEffect, useRef } from "react";
+import { AuthContext } from "../context/AuthContext";
+import { ChatContext } from "../context/ChatContext";
 
-const Message = () => {
-  const owner = false;
+const Message = ({ message }) => {
+  const { currentUser } = useContext(AuthContext);
+  const { data } = useContext(ChatContext);
+  // const [owner, setOwner] = useState(false);
+
+  // if (message.senderId === currentUser.uid) {
+  //   setOwner(true);
+  // }
+
+  const ref = useRef();
+
+  useEffect(() => {
+    ref.current?.scrollIntoView({ behavior: "smooth" });
+  }, [message]);
+
   return (
-    <div className={`flex gap-4 ${owner ? "flex-row-reverse" : "flex-row"}`}>
+    <div
+      ref={ref}
+      // className={`flex gap-4 ${owner ? "flex-row-reverse" : "flex-row"}`}
+      className={`flex flex-row gap-4 ${
+        message.senderId === currentUser.uid && "flex-row-reverse"
+      }`}
+    >
       <div className="flex flex-col">
         <img
-          src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8dXNlcnxlbnwwfHwwfHw%3D&w=1000&q=80"
+          src={
+            message.senderId === currentUser.uid
+              ? currentUser.photoURL
+              : data.user.photoURL
+          }
           alt="Slika profila"
           className="w-8 h-8 rounded-full"
         />
@@ -14,26 +39,29 @@ const Message = () => {
       </div>
       <div
         className={`flex flex-col max-w-[70%] ${
-          owner ? "items-end" : "items-start"
+          message.senderId === currentUser.uid ? "items-end" : "items-start"
         }`}
       >
         <p
           className={`${
-            owner
+            message.senderId === currentUser.uid
               ? "bg-teal-500 text-white rounded-tr-none"
               : "bg-white rounded-tl-none"
           } rounded-md p-1.5 mb-2`}
           style={{ maxWidth: "max-content" }}
         >
-          Hello
+          {message.text}
         </p>
-        <img
-          src="https://images.unsplash.com/photo-1585409677983-0f6c41ca9c3b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxleHBsb3JlLWZlZWR8Mnx8fGVufDB8fHx8&w=1000&q=80"
-          alt=""
-          className={`h-[18rem] w-[18rem] rounded-md ${
-            owner ? "rounded-tr-none" : "rounded-tl-none"
-          }`}
-        />
+        {/* {message.img && (
+          <img
+            src={message.img}
+            alt=""
+            className={`h-[18rem] w-[18rem] rounded-md ${
+              owner ? "rounded-tr-none" : "rounded-tl-none"
+            }`}
+          />
+        )} */}
+        {message.img && <img src={message.img} alt="" />}
       </div>
     </div>
   );

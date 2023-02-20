@@ -1,5 +1,5 @@
 import "./App.css";
-import { Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./Login";
 import Registration from "./Registration";
 import Homepage from "./Feed/Homepage";
@@ -11,7 +11,7 @@ import CreatePost from "./CreatePost";
 
 function App() {
   return (
-    <>
+    <BrowserRouter>
       <Routes>
         <Route element={<PrivateRoutes />}>
           <Route path="/" element={<Homepage />} exact />
@@ -23,7 +23,7 @@ function App() {
         <Route path="/registracija" element={<Registration />} />
         <Route path="/promjena-lozinke" element={<PasswordReset />} />
       </Routes>
-    </>
+    </BrowserRouter>
   );
 }
 

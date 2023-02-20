@@ -1,9 +1,9 @@
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { useNavigate } from "react-router-dom";
-import { app } from "./firebase";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-import { getFirestore, doc, setDoc } from "firebase/firestore";
+import { useNavigate, Link } from "react-router-dom";
+import { auth, db } from "./firebase";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
 
 const Registration = () => {
   const navigate = useNavigate();
@@ -13,6 +13,7 @@ const Registration = () => {
       name: "",
       email: "",
       password: "",
+      passwordConfirmation: "",
       jmbag: "",
     },
 
@@ -37,29 +38,30 @@ const Registration = () => {
     }),
 
     onSubmit: async values => {
-      const authentication = getAuth(app);
-      const db = getFirestore(app);
       try {
         const res = await createUserWithEmailAndPassword(
-          authentication,
+          auth,
           values.email,
           values.password
         );
         const user = res.user;
+        await updateProfile(user, {
+          displayName: values.name,
+          photoURL:
+            "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png",
+        });
+
         const docRef = doc(db, "users", user.uid);
         await setDoc(docRef, {
           uid: user.uid,
-          name: values.name,
+          displayName: values.name,
           email: values.email,
           jmbag: values.jmbag,
-          photoUrl: "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"
+          photoURL:
+            "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png",
         });
-        sessionStorage.setItem("Auth Token", res._tokenResponse.refreshToken);
-        navigate("/", {
-          state: {
-            email: res._tokenResponse.email,
-          },
-        });
+        await setDoc(doc(db, "userChats", user.uid), {});
+        navigate("/");
       } catch (err) {
         console.error(err);
         alert(err.message);
@@ -212,12 +214,12 @@ const Registration = () => {
             </button>
             <p className="text-center text-gray-500 text-sm mt-5">
               Imate kreiran račun? Možete se prijaviti{" "}
-              <a
-                href="/prijava"
+              <Link
+                to="/prijava"
                 className="text-teal-500 underline hover:no-underline hover:font-semibold"
               >
                 ovdje
-              </a>
+              </Link>
             </p>
           </div>
         </div>
