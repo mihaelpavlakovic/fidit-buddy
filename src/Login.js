@@ -2,7 +2,11 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useNavigate, Link } from "react-router-dom";
 import { auth } from "./firebase";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import {
+  browserSessionPersistence,
+  signInWithEmailAndPassword,
+  setPersistence,
+} from "firebase/auth";
 import Modal from "./Modal";
 import { useState } from "react";
 
@@ -28,8 +32,10 @@ const Login = () => {
 
     onSubmit: async values => {
       try {
-        await signInWithEmailAndPassword(auth, values.email, values.password);
-        navigate("/");
+        setPersistence(auth, browserSessionPersistence).then(async () => {
+          await signInWithEmailAndPassword(auth, values.email, values.password);
+          navigate("/");
+        });
       } catch (err) {
         setError(err);
       }

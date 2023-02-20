@@ -2,7 +2,12 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useNavigate, Link } from "react-router-dom";
 import { auth, db } from "./firebase";
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  updateProfile,
+  setPersistence,
+  browserSessionPersistence,
+} from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 
 const Registration = () => {
@@ -39,29 +44,31 @@ const Registration = () => {
 
     onSubmit: async values => {
       try {
-        const res = await createUserWithEmailAndPassword(
-          auth,
-          values.email,
-          values.password
-        );
-        const user = res.user;
-        await updateProfile(user, {
-          displayName: values.name,
-          photoURL:
-            "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png",
-        });
+        setPersistence(auth, browserSessionPersistence).then(async () => {
+          const res = await createUserWithEmailAndPassword(
+            auth,
+            values.email,
+            values.password
+          );
+          const user = res.user;
+          await updateProfile(user, {
+            displayName: values.name,
+            photoURL:
+              "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png",
+          });
 
-        const docRef = doc(db, "users", user.uid);
-        await setDoc(docRef, {
-          uid: user.uid,
-          displayName: values.name,
-          email: values.email,
-          jmbag: values.jmbag,
-          photoURL:
-            "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png",
+          const docRef = doc(db, "users", user.uid);
+          await setDoc(docRef, {
+            uid: user.uid,
+            displayName: values.name,
+            email: values.email,
+            jmbag: values.jmbag,
+            photoURL:
+              "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png",
+          });
+          await setDoc(doc(db, "userChats", user.uid), {});
+          navigate("/");
         });
-        await setDoc(doc(db, "userChats", user.uid), {});
-        navigate("/");
       } catch (err) {
         console.error(err);
         alert(err.message);
