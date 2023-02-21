@@ -74,8 +74,11 @@ const Post = ({ postDetail }) => {
               alt="Slika profila student-mentora"
             />
             <div className="flex flex-col justify-start">
-              <h3 className="text-md font-semibold">
+              <h3 className="text-md font-semibold flex items-center mb-1">
                 {postDetail.user.displayName}
+                <span className="text-xs font-normal ml-2 bg-gray-200 px-2 rounded-full">
+                  {postDetail.user.studentMentor && "student-mentor"}
+                </span>
               </h3>
               <p className="text-gray-500">{postDetail.user.email}</p>
             </div>

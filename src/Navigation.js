@@ -6,6 +6,8 @@ import { FiMenu } from "react-icons/fi";
 
 const Navigation = () => {
   const [open, setOpen] = useState(false);
+  let userIsAdmin = localStorage.getItem("isAdmin");
+
   const userNav = (
     <>
       <li>
@@ -47,7 +49,7 @@ const Navigation = () => {
           className={`${open ? "block" : "hidden"} w-full lg:flex lg:w-auto`}
         >
           <ul className="text-base lg:flex lg:justify-between lg:items-center text-center">
-            {localStorage.getItem("isAdmin") !== "undefined" ? (
+            {userIsAdmin === "true" ? (
               <li>
                 <Link
                   to="/admin"
@@ -61,7 +63,11 @@ const Navigation = () => {
             )}
             <li>
               <button
-                onClick={() => signOut(auth)}
+                onClick={() => {
+                  signOut(auth);
+                  localStorage.removeItem("uid");
+                  localStorage.removeItem("isAdmin");
+                }}
                 className="lg:px-5 py-2 block w-full text-teal-500 bg-white rounded-lg hover:font-semibold"
               >
                 Logout

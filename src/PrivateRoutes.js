@@ -12,14 +12,19 @@ const PrivateRoutes = ({ isAdmin }) => {
     onAuthStateChanged(auth, async user => {
       if (user) {
         const snapshot = await getDoc(doc(db, "users", user.uid));
-        localStorage.setItem("isAdmin", snapshot.data().isAdmin);
+        localStorage.setItem("uid", snapshot.data().uid);
+        localStorage.setItem(
+          "isAdmin",
+          snapshot.data().isAdmin ? "true" : "false"
+        );
       }
     });
   }, []);
+  let userIsAdmin = localStorage.getItem("isAdmin");
 
   if (isAdmin) {
     return currentUser ? (
-      isAdmin === localStorage.getItem("isAdmin") ? (
+      isAdmin === userIsAdmin ? (
         <Outlet />
       ) : (
         <Navigate to="/odbijen-pristup" />

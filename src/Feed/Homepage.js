@@ -9,6 +9,7 @@ import { Link } from "react-router-dom";
 const Homepage = () => {
   const [docs, setDocs] = useState([]);
   const { currentUser } = useContext(AuthContext);
+  let userIsAdmin = localStorage.getItem("isAdmin");
 
   useEffect(() => {
     const collRef = collection(db, "posts");
@@ -35,7 +36,7 @@ const Homepage = () => {
           <h1 className="text-3xl mt-5 font-semibold">
             Dobro došli {currentUser.displayName}! 👋
           </h1>
-          {localStorage.getItem("isAdmin") !== "undefined" ? (
+          {userIsAdmin === "true" ? (
             <p className="mt-5">
               Prijavljeni ste kao administrator. Kako bi vidjeli
               administratorsku ploču kliknite{" "}
