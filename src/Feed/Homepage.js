@@ -32,29 +32,21 @@ const Homepage = () => {
           getDoc(doc.data().user)
             .then(res => {
               documentObject.user = res.data();
-              // documents.push({
-              //   // ...doc.data(),
-              //   // docId: doc.id,
-              //   user: res.data(),
-              // });
               documents.push(documentObject);
             })
             .catch(err => console.log(err));
         doc.data().comments &&
           documentObject.comments.forEach((item, index) => {
-            // console.log(item);
             getDoc(item.user).then(usr => {
               documentObject.comments[index].user = usr.data();
               setDocs(documents);
             });
           });
-        // console.log("Document Object:", documentObject);
-        // documents.push(documents);
       });
     });
     return () => unsub();
   }, []);
-  console.log(docs);
+
   return (
     <>
       <Navigation />
