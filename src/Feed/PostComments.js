@@ -8,7 +8,14 @@ const PostComments = ({ comments }) => {
       />
       <div className="w-full pr-2">
         <div className="flex items-center justify-between">
-          <p className="font-semibold text-sm">{comments.user.displayName}</p>
+          <p className="font-semibold text-sm flex flex-col sm:flex-row">
+            {comments.user.displayName}
+            {comments.user.studentMentor && (
+              <span className="text-xs font-normal mt-1 sm:mt-0 sm:ml-2 bg-gray-200 px-2 rounded-full">
+                student-mentor
+              </span>
+            )}
+          </p>
           <p className="text-xs text-gray-500">
             {comments.commentCreatedDate} - {comments.commentCreatedTime}
           </p>

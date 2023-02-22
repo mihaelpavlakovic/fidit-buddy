@@ -3,7 +3,7 @@ import * as Yup from "yup";
 import Navigation from "./Navigation";
 import { db, storage } from "./firebase";
 import { ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";
-import { doc, getDoc, addDoc, collection } from "firebase/firestore";
+import { doc, addDoc, collection } from "firebase/firestore";
 import { useNavigate } from "react-router";
 import { useState, useContext } from "react";
 import { AuthContext } from "./context/AuthContext";
@@ -70,7 +70,7 @@ const CreatePost = () => {
 
     onSubmit: async values => {
       const docRef = doc(db, "users", currentUser.uid);
-      const docSnap = await getDoc(docRef);
+      // const docSnap = await getDoc(docRef);
 
       const createPost = {
         postTitle: values.postTitle,
@@ -80,7 +80,7 @@ const CreatePost = () => {
           hour: "numeric",
           minute: "numeric",
         }),
-        user: { ...docSnap.data() },
+        user: docRef,
         data: { ...imgUrl },
       };
 

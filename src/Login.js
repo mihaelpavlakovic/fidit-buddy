@@ -41,11 +41,11 @@ const Login = () => {
   });
 
   return (
-    <main className="h-screen items-center flex justify-center">
+    <main className="items-center flex justify-center">
       <Modal onClose={handleClose} displayModal={error} />
       <form
         onSubmit={formik.handleSubmit}
-        className="bg-white rounded-lg md:w-1/2 shadow-xl"
+        className="bg-white rounded-lg w-5/6 lg:w-1/2 shadow-xl"
       >
         <div className="text-gray-700  p-20">
           <h1 className="text-3xl pb-2">Prijavi se u svoj račun 👋</h1>

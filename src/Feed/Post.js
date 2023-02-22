@@ -16,7 +16,6 @@ const Post = ({ postDetail }) => {
 
     onSubmit: async values => {
       const userRef = doc(db, "users", currentUser.uid);
-      const userDocSnap = await getDoc(userRef);
       const docRef = doc(db, "posts", postDetail.docId);
       const docSnap = await getDoc(docRef);
       let createComment = {};
@@ -31,7 +30,7 @@ const Post = ({ postDetail }) => {
                 hour: "numeric",
                 minute: "numeric",
               }),
-              user: { ...userDocSnap.data() },
+              user: userRef,
             },
           ],
         };
@@ -47,7 +46,7 @@ const Post = ({ postDetail }) => {
                 hour: "numeric",
                 minute: "numeric",
               }),
-              user: { ...userDocSnap.data() },
+              user: userRef,
             },
           ],
         };

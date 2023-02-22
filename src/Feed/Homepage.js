@@ -1,7 +1,13 @@
 import Navigation from "../Navigation";
 import Post from "./Post";
 import { db } from "../firebase";
-import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
+import {
+  collection,
+  onSnapshot,
+  orderBy,
+  query,
+  getDoc,
+} from "firebase/firestore";
 import { useState, useEffect, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { Link } from "react-router-dom";
@@ -21,13 +27,34 @@ const Homepage = () => {
     const unsub = onSnapshot(q, snap => {
       let documents = [];
       snap.forEach(doc => {
-        documents.push({ ...doc.data(), docId: doc.id });
+        let documentObject = { ...doc.data(), docId: doc.id };
+        doc.data().user &&
+          getDoc(doc.data().user)
+            .then(res => {
+              documentObject.user = res.data();
+              // documents.push({
+              //   // ...doc.data(),
+              //   // docId: doc.id,
+              //   user: res.data(),
+              // });
+              documents.push(documentObject);
+            })
+            .catch(err => console.log(err));
+        doc.data().comments &&
+          documentObject.comments.forEach((item, index) => {
+            // console.log(item);
+            getDoc(item.user).then(usr => {
+              documentObject.comments[index].user = usr.data();
+              setDocs(documents);
+            });
+          });
+        // console.log("Document Object:", documentObject);
+        // documents.push(documents);
       });
-      setDocs(documents);
     });
     return () => unsub();
   }, []);
-
+  console.log(docs);
   return (
     <>
       <Navigation />
