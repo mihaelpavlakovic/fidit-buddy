@@ -28,14 +28,14 @@ const PasswordReset = () => {
     },
   });
   return (
-    <main className="h-screen items-center flex justify-center">
+    <main className="sm:h-screen items-center flex justify-center">
       <form
         onSubmit={formik.handleSubmit}
-        className="bg-white rounded-lg md:w-1/2 shadow-xl"
+        className="rounded-lg shadow-xl m-5 md:w-1/2"
       >
-        <div className="text-gray-700  p-20">
+        <div className="text-gray-700 p-5 sm:p-10 md:p-20">
           <h1 className="text-3xl pb-2">Ponovno postavite vašu lozinku</h1>
-          <div className="mt-6 ">
+          <div className="mt-6">
             {/* Email input field */}
             <div className="pb-4">
               <label

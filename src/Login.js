@@ -3,7 +3,7 @@ import * as Yup from "yup";
 import { useNavigate, Link } from "react-router-dom";
 import { auth } from "./firebase";
 import {
-  browserSessionPersistence,
+  browserLocalPersistence,
   signInWithEmailAndPassword,
   setPersistence,
 } from "firebase/auth";
@@ -31,7 +31,7 @@ const Login = () => {
     }),
 
     onSubmit: async values => {
-      setPersistence(auth, browserSessionPersistence)
+      setPersistence(auth, browserLocalPersistence)
         .then(async () => {
           await signInWithEmailAndPassword(auth, values.email, values.password);
           navigate("/");
@@ -41,19 +41,19 @@ const Login = () => {
   });
 
   return (
-    <main className="items-center flex justify-center">
+    <main className="items-center flex justify-center sm:min-h-screen">
       <Modal onClose={handleClose} displayModal={error} />
       <form
         onSubmit={formik.handleSubmit}
-        className="bg-white rounded-lg w-5/6 lg:w-1/2 shadow-xl"
+        className="rounded-lg shadow-xl m-5 sm:w-5/6 lg:w-1/2"
       >
-        <div className="text-gray-700  p-20">
+        <div className="text-gray-700 p-5 sm:p-10 md:p-20">
           <h1 className="text-3xl pb-2">Prijavi se u svoj račun 👋</h1>
           <p className="text-lg text-gray-500">
             Očekujete nove vijesti na postavljena pitanja student-mentoru?
             Prijavite se i saznajte odgovore na ta pitanja.
           </p>
-          <div className="mt-6 ">
+          <div className="mt-4">
             {/* Email input field */}
             <div className="pb-4">
               <label

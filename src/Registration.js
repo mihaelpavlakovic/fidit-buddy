@@ -77,19 +77,19 @@ const Registration = () => {
   });
 
   return (
-    <main className="items-center flex justify-center">
+    <main className="items-center flex justify-center sm:min-h-screen">
       <form
         onSubmit={formik.handleSubmit}
-        className="bg-white rounded-lg w-5/6 lg:w-1/2 shadow-xl"
+        className="rounded-lg shadow-xl m-5 sm:w-5/6 lg:w-1/2"
       >
-        <div className="text-gray-700  p-20">
+        <div className="text-gray-700 p-5 sm:p-10 md:p-20">
           <h1 className="text-3xl pb-2">Kreiraj svoj račun 👋</h1>
-          <p className="text-lg  text-gray-500">
+          <p className="text-md sm:text-lg text-gray-500">
             Novi ste i imate puno neodgovorenih pitanja u vezi novo upisanog
             fakulteta? Nema problema, pridruži se našoj platformi i postavi sva
             svoja pitanja student-mentorima.
           </p>
-          <div className="mt-6 ">
+          <div className="mt-4">
             {/* Name input field */}
             <div className="pb-4">
               <label
@@ -136,6 +136,30 @@ const Registration = () => {
                 placeholder="Unesi svoju email adresu"
                 onChange={formik.handleChange}
                 value={formik.values.email}
+                onBlur={formik.handleBlur}
+              />
+            </div>
+            {/* JMBAG input field */}
+            <div className="pb-4">
+              <label
+                htmlFor="jmbag"
+                className={`block text-sm pb-2 ${
+                  formik.touched.jmbag && formik.errors.jmbag
+                    ? "text-red-400"
+                    : ""
+                }`}
+              >
+                {formik.touched.jmbag && formik.errors.jmbag
+                  ? formik.errors.jmbag
+                  : "JMBAG"}
+              </label>
+              <input
+                className="border-2 border-gray-500 p-2 rounded-md w-full focus:outline-none focus:border-teal-500 focus:ring-teal-500"
+                type="string"
+                name="jmbag"
+                placeholder="Unesi svoj JMBAG"
+                onChange={formik.handleChange}
+                value={formik.values.jmbag}
                 onBlur={formik.handleBlur}
               />
             </div>
@@ -186,30 +210,6 @@ const Registration = () => {
                 placeholder="Ponovite svoju lozinku"
                 onChange={formik.handleChange}
                 value={formik.values.passwordConfirmation}
-                onBlur={formik.handleBlur}
-              />
-            </div>
-            {/* JMBAG input field */}
-            <div className="pb-4">
-              <label
-                htmlFor="jmbag"
-                className={`block text-sm pb-2 ${
-                  formik.touched.jmbag && formik.errors.jmbag
-                    ? "text-red-400"
-                    : ""
-                }`}
-              >
-                {formik.touched.jmbag && formik.errors.jmbag
-                  ? formik.errors.jmbag
-                  : "JMBAG"}
-              </label>
-              <input
-                className="border-2 border-gray-500 p-2 rounded-md w-full focus:outline-none focus:border-teal-500 focus:ring-teal-500"
-                type="string"
-                name="jmbag"
-                placeholder="Unesi svoj JMBAG"
-                onChange={formik.handleChange}
-                value={formik.values.jmbag}
                 onBlur={formik.handleBlur}
               />
             </div>
