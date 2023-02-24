@@ -11,25 +11,25 @@ const Navigation = () => {
   const userNav = (
     <>
       <li>
-        <Link to="/" className="lg:px-5 py-2 block hover:font-semibold">
+        <Link to="/" className="lg:px-5 py-1 block hover:border-b-4 border-white ease-in-out duration-100">
           Naslovna
         </Link>
       </li>
       <li>
-        <Link to="/poruke" className="lg:px-5 py-2 block hover:font-semibold">
+        <Link to="/poruke" className="lg:px-5 py-1 block hover:border-b-4 border-white ease-in-out duration-100">
           Poruke
         </Link>
       </li>
       <li>
         <Link
           to="/kreiraj-objavu"
-          className="lg:px-5 py-2 block hover:font-semibold"
+          className="lg:px-5 py-1 block hover:border-b-4 border-white ease-in-out duration-100"
         >
           Kreiraj Objavu
         </Link>
       </li>
       <li>
-        <Link to="/profil" className="lg:px-5 py-2 block hover:font-semibold">
+        <Link to="/profil" className="lg:px-5 py-1 block hover:border-b-4 border-white ease-in-out duration-100">
           Profil
         </Link>
       </li>
@@ -68,7 +68,7 @@ const Navigation = () => {
                   localStorage.removeItem("uid");
                   localStorage.removeItem("isAdmin");
                 }}
-                className="lg:px-5 py-2 block w-full text-teal-500 bg-white rounded-lg hover:font-semibold"
+                className="lg:px-5 ml-1 py-2 block w-full text-teal-500 bg-white rounded-lg hover:bg-gray-200"
               >
                 Logout
               </button>

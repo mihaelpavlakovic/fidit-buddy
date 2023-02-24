@@ -50,9 +50,9 @@ const Homepage = () => {
   return (
     <>
       <Navigation />
-      <main className="xl:max-w-7xl xl:mx-auto max-w-full px-[8%]">
+      <main className="xl:max-w-7xl xl:mx-auto max-w-full px-5 sm:px-[8%]">
         <div className="flex flex-col">
-          <h1 className="text-3xl mt-5 font-semibold">
+          <h1 className="text-3xl my-5 font-semibold">
             Dobro došli {currentUser.displayName}! 👋
           </h1>
           {userIsAdmin === "true" ? (
