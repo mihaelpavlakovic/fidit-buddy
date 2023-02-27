@@ -10,26 +10,31 @@ import {
 } from "firebase/firestore";
 import { db } from "./firebase";
 import { FaEdit } from "react-icons/fa";
+import Select from "react-select";
+import makeAnimated from "react-select/animated";
+
+const animatedComponents = makeAnimated();
+
+const options = [
+	{ value: "a", label: "Luka Lukic" },
+	{ value: "b", label: "Ivo Ivic" },
+	{ value: "c", label: "Ana Anic" },
+	{ value: "d", label: "Marko Markic" },
+	{ value: "e", label: "Josip Josic" },
+	{ value: "f", label: "Petar Peric" },
+	{ value: "g", label: "Dora Doric" },
+];
 
 const Admin = () => {
 	const [users, setUsers] = useState([]);
 	let userUid = localStorage.getItem("uid");
 
-	const handleSetRole = async (uid) => {
+	const handleUpdateRole = (uid) => async (e) => {
 		const getUserDoc = doc(db, "users", uid);
 		await updateDoc(getUserDoc, {
-			studentMentor: true,
+			role: e.target.value,
 		})
-			.then(() => alert("Korisniku je uspjesno dodana uloga student-mentora."))
-			.catch((err) => console.log(err));
-	};
-
-	const handleRemoveRole = async (uid) => {
-		const getUserDoc = doc(db, "users", uid);
-		await updateDoc(getUserDoc, {
-			studentMentor: false,
-		})
-			.then(() => alert("Korisniku je uspjesno oduzeta uloga student-mentora."))
+			.then(() => alert("Studentu je uspješno promijenjena uloga."))
 			.catch((err) => console.log(err));
 	};
 
@@ -46,75 +51,71 @@ const Admin = () => {
 		return () => unsub();
 	}, [userUid]);
 
-	const UserList = ({ userData }) => {
-		return (
-			<li>
-				<h2>
-					{userData.displayName}{" "}
-					<span>{userData.studentMentor && "Student-mentor"}</span>
-				</h2>
-				<p>{userData.email}</p>
-				<p>{userData.jmbag}</p>
-				{userData.studentMentor ? (
-					<button
-						onClick={() => handleRemoveRole(userData.uid)}
-						className="bg-red-500 text-md text-white p-3 rounded-lg hover:bg-red-600"
-					>
-						Ukloni student-mentora
-					</button>
-				) : (
-					<button
-						onClick={() => handleSetRole(userData.uid)}
-						className="bg-teal-500 text-md text-white p-3 rounded-lg hover:bg-teal-600"
-					>
-						Postavi za student-mentora
-					</button>
-				)}
-			</li>
-		);
-	};
-
 	const UserRow = ({ userData }) => {
 		return (
-			<tr class="block md:table-row hover:bg-gray-50 py-4 px-5">
-				<td class="block md:table-cell md:px-6 md:py-4">
+			<tr className="block md:table-row hover:bg-gray-50 py-4 px-5">
+				<td className="block md:table-cell md:px-6 md:py-4">
 					<div className="flex items-center justify-between">
-						<div class="flex items-center w-full">
+						<div className="flex items-center w-full">
 							<img
-								class="w-12 h-12 rounded-md"
+								className="w-12 h-12 rounded-md"
 								src={userData.photoURL}
 								alt="Slika profila"
 							/>
-							<div class="pl-3">
-								<div class="flex items-center font-semibold">
+							<div className="pl-3">
+								<div className="flex items-center font-semibold">
 									{userData.displayName}
-									<span class="bg-gray-600 text-gray-100 text-xs ml-4 px-2.5 py-0.5 rounded-full md:hidden">
-										Mentor {/* {userData.role} */}
+									<span
+										className={`text-xs ml-4 px-2.5 py-0.5 rounded-full md:hidden ${
+											userData.role === "Mentor"
+												? "bg-gray-600 text-gray-100"
+												: "bg-gray-100 text-gray-600"
+										}`}
+									>
+										{userData.role}
 									</span>
 								</div>
-								<div class="text-gray-500">{userData.email}</div>
+								<div className="text-gray-500">{userData.email}</div>
 							</div>
 						</div>
 						<FaEdit className="text-2xl mr-2 md:hidden" />
 					</div>
 				</td>
-				<td class="block md:hidden lg:table-cell md:px-6 md:py-4 hidden">
+				<td className="block md:hidden lg:table-cell md:px-6 md:py-4 hidden">
 					{userData.jmbag}
 				</td>
-				<td class="md:table-cell md:px-6 md:py-4 hidden">
-					<select id="role" className="hover:cursor-pointer">
-						<option selected>Odaberi ulogu</option>
-						<option value="mentor">Mentor</option>
-						<option value="brocuš">Brocuš</option>
+				<td className="md:table-cell md:px-6 md:py-4 hidden">
+					<select
+						className={`hover:cursor-pointer rounded-full px-2 py-1 ${
+							userData.role === "Mentor"
+								? "bg-gray-600 text-gray-100"
+								: "bg-gray-100 text-gray-900"
+						}`}
+						defaultValue={userData.role}
+						onChange={handleUpdateRole(userData.uid)}
+					>
+						<option value="Mentor">Mentor</option>
+						<option value="Brucoš">Brucoš</option>
 					</select>
 				</td>
-				<td class="block md:table-cell md:px-6 md:py-4 hidden">
-					<span class="inline-block w-1/3 md:hidden">
-						Dodijeljeni mentor/brocuši
-					</span>
-					Bruno Šavor, Ivan Vinski
+				<td className="block md:table-cell md:px-6 md:py-4 hidden">
+					<Select
+						closeMenuOnSelect={userData.role === "Mentor" ? false : true}
+						components={animatedComponents}
+						defaultValue={[options[4]]}
+						isMulti={userData.role === "Mentor" ? true : false}
+						options={options}
+						theme={(theme) => ({
+							...theme,
+							colors: {
+								...theme.colors,
+								primary: "#14b8a6",
+								primary25: "#ccfbf1",
+							},
+						})}
+					/>
 				</td>
-				<td class="md:table-cell md:px-6 md:py-4 hidden">
+				<td className="md:table-cell md:px-6 md:py-4 hidden">
 					<FaEdit className="text-2xl" />
 				</td>
 			</tr>
@@ -125,54 +126,47 @@ const Admin = () => {
 		<div>
 			<Navigation />
 
-			<div className="flex justify-center my-5">
-				<div className="w-full sm:w-4/5 md:w-11/12 xl:w-4/5 2xl:w-2/3">
+			<div className="flex justify-center my-5 md:mx-5">
+				<div className="w-full sm:w-4/5 md:w-auto">
 					<h2 className="text-3xl font-semibold mx-5">
 						Pregled svih korisnika
 					</h2>
 
-					<div class="overflow-hidden rounded-lg md:border border-gray-200 md:shadow-md md:mt-5">
-						<table class="min-w-full border-collapse block md:table text-left">
-							<thead class="block md:table-header-group bg-gray-50">
-								<tr class="block md:table-row absolute -top-full md:top-auto -left-full md:left-auto md:relative">
-									<th class="block md:table-cell md:px-6 md:py-4 font-medium text-gray-900">
-										Student
-									</th>
-									<th class="block md:hidden lg:table-cell md:px-6 md:py-4 font-medium text-gray-900">
-										JMBAG
-									</th>
-									<th class="block md:table-cell md:px-6 md:py-4 font-medium text-gray-900">
-										Uloga
-									</th>
-									<th class="block md:table-cell md:px-6 md:py-4 font-medium text-gray-900">
-										Dodijeljeni mentor/brocuši
-									</th>
-									<th class="block md:table-cell md:px-6 md:py-4 font-medium text-gray-900">
-										Akcije
-									</th>
-								</tr>
-							</thead>
-							<tbody class="block md:table-row-group divide-y divide-gray-200 md:border-t border-gray-100">
-								{users.map((item, index) => {
-									return <UserRow key={index} userData={item} />;
-								})}
-							</tbody>
-						</table>
-					</div>
-				</div>
-			</div>
-
-			<div className="w-5/6 mx-auto">
-				<h1 className="text-3xl mt-5">Svi korisnici unutar aplikacije:</h1>
-				<ul>
-					{users.lenght === 0 ? (
-						<p className="mt-5">Trenutačno nema kreiranih korisnika.</p>
+					{users.length === 0 ? (
+						<div className="p-4 m-5 text-yellow-900 text-center font-medium rounded-lg bg-yellow-100 shadow-md">
+							Trenutno nema registriranih korisnika!
+						</div>
 					) : (
-						users.map((item, index) => {
-							return <UserList key={index} userData={item} />;
-						})
+						<div className="rounded-lg md:border border-gray-200 md:shadow-md md:mt-5">
+							<table className="min-w-full border-collapse block md:table text-left">
+								<thead className="block md:table-header-group bg-gray-50">
+									<tr className="block md:table-row absolute -top-full md:top-auto -left-full md:left-auto md:relative">
+										<th className="block md:table-cell md:px-6 md:py-4 font-medium text-gray-900">
+											Student
+										</th>
+										<th className="block md:hidden lg:table-cell md:px-6 md:py-4 font-medium text-gray-900">
+											JMBAG
+										</th>
+										<th className="block md:table-cell md:px-6 md:py-4 font-medium text-gray-900">
+											Uloga
+										</th>
+										<th className="block md:table-cell md:px-6 md:py-4 font-medium text-gray-900">
+											Dodijeljeni mentor/brucoši
+										</th>
+										<th className="block md:table-cell md:px-6 md:py-4 font-medium text-gray-900">
+											Akcije
+										</th>
+									</tr>
+								</thead>
+								<tbody className="block md:table-row-group divide-y divide-gray-200 md:border-t border-gray-100">
+									{users.map((item, index) => {
+										return <UserRow key={index} userData={item} />;
+									})}
+								</tbody>
+							</table>
+						</div>
 					)}
-				</ul>
+				</div>
 			</div>
 		</div>
 	);
