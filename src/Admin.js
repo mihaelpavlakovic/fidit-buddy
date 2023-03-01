@@ -9,24 +9,17 @@ import {
 	where,
 } from "firebase/firestore";
 import { db } from "./firebase";
-import { FaEdit } from "react-icons/fa";
+import { FaEdit, FaSave } from "react-icons/fa";
 import Select from "react-select";
 import makeAnimated from "react-select/animated";
 
 const animatedComponents = makeAnimated();
 
-const options = [
-	{ value: "a", label: "Luka Lukic" },
-	{ value: "b", label: "Ivo Ivic" },
-	{ value: "c", label: "Ana Anic" },
-	{ value: "d", label: "Marko Markic" },
-	{ value: "e", label: "Josip Josic" },
-	{ value: "f", label: "Petar Peric" },
-	{ value: "g", label: "Dora Doric" },
-];
-
 const Admin = () => {
 	const [users, setUsers] = useState([]);
+	const [mentors, setMentors] = useState([]);
+	const [freshmen, setFreshmen] = useState([]);
+
 	let userUid = localStorage.getItem("uid");
 
 	const handleUpdateRole = (uid) => async (e) => {
@@ -38,15 +31,41 @@ const Admin = () => {
 			.catch((err) => console.log(err));
 	};
 
+	const updateMentor = (uid) => async (option) => {
+		const getUserDoc = doc(db, "users", uid);
+		await updateDoc(getUserDoc, {
+			assignedMentor: option,
+		})
+			.then(() =>
+				alert("Studentu je uspješno promijenjen dodijeljeni mentor/brucoši.")
+			)
+			.catch((err) => console.log(err));
+	};
+
 	useEffect(() => {
 		const userCollRef = collection(db, "users");
 		const q = query(userCollRef, where("uid", "!=", userUid));
 		const unsub = onSnapshot(q, (snap) => {
 			let documents = [];
+			let mentorDocs = [];
+			let freshmanDocs = [];
 			snap.forEach((doc) => {
 				documents.push({ ...doc.data() });
+				if (doc.data().role === "Mentor") {
+					mentorDocs.push({
+						value: doc.data().uid,
+						label: doc.data().displayName,
+					});
+				} else {
+					freshmanDocs.push({
+						value: doc.data().uid,
+						label: doc.data().displayName,
+					});
+				}
 			});
 			setUsers(documents);
+			setMentors(mentorDocs);
+			setFreshmen(freshmanDocs);
 		});
 		return () => unsub();
 	}, [userUid]);
@@ -100,11 +119,13 @@ const Admin = () => {
 				</td>
 				<td className="block md:table-cell md:px-6 md:py-4 hidden">
 					<Select
+						onChange={updateMentor(userData.uid)}
 						closeMenuOnSelect={userData.role === "Mentor" ? false : true}
 						components={animatedComponents}
-						defaultValue={[options[4]]}
+						defaultValue={userData.assignedMentor}
+						isClearable
 						isMulti={userData.role === "Mentor" ? true : false}
-						options={options}
+						options={userData.role === "Mentor" ? freshmen : mentors}
 						theme={(theme) => ({
 							...theme,
 							colors: {
@@ -113,10 +134,22 @@ const Admin = () => {
 								primary25: "#ccfbf1",
 							},
 						})}
+						styles={{
+							multiValue: (base) => ({
+								...base,
+								backgroundColor: "#f3f4f6",
+							}),
+						}}
 					/>
 				</td>
-				<td className="md:table-cell md:px-6 md:py-4 hidden">
-					<FaEdit className="text-2xl" />
+				<td className="md:table-cell md:px-6 md:py-4 hidden text-center">
+					<button
+						type="button"
+						onClick={updateMentor}
+						className="rounded-md text-gray-600 transform active:scale-75 align-middle transition-transform"
+					>
+						<FaSave size="1.5rem" />
+					</button>
 				</td>
 			</tr>
 		);
