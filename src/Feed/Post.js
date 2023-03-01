@@ -1,5 +1,6 @@
 import PostComments from "./PostComments";
 import { FiSend } from "react-icons/fi";
+import { AiFillFilePdf } from "react-icons/ai";
 import { useFormik } from "formik";
 import { doc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from "../firebase";
@@ -114,16 +115,33 @@ const Post = ({ postDetail, postId, onDeleteHadnler }) => {
           <h2 className="text-2xl font-semibold">{postDetail.postTitle}</h2>
         </div>
         <p className="text-gray-500">{postDetail.postText}</p>
-        {postDetail.data &&
-          Object.entries(postDetail.data).map((item, index) => {
-            if (item[1].includes(".pdf"))
-              return (
-                <a key={index} href={item[1]} target="_blank" rel="noreferrer">
-                  Preuzmi dokument
-                </a>
-              );
-            return <img key={index} src={item[1]} alt={`Slika ${index}`} />;
-          })}
+        <div className="flex flex-wrap gap-2">
+          {postDetail.data.size !== 0 &&
+            Object.entries(postDetail.data).map((item, index) => {
+              if (item[1].documentURL.includes(".pdf")) {
+                return (
+                  <a
+                    key={index}
+                    href={item[1].documentURL}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="bg-gray-200 flex items-center grow p-3 hover:bg-gray-300 "
+                  >
+                    <AiFillFilePdf className="mr-2" />
+                    {item[1].documentName}
+                  </a>
+                );
+              } else {
+                return (
+                  <img
+                    key={index}
+                    src={item[1].documentURL}
+                    alt={`Slika ${index}`}
+                  />
+                );
+              }
+            })}
+        </div>
         <div>
           {!postDetail.comments
             ? "Nema komentara"
