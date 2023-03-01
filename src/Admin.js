@@ -24,8 +24,9 @@ const Admin = () => {
 
 	const handleUpdateRole = (uid) => async (e) => {
 		const getUserDoc = doc(db, "users", uid);
+
 		await updateDoc(getUserDoc, {
-			role: e.target.value,
+			isMentor: e.target.value === "true",
 		})
 			.then(() => alert("Studentu je uspješno promijenjena uloga."))
 			.catch((err) => console.log(err));
@@ -51,7 +52,7 @@ const Admin = () => {
 			let freshmanDocs = [];
 			snap.forEach((doc) => {
 				documents.push({ ...doc.data() });
-				if (doc.data().role === "Mentor") {
+				if (doc.data().isMentor) {
 					mentorDocs.push({
 						value: doc.data().uid,
 						label: doc.data().displayName,
@@ -86,12 +87,12 @@ const Admin = () => {
 									{userData.displayName}
 									<span
 										className={`text-xs ml-4 px-2.5 py-0.5 rounded-full md:hidden ${
-											userData.role === "Mentor"
+											userData.isMentor
 												? "bg-gray-600 text-gray-100"
 												: "bg-gray-100 text-gray-600"
 										}`}
 									>
-										{userData.role}
+										{userData.isMentor ? "Mentor" : "Brucoš"}
 									</span>
 								</div>
 								<div className="text-gray-500">{userData.email}</div>
@@ -106,26 +107,26 @@ const Admin = () => {
 				<td className="md:table-cell md:px-6 md:py-4 hidden">
 					<select
 						className={`hover:cursor-pointer rounded-full px-2 py-1 ${
-							userData.role === "Mentor"
+							userData.isMentor
 								? "bg-gray-600 text-gray-100"
 								: "bg-gray-100 text-gray-900"
 						}`}
-						defaultValue={userData.role}
+						defaultValue={userData.isMentor}
 						onChange={handleUpdateRole(userData.uid)}
 					>
-						<option value="Mentor">Mentor</option>
-						<option value="Brucoš">Brucoš</option>
+						<option value={true}>Mentor</option>
+						<option value={false}>Brucoš</option>
 					</select>
 				</td>
 				<td className="block md:table-cell md:px-6 md:py-4 hidden">
 					<Select
 						onChange={updateMentor(userData.uid)}
-						closeMenuOnSelect={userData.role === "Mentor" ? false : true}
+						closeMenuOnSelect={!userData.isMentor}
 						components={animatedComponents}
 						defaultValue={userData.assignedMentor}
 						isClearable
-						isMulti={userData.role === "Mentor" ? true : false}
-						options={userData.role === "Mentor" ? freshmen : mentors}
+						isMulti={userData.isMentor}
+						options={userData.isMentor ? freshmen : mentors}
 						theme={(theme) => ({
 							...theme,
 							colors: {
