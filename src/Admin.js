@@ -9,13 +9,11 @@ import {
 	where,
 	arrayUnion,
 	arrayRemove,
+	deleteField,
 } from "firebase/firestore";
 import { db } from "./firebase";
 import { FaEdit } from "react-icons/fa";
 import Select from "react-select";
-import makeAnimated from "react-select/animated";
-
-const animatedComponents = makeAnimated();
 
 const Admin = () => {
 	const [users, setUsers] = useState([]);
@@ -29,6 +27,7 @@ const Admin = () => {
 
 		await updateDoc(getUserDoc, {
 			isMentor: e.target.value === "true",
+			assignedMentorFreshmen: deleteField(),
 		})
 			.then(() => alert("Studentu je uspješno promijenjena uloga."))
 			.catch((err) => console.log(err));
@@ -36,49 +35,64 @@ const Admin = () => {
 
 	// OVO SE MALO ZAKOMPLICIRALO ali RADI
 	const updateMentorFreshmen =
-		(uid, name, assignedMentorFreshmen) => async (option) => {
-			const getFreshmanDoc = doc(db, "users", uid);
-			let secondUid = null;
+		(userUid, userName, assignedUser) => async (option) => {
+			let assignedUserUid = null;
+			let assignedUsers = null;
 
-			if (!assignedMentorFreshmen) secondUid = option.value;
-			if (assignedMentorFreshmen) secondUid = assignedMentorFreshmen.value;
+			// kada dodajemo/uklanjamo brucoše kod mentora
 			if (Array.isArray(option)) {
-				let user = option
-					.filter((x) => !assignedMentorFreshmen.includes(x))
-					.concat(assignedMentorFreshmen.filter((x) => !option.includes(x)));
-				secondUid = user[0].value;
+				if (!Array.isArray(assignedUser)) assignedUser = [];
+				assignedUsers = option
+					.filter((x) => !assignedUser.includes(x))
+					.concat(assignedUser.filter((x) => !option.includes(x)));
+				assignedUserUid = assignedUsers[0].value;
+			} else {
+				// kada dodajemo/uklanjamo mentora kod brucoša
+				if (!assignedUser) assignedUserUid = option.value;
+				if (assignedUser) assignedUserUid = assignedUser.value;
 			}
 
-			const getMentorDoc = doc(db, "users", secondUid);
+			const userDoc = doc(db, "users", userUid);
+			const assignedUserDoc = doc(db, "users", assignedUserUid);
 
-			await updateDoc(getFreshmanDoc, {
-				assignedMentorFreshmen: option,
-			})
-				.then(
-					async () =>
-						await updateDoc(
-							getMentorDoc,
-							Array.isArray(option)
-								? {
-										assignedMentorFreshmen:
-											option.length > assignedMentorFreshmen.length
-												? { value: uid, label: name }
-												: null,
-								  }
-								: {
-										assignedMentorFreshmen: option
-											? arrayUnion({ value: uid, label: name })
-											: arrayRemove({ value: uid, label: name }),
-								  }
-						)
-							.then(() => {
-								alert(
-									"Studentu je uspješno promijenjen dodijeljeni mentor/brucoši."
-								);
-							})
-							.catch((err) => console.log(err))
-				)
+			await updateDoc(userDoc, { assignedMentorFreshmen: option })
+				.then(() => {})
 				.catch((err) => console.log(err));
+
+			if (assignedUsers != null && assignedUsers.length > 1) {
+				try {
+					assignedUsers.forEach(async (user) => {
+						const assignedUserDoc = doc(db, "users", user.value);
+						await updateDoc(assignedUserDoc, { assignedMentorFreshmen: null });
+					});
+				} catch (err) {
+					console.log(err);
+				} finally {
+					alert("Studentu je uspješno promijenjen dodijeljeni mentor/brucoši.");
+				}
+			} else {
+				await updateDoc(
+					assignedUserDoc,
+					Array.isArray(option)
+						? {
+								assignedMentorFreshmen:
+									option.length > assignedUser.length
+										? { value: userUid, label: userName }
+										: null,
+						  }
+						: {
+								assignedMentorFreshmen: option
+									? arrayUnion({ value: userUid, label: userName })
+									: arrayRemove({ value: userUid, label: userName }),
+						  }
+				)
+					.then(() => {
+						alert(
+							"Studentu je uspješno promijenjen dodijeljeni mentor/brucoši."
+						);
+					})
+					.catch((err) => console.log(err));
+			}
 		};
 
 	useEffect(() => {
@@ -164,7 +178,6 @@ const Admin = () => {
 							userData.assignedMentorFreshmen
 						)}
 						closeMenuOnSelect={!userData.isMentor}
-						components={animatedComponents}
 						defaultValue={userData.assignedMentorFreshmen}
 						isClearable
 						isMulti={userData.isMentor}
