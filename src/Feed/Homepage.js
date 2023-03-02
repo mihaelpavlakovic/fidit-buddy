@@ -118,7 +118,7 @@ const Homepage = () => {
                   key={item.docId}
                   postId={item.docId}
                   postDetail={item}
-                  onDeleteHadnler={onDelete}
+                  onDeleteHandler={onDelete}
                 />
               );
             })
