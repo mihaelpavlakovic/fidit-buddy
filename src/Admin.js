@@ -7,9 +7,11 @@ import {
 	onSnapshot,
 	query,
 	where,
+	arrayUnion,
+	arrayRemove,
 } from "firebase/firestore";
 import { db } from "./firebase";
-import { FaEdit, FaSave } from "react-icons/fa";
+import { FaEdit } from "react-icons/fa";
 import Select from "react-select";
 import makeAnimated from "react-select/animated";
 
@@ -32,16 +34,52 @@ const Admin = () => {
 			.catch((err) => console.log(err));
 	};
 
-	const updateMentor = (uid) => async (option) => {
-		const getUserDoc = doc(db, "users", uid);
-		await updateDoc(getUserDoc, {
-			assignedMentor: option,
-		})
-			.then(() =>
-				alert("Studentu je uspješno promijenjen dodijeljeni mentor/brucoši.")
-			)
-			.catch((err) => console.log(err));
-	};
+	// OVO SE MALO ZAKOMPLICIRALO ali RADI
+	const updateMentorFreshmen =
+		(uid, name, assignedMentorFreshmen) => async (option) => {
+			const getFreshmanDoc = doc(db, "users", uid);
+			let secondUid = null;
+
+			if (!assignedMentorFreshmen) secondUid = option.value;
+			if (assignedMentorFreshmen) secondUid = assignedMentorFreshmen.value;
+			if (Array.isArray(option)) {
+				let user = option
+					.filter((x) => !assignedMentorFreshmen.includes(x))
+					.concat(assignedMentorFreshmen.filter((x) => !option.includes(x)));
+				secondUid = user[0].value;
+			}
+
+			const getMentorDoc = doc(db, "users", secondUid);
+
+			await updateDoc(getFreshmanDoc, {
+				assignedMentorFreshmen: option,
+			})
+				.then(
+					async () =>
+						await updateDoc(
+							getMentorDoc,
+							Array.isArray(option)
+								? {
+										assignedMentorFreshmen:
+											option.length > assignedMentorFreshmen.length
+												? { value: uid, label: name }
+												: null,
+								  }
+								: {
+										assignedMentorFreshmen: option
+											? arrayUnion({ value: uid, label: name })
+											: arrayRemove({ value: uid, label: name }),
+								  }
+						)
+							.then(() => {
+								alert(
+									"Studentu je uspješno promijenjen dodijeljeni mentor/brucoši."
+								);
+							})
+							.catch((err) => console.log(err))
+				)
+				.catch((err) => console.log(err));
+		};
 
 	useEffect(() => {
 		const userCollRef = collection(db, "users");
@@ -120,10 +158,14 @@ const Admin = () => {
 				</td>
 				<td className="block md:table-cell md:px-6 md:py-4 hidden">
 					<Select
-						onChange={updateMentor(userData.uid)}
+						onChange={updateMentorFreshmen(
+							userData.uid,
+							userData.displayName,
+							userData.assignedMentorFreshmen
+						)}
 						closeMenuOnSelect={!userData.isMentor}
 						components={animatedComponents}
-						defaultValue={userData.assignedMentor}
+						defaultValue={userData.assignedMentorFreshmen}
 						isClearable
 						isMulti={userData.isMentor}
 						options={userData.isMentor ? freshmen : mentors}
@@ -142,15 +184,6 @@ const Admin = () => {
 							}),
 						}}
 					/>
-				</td>
-				<td className="md:table-cell md:px-6 md:py-4 hidden text-center">
-					<button
-						type="button"
-						onClick={updateMentor}
-						className="rounded-md text-gray-600 transform active:scale-75 align-middle transition-transform"
-					>
-						<FaSave size="1.5rem" />
-					</button>
 				</td>
 			</tr>
 		);
@@ -186,9 +219,6 @@ const Admin = () => {
 										</th>
 										<th className="block md:table-cell md:px-6 md:py-4 font-medium text-gray-900">
 											Dodijeljeni mentor/brucoši
-										</th>
-										<th className="block md:table-cell md:px-6 md:py-4 font-medium text-gray-900">
-											Akcije
 										</th>
 									</tr>
 								</thead>
