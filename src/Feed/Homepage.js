@@ -46,8 +46,10 @@ const Homepage = () => {
   }, [userId]);
 
   useEffect(() => {
-    userData();
-  }, [userData]);
+    if (userId !== null) {
+      userData();
+    }
+  }, [userData, userId]);
 
   useEffect(() => {
     const postsRef = collection(db, "posts");

@@ -22,8 +22,10 @@ const Navigation = () => {
   }, [userId]);
 
   useEffect(() => {
-    userData();
-  }, [userData]);
+    if (userId !== null) {
+      userData();
+    }
+  }, [userData, userId]);
 
   const userNav = (
     <>
