@@ -16,13 +16,15 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route element={<PrivateRoutes />}>
-          <Route element={<PrivateRoutes isAdmin="true" />}>
+          <Route element={<PrivateRoutes isAdminRoute="true" />}>
             <Route path="/admin" element={<Admin />} />
+          </Route>
+          <Route element={<PrivateRoutes isMentorRoute="true" />}>
+            <Route path="/kreiraj-objavu" element={<CreatePost />} />
           </Route>
           <Route path="/" element={<Homepage />} exact />
           <Route path="/poruke" element={<MessagesPage />} />
           <Route path="/profil" element={<Profile />} />
-          <Route path="/kreiraj-objavu" element={<CreatePost />} />
         </Route>
         <Route path="/prijava" element={<Login />} />
         <Route path="/registracija" element={<Registration />} />

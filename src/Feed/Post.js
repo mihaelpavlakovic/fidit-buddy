@@ -122,7 +122,7 @@ const Post = ({ postDetail, postId, onDeleteHandler }) => {
           <h2 className="text-2xl font-semibold">{postDetail.postTitle}</h2>
         </div>
         <p className="text-gray-500">{postDetail.postText}</p>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 overflow-hidden">
           {postDetail.data.size !== 0 &&
             Object.entries(postDetail.data).map((item, index) => {
               if (item[1].documentURL.includes(".pdf")) {

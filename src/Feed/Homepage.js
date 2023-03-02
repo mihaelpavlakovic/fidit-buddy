@@ -11,13 +11,14 @@ import {
   arrayRemove,
   updateDoc,
 } from "firebase/firestore";
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useCallback } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { Link } from "react-router-dom";
 
 const Homepage = () => {
   const { currentUser } = useContext(AuthContext);
-  let userIsAdmin = localStorage.getItem("isAdmin");
+  let userId = localStorage.getItem("uid");
+  const [user, setUser] = useState(null);
   const [docs, setDocs] = useState([]);
 
   const onDelete = async (comIndex, docId) => {
@@ -34,6 +35,19 @@ const Homepage = () => {
         console.log(error);
       });
   };
+
+  const userData = useCallback(async () => {
+    const docRef = doc(db, "users", userId);
+    const docSnap = await getDoc(docRef);
+
+    const data = docSnap.exists() ? setUser(docSnap.data()) : null;
+
+    if (data === null || data === undefined) return null;
+  }, [userId]);
+
+  useEffect(() => {
+    userData();
+  }, [userData]);
 
   useEffect(() => {
     const postsRef = collection(db, "posts");
@@ -91,7 +105,7 @@ const Homepage = () => {
           <h1 className="text-3xl my-5 font-semibold">
             Dobro došli {currentUser.displayName}! 👋
           </h1>
-          {userIsAdmin === "true" ? (
+          {user?.isAdmin ? (
             <p className="mt-5">
               Prijavljeni ste kao administrator. Kako bi vidjeli
               administratorsku ploču kliknite{" "}
