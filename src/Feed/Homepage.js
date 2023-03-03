@@ -125,14 +125,27 @@ const Homepage = () => {
             </p>
           ) : (
             docs.map(item => {
-              return (
-                <Post
-                  key={item.docId}
-                  postId={item.docId}
-                  postDetail={item}
-                  onDeleteHandler={onDelete}
-                />
-              );
+              if (item.user.uid === user?.assignedMentorFreshmen?.value) {
+                return (
+                  <Post
+                    key={item.docId}
+                    postId={item.docId}
+                    postDetail={item}
+                    onDeleteHandler={onDelete}
+                  />
+                );
+              }
+              if (user?.isMentor && user?.uid === item.user.uid) {
+                return (
+                  <Post
+                    key={item.docId}
+                    postId={item.docId}
+                    postDetail={item}
+                    onDeleteHandler={onDelete}
+                  />
+                );
+              }
+              return null;
             })
           )}
         </div>
