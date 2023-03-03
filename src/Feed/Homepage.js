@@ -53,11 +53,7 @@ const Homepage = () => {
 
   useEffect(() => {
     const postsRef = collection(db, "posts");
-    const q = query(
-      postsRef,
-      orderBy("createdDate", "asc"),
-      orderBy("createdTime", "desc")
-    );
+    const q = query(postsRef, orderBy("createdAt", "desc"));
 
     const unsubscribe = onSnapshot(q, snapshot => {
       const updatedPosts = [];

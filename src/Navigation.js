@@ -9,7 +9,6 @@ import { doc, getDoc } from "firebase/firestore";
 const Navigation = () => {
   const [open, setOpen] = useState(false);
   const [user, setUser] = useState(null);
-  // let userIsAdmin = localStorage.getItem("isAdmin");
   let userId = localStorage.getItem("uid");
 
   const userData = useCallback(async () => {

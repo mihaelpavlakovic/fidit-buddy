@@ -2,7 +2,13 @@ import PostComments from "./PostComments";
 import { FiSend } from "react-icons/fi";
 import { AiFillFilePdf } from "react-icons/ai";
 import { useFormik } from "formik";
-import { doc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  updateDoc,
+  deleteDoc,
+  Timestamp,
+} from "firebase/firestore";
 import { ref, deleteObject } from "firebase/storage";
 import { db, storage } from "../firebase";
 import { AuthContext } from "../context/AuthContext";
@@ -26,11 +32,7 @@ const Post = ({ postDetail, postId, onDeleteHandler }) => {
           comments: [
             {
               comment: values.comment,
-              commentCreatedDate: new Date().toLocaleDateString("hr-HR"),
-              commentCreatedTime: new Date().toLocaleString("hr-HR", {
-                hour: "numeric",
-                minute: "numeric",
-              }),
+              createdAt: Timestamp.fromDate(new Date()).toDate(),
               user: userRef,
             },
           ],
@@ -42,11 +44,7 @@ const Post = ({ postDetail, postId, onDeleteHandler }) => {
             ...docSnap.data().comments,
             {
               comment: values.comment,
-              commentCreatedDate: new Date().toLocaleDateString("hr-HR"),
-              commentCreatedTime: new Date().toLocaleString("hr-HR", {
-                hour: "numeric",
-                minute: "numeric",
-              }),
+              createdAt: Timestamp.fromDate(new Date()).toDate(),
               user: userRef,
             },
           ],
@@ -102,7 +100,15 @@ const Post = ({ postDetail, postId, onDeleteHandler }) => {
               </h3>
               <div className="text-xs text-gray-500">
                 <div>
-                  {postDetail.createdDate} - {postDetail.createdTime}
+                  {postDetail.createdAt
+                    ?.toDate()
+                    .toLocaleDateString("hr-HR")
+                    .replace(/\s+/g, "")}{" "}
+                  -{" "}
+                  {postDetail.createdAt?.toDate().toLocaleTimeString("hr-HR", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
                 </div>
                 <div className="text-right">
                   {currentUser.uid === postDetail.user.uid && (

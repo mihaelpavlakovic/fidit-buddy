@@ -3,7 +3,7 @@ import * as Yup from "yup";
 import Navigation from "./Navigation";
 import { db, storage } from "./firebase";
 import { ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";
-import { doc, addDoc, collection } from "firebase/firestore";
+import { doc, addDoc, collection, Timestamp } from "firebase/firestore";
 import { useNavigate } from "react-router";
 import { useState, useContext } from "react";
 import { AuthContext } from "./context/AuthContext";
@@ -70,16 +70,11 @@ const CreatePost = () => {
 
     onSubmit: async values => {
       const docRef = doc(db, "users", currentUser.uid);
-      // const docSnap = await getDoc(docRef);
 
       const createPost = {
         postTitle: values.postTitle,
         postText: values.postText,
-        createdDate: new Date().toLocaleDateString("hr-HR"),
-        createdTime: new Date().toLocaleString("hr-HR", {
-          hour: "numeric",
-          minute: "numeric",
-        }),
+        createdAt: Timestamp.fromDate(new Date()).toDate(),
         user: docRef,
         data: { ...imgUrl },
       };
@@ -105,7 +100,6 @@ const CreatePost = () => {
           <div className="text-gray-700 p-5 sm:p-20">
             <h1 className="text-3xl">Kreiraj objavu:</h1>
             <div className="mt-4">
-              {/* Post Title input field */}
               <div className="pb-4">
                 <label
                   htmlFor="postTitle"
@@ -129,7 +123,7 @@ const CreatePost = () => {
                   onBlur={formik.handleBlur}
                 />
               </div>
-              {/* Post Text input field */}
+
               <div className="pb-4">
                 <label
                   htmlFor="postText"
@@ -155,7 +149,7 @@ const CreatePost = () => {
                   onBlur={formik.handleBlur}
                 ></textarea>
               </div>
-              {/* File input field */}
+
               <div className="pb-4">
                 <label htmlFor="fileInput" className={"block text-sm pb-2"}>
                   Datoteke
