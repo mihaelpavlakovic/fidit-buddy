@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Navigation from "./Navigation";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { db } from "./firebase";
@@ -6,7 +6,9 @@ import AdminUsersTable, {
 	AvatarCell,
 	SelectColumnFilter,
 	RoleCell,
+	MentorFreshmenCell,
 } from "./AdminUsersTable";
+import { FaChevronRight, FaChevronDown } from "react-icons/fa";
 
 function Admin() {
 	const [users, setUsers] = useState([]);
@@ -31,6 +33,25 @@ function Admin() {
 	const columns = useMemo(
 		() => [
 			{
+				Header: () => null,
+				id: "expander",
+				Cell: ({ row }) => (
+					// Use Cell to render an expander for each row.
+					// We can use the getToggleRowExpandedProps prop-getter
+					// to build the expander.
+					<span
+						className="flex justify-center"
+						{...row.getToggleRowExpandedProps()}
+					>
+						{row.isExpanded ? (
+							<FaChevronDown size={25} />
+						) : (
+							<FaChevronRight size={25} />
+						)}
+					</span>
+				),
+			},
+			{
 				Header: "Student",
 				accessor: "displayName",
 				Cell: AvatarCell,
@@ -51,9 +72,21 @@ function Admin() {
 			},
 			{
 				Header: "Dodijeljeni mentor/brucoši",
-				accessor: "assignedMentorFreshmen.label",
+				accessor: "assignedMentorFreshmen.value",
+				labelAccessor: "assignedMentorFreshmen.label",
+				Cell: MentorFreshmenCell,
 			},
 		],
+		[]
+	);
+
+	// Create a function that will render our row sub components
+	const renderRowSubComponent = useCallback(
+		({ row }) => (
+			<div>
+				<div>JMBAG: {row.values.jmbag}</div>
+			</div>
+		),
 		[]
 	);
 
@@ -63,7 +96,11 @@ function Admin() {
 			<main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
 				<h1 className="text-3xl font-semibold">Pregled svih korisnika</h1>
 				<div className="mt-5">
-					<AdminUsersTable columns={columns} data={data} />
+					<AdminUsersTable
+						columns={columns}
+						data={data}
+						renderRowSubComponent={renderRowSubComponent}
+					/>
 				</div>
 			</main>
 		</div>

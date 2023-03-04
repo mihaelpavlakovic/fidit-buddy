@@ -1,4 +1,7 @@
 import React from "react";
+import { deleteField, doc, updateDoc } from "firebase/firestore";
+import { db } from "./firebase";
+import Select from "react-select";
 import {
 	useTable,
 	useFilters,
@@ -6,6 +9,7 @@ import {
 	useAsyncDebounce,
 	useSortBy,
 	usePagination,
+	useExpanded,
 } from "react-table";
 import {
 	FaSort,
@@ -16,12 +20,6 @@ import {
 	FaAngleRight,
 	FaAngleDoubleRight,
 } from "react-icons/fa";
-import { deleteField, doc, updateDoc } from "firebase/firestore";
-import { db } from "./firebase";
-
-export function classNames(...classes) {
-	return classes.filter(Boolean).join(" ");
-}
 
 // Define a default UI for filtering
 function GlobalFilter({
@@ -92,7 +90,7 @@ export function RoleCell({ value, column, row }) {
 	return (
 		<select
 			className={`text-sm hover:cursor-pointer rounded-full px-2 py-1 ${
-				value ? "bg-gray-600 text-gray-100" : "bg-gray-100 text-gray-900"
+				value ? "bg-gray-600 text-gray-100" : "bg-gray-100 text-gray-600"
 			}`}
 			defaultValue={value}
 			onChange={handleUpdateRole(row.original[column.uidAccesor])}
@@ -110,7 +108,7 @@ export function AvatarCell({ value, column, row }) {
 				<img
 					className="h-10 w-10 rounded-full"
 					src={row.original[column.imgAccessor]}
-					alt=""
+					alt="Slika profila"
 				/>
 			</div>
 			<div className="ml-4">
@@ -123,17 +121,46 @@ export function AvatarCell({ value, column, row }) {
 	);
 }
 
-function AdminUsersTable({ columns, data }) {
+export function MentorFreshmenCell({ value, column, row }) {
+	return (
+		<Select
+			// onChange={updateMentorFreshmen(
+			// 	userData.uid,
+			// 	userData.displayName,
+			// 	userData.assignedMentorFreshmen
+			// )}
+			// closeMenuOnSelect={!userData.isMentor}
+			defaultValue={row.original.assignedMentorFreshmen}
+			isClearable
+			// isMulti={userData.isMentor}
+			// options={userData.isMentor ? freshmen : mentors}
+			theme={(theme) => ({
+				...theme,
+				colors: {
+					...theme.colors,
+					primary: "#14b8a6",
+					primary25: "#ccfbf1",
+				},
+			})}
+			styles={{
+				multiValue: (base) => ({
+					...base,
+					backgroundColor: "#f3f4f6",
+				}),
+			}}
+		/>
+	);
+}
+
+function AdminUsersTable({ columns, data, renderRowSubComponent }) {
 	// Use the state and functions returned from useTable to build your UI
 	const {
 		getTableProps,
 		getTableBodyProps,
 		headerGroups,
 		prepareRow,
-		page, // Instead of using 'rows', we'll use page,
-		// which has only the rows for the active page
-
-		// The rest of these things are super handy, too ;)
+		visibleColumns,
+		page,
 		canPreviousPage,
 		canNextPage,
 		pageOptions,
@@ -150,10 +177,11 @@ function AdminUsersTable({ columns, data }) {
 			columns,
 			data,
 		},
-		useFilters, // useFilters!
+		useFilters,
 		useGlobalFilter,
 		useSortBy,
-		usePagination // new
+		useExpanded,
+		usePagination
 	);
 
 	// Render the UI for your table
@@ -179,12 +207,9 @@ function AdminUsersTable({ columns, data }) {
 			<div className="mt-4 flex flex-col">
 				<div className="-my-2 overflow-x-auto -mx-4 sm:-mx-6 lg:-mx-8">
 					<div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-						<div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-							<table
-								{...getTableProps()}
-								className="min-w-full divide-y divide-gray-200"
-							>
-								<thead className="bg-gray-50">
+						<div className="sm:shadow-md overflow-hidden sm:rounded-lg">
+							<table {...getTableProps()} className="min-w-full">
+								<thead className="hidden sm:table-header-group bg-gray-50">
 									{headerGroups.map((headerGroup) => (
 										<tr {...headerGroup.getHeaderGroupProps()}>
 											{headerGroup.headers.map((column) => (
@@ -193,8 +218,14 @@ function AdminUsersTable({ columns, data }) {
 												<th
 													scope="col"
 													className={`group px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${
-														column.id === "jmbag" ? "hidden md:block" : ""
-													}`}
+														column.Header === "JMBAG"
+															? "hidden md:table-cell"
+															: ""
+													} ${
+														column.Header === "Dodijeljeni mentor/brucoši"
+															? "hidden sm:table-cell"
+															: ""
+													} ${column.id === "expander" ? "sm:hidden" : ""}`}
 													{...column.getHeaderProps(
 														column.getSortByToggleProps()
 													)}
@@ -227,29 +258,54 @@ function AdminUsersTable({ columns, data }) {
 										// new
 										prepareRow(row);
 										return (
-											<tr {...row.getRowProps()}>
-												{row.cells.map((cell) => {
-													return (
-														<td
-															{...cell.getCellProps()}
-															className={`px-6 py-4 whitespace-nowrap ${
-																cell.column.Header === "JMBAG"
-																	? "hidden md:table-cell"
-																	: ""
-															}`}
-															role="cell"
-														>
-															{cell.column.Cell.name === "defaultRenderer" ? (
-																<div className="text-sm text-gray-500">
-																	{cell.render("Cell")}
-																</div>
-															) : (
-																cell.render("Cell")
-															)}
+											<React.Fragment key={row.getRowProps().key}>
+												<tr>
+													{row.cells.map((cell) => {
+														return (
+															<td
+																{...cell.getCellProps()}
+																className={`px-2 sm:px-6 py-4 whitespace-nowrap ${
+																	cell.column.Header === "JMBAG"
+																		? "hidden md:table-cell"
+																		: ""
+																} ${
+																	cell.column.Header ===
+																	"Dodijeljeni mentor/brucoši"
+																		? "hidden sm:table-cell"
+																		: ""
+																} ${
+																	cell.column.id === "expander"
+																		? "pl-4 sm:hidden"
+																		: ""
+																}`}
+																role="cell"
+															>
+																{cell.column.Cell.name === "defaultRenderer" ? (
+																	<div className="text-sm text-gray-500">
+																		{cell.render("Cell")}
+																	</div>
+																) : (
+																	cell.render("Cell")
+																)}
+															</td>
+														);
+													})}
+												</tr>
+												{row.isExpanded ? (
+													<tr>
+														<td colSpan={visibleColumns.length}>
+															{/*
+																Inside it, call our renderRowSubComponent function. In reality,
+																you could pass whatever you want as props to
+																a component like this, including the entire
+																table instance. But for this example, we'll just
+																pass the row
+															*/}
+															{renderRowSubComponent({ row })}
 														</td>
-													);
-												})}
-											</tr>
+													</tr>
+												) : null}
+											</React.Fragment>
 										);
 									})}
 								</tbody>
