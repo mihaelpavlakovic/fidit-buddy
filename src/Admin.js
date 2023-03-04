@@ -12,17 +12,34 @@ import { FaChevronRight, FaChevronDown } from "react-icons/fa";
 
 function Admin() {
 	const [users, setUsers] = useState([]);
+	const [mentors, setMentors] = useState([]);
+	const [freshmen, setFreshmen] = useState([]);
 
 	useEffect(() => {
 		const userCollRef = collection(db, "users");
 		const q = query(userCollRef, where("isAdmin", "==", false));
 
 		const unsub = onSnapshot(q, (snap) => {
-			const userDocuments = [];
+			const userDocs = [];
+			const mentorDocs = [];
+			const freshmanDocs = [];
 			snap.forEach((doc) => {
-				userDocuments.push({ id: doc.id, ...doc.data() });
+				userDocs.push({ id: doc.id, ...doc.data() });
+				if (doc.data().isMentor) {
+					mentorDocs.push({
+						value: doc.data().uid,
+						label: doc.data().displayName,
+					});
+				} else if (doc.data().assignedMentorFreshmen == null) {
+					freshmanDocs.push({
+						value: doc.data().uid,
+						label: doc.data().displayName,
+					});
+				}
 			});
-			setUsers(userDocuments);
+			setUsers(userDocs);
+			setMentors(mentorDocs);
+			setFreshmen(freshmanDocs);
 		});
 
 		return unsub;
@@ -75,9 +92,11 @@ function Admin() {
 				accessor: "assignedMentorFreshmen.value",
 				labelAccessor: "assignedMentorFreshmen.label",
 				Cell: MentorFreshmenCell,
+				mentors: mentors,
+				freshmen: freshmen,
 			},
 		],
-		[]
+		[mentors, freshmen]
 	);
 
 	// Create a function that will render our row sub components

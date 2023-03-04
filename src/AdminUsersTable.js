@@ -87,6 +87,7 @@ export function RoleCell({ value, column, row }) {
 			.then(() => alert("Studentu je uspješno promijenjena uloga."))
 			.catch((err) => console.log(err));
 	};
+
 	return (
 		<select
 			className={`text-sm hover:cursor-pointer rounded-full px-2 py-1 ${
@@ -129,11 +130,11 @@ export function MentorFreshmenCell({ value, column, row }) {
 			// 	userData.displayName,
 			// 	userData.assignedMentorFreshmen
 			// )}
-			// closeMenuOnSelect={!userData.isMentor}
+			closeMenuOnSelect={!row.original.isMentor}
 			defaultValue={row.original.assignedMentorFreshmen}
 			isClearable
-			// isMulti={userData.isMentor}
-			// options={userData.isMentor ? freshmen : mentors}
+			isMulti={row.original.isMentor}
+			options={row.original.isMentor ? column.freshmen : column.mentors}
 			theme={(theme) => ({
 				...theme,
 				colors: {
@@ -205,9 +206,9 @@ function AdminUsersTable({ columns, data, renderRowSubComponent }) {
 			</div>
 			{/* table */}
 			<div className="mt-4 flex flex-col">
-				<div className="-my-2 overflow-x-auto -mx-4 sm:-mx-6 lg:-mx-8">
+				<div className="-my-2 -mx-4 sm:-mx-6 lg:-mx-8">
 					<div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-						<div className="sm:shadow-md overflow-hidden sm:rounded-lg">
+						<div className="sm:shadow-md sm:rounded-lg">
 							<table {...getTableProps()} className="min-w-full">
 								<thead className="hidden sm:table-header-group bg-gray-50">
 									{headerGroups.map((headerGroup) => (
