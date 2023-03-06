@@ -1,11 +1,18 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Navigation from "./Navigation";
-import { collection, onSnapshot, query, where } from "firebase/firestore";
+import {
+	collection,
+	deleteField,
+	doc,
+	onSnapshot,
+	query,
+	updateDoc,
+	where,
+} from "firebase/firestore";
 import { db } from "./firebase";
 import AdminUsersTable, {
 	AvatarCell,
 	SelectColumnFilter,
-	RoleCell,
 	MentorFreshmenCell,
 } from "./AdminUsersTable";
 import { FaChevronRight, FaChevronDown } from "react-icons/fa";
@@ -47,6 +54,17 @@ function Admin() {
 
 	const data = useMemo(() => users, [users]);
 
+	const handleUpdateRole = (uid) => async (e) => {
+		const getUserDoc = doc(db, "users", uid);
+
+		await updateDoc(getUserDoc, {
+			isMentor: e.target.value === "true",
+			assignedMentorFreshmen: deleteField(),
+		})
+			.then(() => alert("Studentu je uspješno promijenjena uloga."))
+			.catch((err) => console.log(err));
+	};
+
 	const columns = useMemo(
 		() => [
 			{
@@ -82,7 +100,18 @@ function Admin() {
 			{
 				Header: "Uloga",
 				accessor: "isMentor",
-				Cell: RoleCell,
+				Cell: ({ value, column, row }) => (
+					<select
+						className={`text-sm hover:cursor-pointer rounded-full px-2 py-1 ${
+							value ? "bg-gray-600 text-gray-100" : "bg-gray-100 text-gray-600"
+						}`}
+						defaultValue={value}
+						onChange={handleUpdateRole(row.original[column.uidAccesor])}
+					>
+						<option value={true}>Mentor</option>
+						<option value={false}>Brucoš</option>
+					</select>
+				),
 				Filter: SelectColumnFilter,
 				uidAccesor: "uid",
 				filter: "===",
@@ -102,24 +131,31 @@ function Admin() {
 	// Create a function that will render our row sub components
 	const renderRowSubComponent = useCallback(
 		({ row }) => (
-			<div>
-				<div>JMBAG: {row.values.jmbag}</div>
+			<div className="text-gray-600 px-8 py-4">
+				<div className="mb-2">JMBAG: {row.values.jmbag}</div>
+				<div>Dodijeljeni {row.values.isMentor ? "brucoši:" : "mentor:"}</div>
+				<MentorFreshmenCell
+					column={{ freshmen: freshmen, mentors: mentors }}
+					row={row}
+				/>
 			</div>
 		),
-		[]
+		[freshmen, mentors]
 	);
 
 	return (
 		<div>
 			<Navigation />
-			<main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
-				<h1 className="text-3xl font-semibold">Pregled svih korisnika</h1>
-				<div className="mt-5">
-					<AdminUsersTable
-						columns={columns}
-						data={data}
-						renderRowSubComponent={renderRowSubComponent}
-					/>
+			<main className="flex justify-center">
+				<div className="w-full sm:w-auto sm:min-w-[60%] px-4 sm:px-6 lg:px-8 py-4">
+					<h1 className="text-3xl font-semibold">Pregled svih korisnika</h1>
+					<div className="mt-4">
+						<AdminUsersTable
+							columns={columns}
+							data={data}
+							renderRowSubComponent={renderRowSubComponent}
+						/>
+					</div>
 				</div>
 			</main>
 		</div>

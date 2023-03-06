@@ -1,5 +1,11 @@
 import React from "react";
-import { deleteField, doc, updateDoc } from "firebase/firestore";
+import {
+	arrayRemove,
+	arrayUnion,
+	deleteField,
+	doc,
+	updateDoc,
+} from "firebase/firestore";
 import { db } from "./firebase";
 import Select from "react-select";
 import {
@@ -38,7 +44,7 @@ function GlobalFilter({
 			<span className="text-gray-700">Pretraži: </span>
 			<input
 				type="text"
-				className="rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+				className="border border-gray-300 px-2 py-1.5 rounded outline-none focus:ring-1 focus:ring-teal-500 focus:border-teal-500 transition"
 				value={value || ""}
 				onChange={(e) => {
 					setValue(e.target.value);
@@ -59,19 +65,29 @@ export function SelectColumnFilter({
 	return (
 		<label className="flex gap-x-2 items-baseline">
 			<span className="text-gray-700">{render("Header")}: </span>
-			<select
-				className="rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+			<Select
+				className="w-[7.2rem]"
 				name={id}
 				id={id}
-				value={filterValue}
+				defaultValue={{ value: "", label: "Svi" }}
 				onChange={(e) => {
-					setFilter(e.target.value || undefined);
+					setFilter(e.value || undefined);
 				}}
-			>
-				<option value="">Svi</option>
-				<option value={true}>Mentori</option>
-				<option value={false}>Brucoši</option>
-			</select>
+				isSearchable={false}
+				options={[
+					{ value: "", label: "Svi" },
+					{ value: "true", label: "Mentori" },
+					{ value: "false", label: "Brucoši" },
+				]}
+				theme={(theme) => ({
+					...theme,
+					colors: {
+						...theme.colors,
+						primary: "#14b8a6",
+						primary25: "#ccfbf1",
+					},
+				})}
+			/>
 		</label>
 	);
 }
@@ -122,16 +138,81 @@ export function AvatarCell({ value, column, row }) {
 	);
 }
 
-export function MentorFreshmenCell({ value, column, row }) {
+export function MentorFreshmenCell({ column, row }) {
+	const updateMentorFreshmen =
+		(userUid, userName, assignedUser) => async (option) => {
+			let assignedUserUid = null;
+			let assignedUsers = null;
+
+			console.log(userUid);
+			console.log(userName);
+			console.log(assignedUser);
+			console.log(option);
+
+			// kada dodajemo/uklanjamo brucoše kod mentora
+			if (Array.isArray(option)) {
+				if (!Array.isArray(assignedUser)) assignedUser = [];
+				assignedUsers = option
+					.filter((x) => !assignedUser.includes(x))
+					.concat(assignedUser.filter((x) => !option.includes(x)));
+				assignedUserUid = assignedUsers[0].value;
+			} else {
+				// kada dodajemo/uklanjamo mentora kod brucoša
+				if (!assignedUser) assignedUserUid = option.value;
+				if (assignedUser) assignedUserUid = assignedUser.value;
+			}
+
+			const userDoc = doc(db, "users", userUid);
+			const assignedUserDoc = doc(db, "users", assignedUserUid);
+
+			await updateDoc(userDoc, { assignedMentorFreshmen: option })
+				.then(() => {})
+				.catch((err) => console.log(err));
+
+			if (assignedUsers != null && assignedUsers.length > 1) {
+				try {
+					assignedUsers.forEach(async (user) => {
+						const assignedUserDoc = doc(db, "users", user.value);
+						await updateDoc(assignedUserDoc, { assignedMentorFreshmen: null });
+					});
+				} catch (err) {
+					console.log(err);
+				} finally {
+					alert("Studentu je uspješno promijenjen dodijeljeni mentor/brucoši.");
+				}
+			} else {
+				await updateDoc(
+					assignedUserDoc,
+					Array.isArray(option)
+						? {
+								assignedMentorFreshmen:
+									option.length > assignedUser.length
+										? { value: userUid, label: userName }
+										: null,
+						  }
+						: {
+								assignedMentorFreshmen: option
+									? arrayUnion({ value: userUid, label: userName })
+									: arrayRemove({ value: userUid, label: userName }),
+						  }
+				)
+					.then(() => {
+						alert(
+							"Studentu je uspješno promijenjen dodijeljeni mentor/brucoši."
+						);
+					})
+					.catch((err) => console.log(err));
+			}
+		};
 	return (
 		<Select
-			// onChange={updateMentorFreshmen(
-			// 	userData.uid,
-			// 	userData.displayName,
-			// 	userData.assignedMentorFreshmen
-			// )}
+			onChange={updateMentorFreshmen(
+				row.original.uid,
+				row.original.displayName,
+				row.original.assignedMentorFreshmen
+			)}
 			closeMenuOnSelect={!row.original.isMentor}
-			defaultValue={row.original.assignedMentorFreshmen}
+			value={row.original.assignedMentorFreshmen}
 			isClearable
 			isMulti={row.original.isMentor}
 			options={row.original.isMentor ? column.freshmen : column.mentors}
@@ -177,6 +258,11 @@ function AdminUsersTable({ columns, data, renderRowSubComponent }) {
 		{
 			columns,
 			data,
+			autoResetFilters: false,
+			autoResetSortBy: false,
+			autoResetExpanded: false,
+			autoResetGlobalFilter: false,
+			autoResetPage: false,
 		},
 		useFilters,
 		useGlobalFilter,
@@ -208,7 +294,7 @@ function AdminUsersTable({ columns, data, renderRowSubComponent }) {
 			<div className="mt-4 flex flex-col">
 				<div className="-my-2 -mx-4 sm:-mx-6 lg:-mx-8">
 					<div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-						<div className="sm:shadow-md sm:rounded-lg">
+						<div className="sm:shadow-md rounded-lg">
 							<table {...getTableProps()} className="min-w-full">
 								<thead className="hidden sm:table-header-group bg-gray-50">
 									{headerGroups.map((headerGroup) => (
@@ -255,60 +341,63 @@ function AdminUsersTable({ columns, data, renderRowSubComponent }) {
 									{...getTableBodyProps()}
 									className="bg-white divide-y divide-gray-200"
 								>
-									{page.map((row, i) => {
-										// new
-										prepareRow(row);
-										return (
-											<React.Fragment key={row.getRowProps().key}>
-												<tr>
-													{row.cells.map((cell) => {
-														return (
-															<td
-																{...cell.getCellProps()}
-																className={`px-2 sm:px-6 py-4 whitespace-nowrap ${
-																	cell.column.Header === "JMBAG"
-																		? "hidden md:table-cell"
-																		: ""
-																} ${
-																	cell.column.Header ===
-																	"Dodijeljeni mentor/brucoši"
-																		? "hidden sm:table-cell"
-																		: ""
-																} ${
-																	cell.column.id === "expander"
-																		? "pl-4 sm:hidden"
-																		: ""
-																}`}
-																role="cell"
-															>
-																{cell.column.Cell.name === "defaultRenderer" ? (
-																	<div className="text-sm text-gray-500">
-																		{cell.render("Cell")}
-																	</div>
-																) : (
-																	cell.render("Cell")
-																)}
-															</td>
-														);
-													})}
-												</tr>
-												{row.isExpanded ? (
+									{(page.length > 0 &&
+										page.map((row, i) => {
+											prepareRow(row);
+											return (
+												<React.Fragment key={row.getRowProps().key}>
 													<tr>
-														<td colSpan={visibleColumns.length}>
-															{/*
-																Inside it, call our renderRowSubComponent function. In reality,
-																you could pass whatever you want as props to
-																a component like this, including the entire
-																table instance. But for this example, we'll just
-																pass the row
-															*/}
-															{renderRowSubComponent({ row })}
-														</td>
+														{row.cells.map((cell) => {
+															return (
+																<td
+																	{...cell.getCellProps()}
+																	className={`px-2 sm:px-6 py-4 whitespace-nowrap ${
+																		cell.column.Header === "JMBAG"
+																			? "hidden md:table-cell"
+																			: ""
+																	} ${
+																		cell.column.Header ===
+																		"Dodijeljeni mentor/brucoši"
+																			? "hidden sm:table-cell"
+																			: ""
+																	} ${
+																		cell.column.id === "expander"
+																			? "pl-4 sm:hidden"
+																			: ""
+																	}`}
+																	role="cell"
+																>
+																	{cell.column.Cell.name ===
+																	"defaultRenderer" ? (
+																		<div className="text-sm text-gray-500">
+																			{cell.render("Cell")}
+																		</div>
+																	) : (
+																		cell.render("Cell")
+																	)}
+																</td>
+															);
+														})}
 													</tr>
-												) : null}
-											</React.Fragment>
-										);
-									})}
+													{row.isExpanded ? (
+														<tr className="sm:hidden">
+															<td colSpan={visibleColumns.length}>
+																{renderRowSubComponent({ row })}
+															</td>
+														</tr>
+													) : null}
+												</React.Fragment>
+											);
+										})) || (
+										<tr>
+											<td
+												colSpan={4}
+												className="p-4 text-center text-gray-500 font-medium"
+											>
+												Nije pronađen niti jedan korisnik
+											</td>
+										</tr>
+									)}
 								</tbody>
 							</table>
 						</div>
@@ -318,10 +407,18 @@ function AdminUsersTable({ columns, data, renderRowSubComponent }) {
 			{/* Pagination */}
 			<div className="py-3 flex items-center justify-between">
 				<div className="flex-1 flex justify-between sm:hidden">
-					<button onClick={() => previousPage()} disabled={!canPreviousPage}>
+					<button
+						className="rounded-l-md w-20 border p-2 text-teal-500 hover:bg-teal-50 disabled:cursor-not-allowed disabled:text-gray-400"
+						onClick={() => previousPage()}
+						disabled={!canPreviousPage}
+					>
 						Previous
 					</button>
-					<button onClick={() => nextPage()} disabled={!canNextPage}>
+					<button
+						className="rounded-r-md w-20 border p-2 text-teal-500 hover:bg-teal-50 disabled:cursor-not-allowed disabled:text-gray-400"
+						onClick={() => nextPage()}
+						disabled={!canNextPage}
+					>
 						Next
 					</button>
 				</div>
@@ -354,43 +451,36 @@ function AdminUsersTable({ columns, data, renderRowSubComponent }) {
 							aria-label="Pagination"
 						>
 							<button
-								className="rounded-l-md"
+								className="rounded-l-md border p-2 text-teal-500 hover:bg-teal-50 disabled:cursor-not-allowed disabled:text-gray-400"
 								onClick={() => gotoPage(0)}
 								disabled={!canPreviousPage}
 							>
 								<span className="sr-only">First</span>
-								<FaAngleDoubleLeft
-									className="h-5 w-5 text-gray-400"
-									aria-hidden="true"
-								/>
+								<FaAngleDoubleLeft className="h-5 w-5" aria-hidden="true" />
 							</button>
 							<button
+								className="border p-2 text-teal-500 hover:bg-teal-50 disabled:cursor-not-allowed disabled:text-gray-400"
 								onClick={() => previousPage()}
 								disabled={!canPreviousPage}
 							>
 								<span className="sr-only">Previous</span>
-								<FaAngleLeft
-									className="h-5 w-5 text-gray-400"
-									aria-hidden="true"
-								/>
-							</button>
-							<button onClick={() => nextPage()} disabled={!canNextPage}>
-								<span className="sr-only">Next</span>
-								<FaAngleRight
-									className="h-5 w-5 text-gray-400"
-									aria-hidden="true"
-								/>
+								<FaAngleLeft className="h-5 w-5" aria-hidden="true" />
 							</button>
 							<button
-								className="rounded-r-md"
+								className="border p-2 text-teal-500 hover:bg-teal-50 disabled:cursor-not-allowed disabled:text-gray-400"
+								onClick={() => nextPage()}
+								disabled={!canNextPage}
+							>
+								<span className="sr-only">Next</span>
+								<FaAngleRight className="h-5 w-5" aria-hidden="true" />
+							</button>
+							<button
+								className="rounded-r-md border p-2 text-teal-500 hover:bg-teal-50 disabled:cursor-not-allowed disabled:text-gray-400"
 								onClick={() => gotoPage(pageCount - 1)}
 								disabled={!canNextPage}
 							>
 								<span className="sr-only">Last</span>
-								<FaAngleDoubleRight
-									className="h-5 w-5 text-gray-400"
-									aria-hidden="true"
-								/>
+								<FaAngleDoubleRight className="h-5 w-5" aria-hidden="true" />
 							</button>
 						</nav>
 					</div>
