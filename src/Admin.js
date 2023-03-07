@@ -17,6 +17,7 @@ import { FaChevronRight, FaChevronDown } from "react-icons/fa";
 import ReactSelect from "react-select";
 
 function Admin() {
+	const userId = localStorage.getItem("uid");
 	const [users, setUsers] = useState([]);
 	const [admins, setAdmins] = useState([0]);
 	const [mentors, setMentors] = useState([]);
@@ -232,7 +233,8 @@ function Admin() {
 														<button
 															type="button"
 															onClick={handleRemoveAdmin(admin.uid)}
-															className="text-sm border bg-red-500 hover:bg-red-600 text-white p-1.5 rounded-lg transition"
+															disabled={admin.uid === userId}
+															className="text-sm border bg-red-500 hover:bg-red-600 text-white p-1.5 rounded-lg transition disabled:bg-red-300 disabled:cursor-not-allowed"
 														>
 															Ukloni admina
 														</button>
