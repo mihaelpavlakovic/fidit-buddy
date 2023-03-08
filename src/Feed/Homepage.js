@@ -17,7 +17,6 @@ import { Link } from "react-router-dom";
 
 const Homepage = () => {
   const { currentUser } = useContext(AuthContext);
-  let userId = localStorage.getItem("uid");
   const [user, setUser] = useState(null);
   const [docs, setDocs] = useState([]);
 
@@ -37,63 +36,70 @@ const Homepage = () => {
   };
 
   const userData = useCallback(async () => {
-    const docRef = doc(db, "users", userId);
-    const docSnap = await getDoc(docRef);
+    if (currentUser && currentUser.uid) {
+      const docRef = doc(db, "users", currentUser.uid);
+      const docSnap = await getDoc(docRef);
+      const data = docSnap.exists() ? setUser(docSnap.data()) : null;
 
-    const data = docSnap.exists() ? setUser(docSnap.data()) : null;
-
-    if (data === null || data === undefined) return null;
-  }, [userId]);
+      if (data === null || data === undefined) return null;
+    }
+  }, [currentUser]);
 
   useEffect(() => {
-    if (userId !== null) {
+    if (currentUser) {
       userData();
     }
-  }, [userData, userId]);
+  }, [userData, currentUser]);
 
   useEffect(() => {
-    const postsRef = collection(db, "posts");
-    const q = query(postsRef, orderBy("createdAt", "desc"));
+    if (user !== null) {
+      if (user.isAdmin === false) {
+        if (!Object.is(user.assignedMentorFreshmen, null)) {
+          const postsRef = collection(db, "posts");
+          const q = query(postsRef, orderBy("createdAt", "desc"));
 
-    const unsubscribe = onSnapshot(q, snapshot => {
-      const updatedPosts = [];
-      snapshot.forEach(doc => {
-        const postData = doc.data();
-        const post = { docId: doc.id, ...postData };
+          const unsubscribe = onSnapshot(q, snapshot => {
+            const updatedPosts = [];
+            snapshot.forEach(doc => {
+              const postData = doc.data();
+              const post = { docId: doc.id, ...postData };
 
-        if (postData.user) {
-          getDoc(postData.user).then(userDoc => {
-            post.user = userDoc.data();
-            setDocs(prevPosts =>
-              prevPosts.map(p => (p.docId === post.docId ? post : p))
-            );
+              if (postData.user) {
+                getDoc(postData.user).then(userDoc => {
+                  post.user = userDoc.data();
+                  setDocs(prevPosts =>
+                    prevPosts.map(p => (p.docId === post.docId ? post : p))
+                  );
+                });
+              }
+
+              if (postData.comments) {
+                Promise.all(
+                  postData.comments.map(comment =>
+                    getDoc(comment.user).then(doc => doc.data())
+                  )
+                ).then(commentUsers => {
+                  post.comments = postData.comments.map((comment, index) => ({
+                    ...comment,
+                    user: commentUsers[index],
+                  }));
+                  setDocs(prevPosts =>
+                    prevPosts.map(p => (p.docId === post.docId ? post : p))
+                  );
+                });
+              }
+
+              updatedPosts.push(post);
+            });
+
+            setDocs(updatedPosts);
           });
+
+          return unsubscribe;
         }
-
-        if (postData.comments) {
-          Promise.all(
-            postData.comments.map(comment =>
-              getDoc(comment.user).then(doc => doc.data())
-            )
-          ).then(commentUsers => {
-            post.comments = postData.comments.map((comment, index) => ({
-              ...comment,
-              user: commentUsers[index],
-            }));
-            setDocs(prevPosts =>
-              prevPosts.map(p => (p.docId === post.docId ? post : p))
-            );
-          });
-        }
-
-        updatedPosts.push(post);
-      });
-
-      setDocs(updatedPosts);
-    });
-
-    return unsubscribe;
-  }, []);
+      }
+    }
+  }, [user]);
 
   return (
     <>
@@ -112,17 +118,8 @@ const Homepage = () => {
               </Link>
               .
             </p>
-          ) : docs.lenght === 0 ? (
-            <p className="mt-5">
-              Trenutačno nema objava. Kreirajte prvu objavu{" "}
-              <Link
-                to="/kreiraj-objavu"
-                className="text-teal-500 hover:underline"
-              >
-                ovdje
-              </Link>
-              .
-            </p>
+          ) : docs.length === 0 ? (
+            <p className="mt-5">Trenutačno nema objava.</p>
           ) : (
             docs.map(item => {
               if (item.user.uid === user?.assignedMentorFreshmen?.value) {

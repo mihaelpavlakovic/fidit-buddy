@@ -14,7 +14,6 @@ const PrivateRoutes = ({ isAdminRoute, isMentorRoute }) => {
     onAuthStateChanged(auth, async user => {
       if (user) {
         const snapshot = await getDoc(doc(db, "users", user.uid));
-        localStorage.setItem("uid", snapshot.data().uid);
         setUserIsAdmin(snapshot.data().isAdmin);
         setUserIsMentor(snapshot.data().isMentor);
       }
