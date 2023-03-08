@@ -41,7 +41,7 @@ function Admin() {
 					userDocs.push({ id: doc.id, ...doc.data() });
 				}
 
-				if (doc.data().isMentor) {
+				if (doc.data().isMentor && !doc.data().isAdmin) {
 					mentorDocs.push({
 						value: doc.data().uid,
 						label: doc.data().displayName,
