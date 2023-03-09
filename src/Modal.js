@@ -11,7 +11,7 @@ const Modal = ({ displayModal, onClose }) => {
   const modalContent = (
     <div
       onClick={onClose}
-      className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex justify-center items-center"
+      className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
     >
       <div className="bg-white p-8 rounded-xl text-center">
         <h2 className="text-xl font-semibold mb-3">
