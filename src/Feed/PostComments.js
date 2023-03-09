@@ -1,7 +1,8 @@
 import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
+import { BiEdit, BiTrash } from "react-icons/bi";
 
-const PostComments = ({ comments, onDelete }) => {
+const PostComments = ({ comments, onDeleteHandler, onEditHandler }) => {
   const { currentUser } = useContext(AuthContext);
   return (
     <div className="w-full bg-gray-100 p-2 sm:px-4 flex gap-3 mb-2">
@@ -11,7 +12,7 @@ const PostComments = ({ comments, onDelete }) => {
         alt="Profilna slika korisnika"
       />
       <div className="w-full">
-        <div className="flex items-center flex-nowrap">
+        <div className="flex items-start flex-nowrap">
           <h3 className="flex-auto font-semibold">
             {comments.user.displayName}
             {comments.user.isMentor && (
@@ -33,7 +34,20 @@ const PostComments = ({ comments, onDelete }) => {
               })}
             </div>
             {currentUser.uid === comments.user.uid && (
-              <button onClick={onDelete}>Izbriši</button>
+              <>
+                <button
+                  onClick={onEditHandler}
+                  className="pt-1.5 transition ease-in-out hover:-translate-y-1 hover:scale-110 hover:text-teal-600 duration-300"
+                >
+                  <BiEdit className="text-[14px] mr-2" />
+                </button>
+                <button
+                  onClick={onDeleteHandler}
+                  className="pt-1.5 transition ease-in-out hover:-translate-y-1 hover:scale-110 hover:text-teal-600 duration-300"
+                >
+                  <BiTrash className="text-[14px]" />
+                </button>
+              </>
             )}
           </div>
         </div>

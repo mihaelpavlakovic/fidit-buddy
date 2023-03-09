@@ -1,5 +1,6 @@
 import PostComments from "./PostComments";
 import { FiSend } from "react-icons/fi";
+import { BiEdit, BiTrash } from "react-icons/bi";
 import { AiFillFilePdf } from "react-icons/ai";
 import { useFormik } from "formik";
 import {
@@ -14,7 +15,13 @@ import { db, storage } from "../firebase";
 import { AuthContext } from "../context/AuthContext";
 import { useContext } from "react";
 
-const Post = ({ postDetail, postId, onDeleteHandler }) => {
+const Post = ({
+  postDetail,
+  postId,
+  onDeleteHandler,
+  onEditHandler,
+  editPostHandler,
+}) => {
   const { currentUser } = useContext(AuthContext);
   const formik = useFormik({
     initialValues: {
@@ -62,21 +69,26 @@ const Post = ({ postDetail, postId, onDeleteHandler }) => {
   });
 
   const deletePostHandler = async postId => {
-    const docRef = doc(db, "posts", postId);
-    Object.entries(postDetail.data).forEach(item => {
-      let documentRef = ref(storage, item[1].documentURL);
-      deleteObject(documentRef)
-        .then(() => console.log("Dokument uspjesno izbrisan"))
-        .catch(err => console.log(err));
-    });
-
-    await deleteDoc(docRef)
-      .then(() => {
-        alert("Objava uspjesno obrisana.");
-      })
-      .catch(error => {
-        console.log(error);
+    if (
+      window.confirm("Potvrdite ukoliko želite obrisati vašu objavu.") === true
+    ) {
+      const docRef = doc(db, "posts", postId);
+      Object.entries(postDetail.data).forEach(item => {
+        let documentRef = ref(storage, item[1].documentURL);
+        deleteObject(documentRef)
+          .then(() => console.log("Dokument uspjesno izbrisan"))
+          .catch(err => console.log(err));
       });
+
+      await deleteDoc(docRef)
+        .then(() => {
+          alert("Objava uspjesno obrisana.");
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    }
+    return;
   };
 
   return (
@@ -112,9 +124,20 @@ const Post = ({ postDetail, postId, onDeleteHandler }) => {
                 </div>
                 <div className="text-right">
                   {currentUser.uid === postDetail.user.uid && (
-                    <button onClick={() => deletePostHandler(postId)}>
-                      Izbriši
-                    </button>
+                    <>
+                      <button
+                        onClick={() => editPostHandler(postId)}
+                        className="pt-2 transition ease-in-out hover:-translate-y-1 hover:scale-110 hover:text-teal-600 duration-300"
+                      >
+                        <BiEdit className="text-[14px] mr-2" />
+                      </button>
+                      <button
+                        onClick={() => deletePostHandler(postId)}
+                        className="pt-2 transition ease-in-out hover:-translate-y-1 hover:scale-110 hover:text-teal-600 duration-300"
+                      >
+                        <BiTrash className="text-[14px]" />
+                      </button>
+                    </>
                   )}
                 </div>
               </div>
@@ -163,7 +186,8 @@ const Post = ({ postDetail, postId, onDeleteHandler }) => {
                   <PostComments
                     key={index}
                     comments={item}
-                    onDelete={() => onDeleteHandler(index, postId)}
+                    onDeleteHandler={() => onDeleteHandler(index, postId)}
+                    onEditHandler={() => onEditHandler(index, postId)}
                   />
                 );
               })}

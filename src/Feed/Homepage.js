@@ -1,5 +1,6 @@
 import Navigation from "../Navigation";
 import Post from "./Post";
+import EditModal from "../EditModal";
 import { db } from "../firebase";
 import {
   collection,
@@ -10,6 +11,7 @@ import {
   doc,
   arrayRemove,
   updateDoc,
+  where,
 } from "firebase/firestore";
 import { useState, useEffect, useContext, useCallback } from "react";
 import { AuthContext } from "../context/AuthContext";
@@ -19,20 +21,40 @@ const Homepage = () => {
   const { currentUser } = useContext(AuthContext);
   const [user, setUser] = useState(null);
   const [docs, setDocs] = useState([]);
+  const [showModal, setShowModal] = useState({
+    show: false,
+    comment: "",
+    comIndex: "",
+    docId: "",
+    docFromDb: "",
+  });
+  const handleClose = () =>
+    setShowModal({
+      show: false,
+      comment: "",
+      comIndex: "",
+      docId: "",
+      docFromDb: "",
+    });
 
-  const onDelete = async (comIndex, docId) => {
-    const docRef = doc(db, "posts", docId);
-    const docForDelete = await getDoc(docRef).then(doc => doc.data());
+  const onDeleteHandler = async (comIndex, docId) => {
+    if (
+      window.confirm("Potvrdite ukoliko želite obrisati vaš komentar.") === true
+    ) {
+      const docRef = doc(db, "posts", docId);
+      const docForDelete = await getDoc(docRef).then(doc => doc.data());
 
-    await updateDoc(docRef, {
-      comments: arrayRemove(docForDelete.comments[comIndex]),
-    })
-      .then(() => {
-        alert("Komentar je uspjesno obrisan.");
+      await updateDoc(docRef, {
+        comments: arrayRemove(docForDelete.comments[comIndex]),
       })
-      .catch(error => {
-        console.log(error);
-      });
+        .then(() => {
+          alert("Komentar je uspjesno obrisan.");
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    }
+    return;
   };
 
   const userData = useCallback(async () => {
@@ -55,8 +77,18 @@ const Homepage = () => {
     if (user !== null) {
       if (user.isAdmin === false) {
         if (!Object.is(user.assignedMentorFreshmen, null)) {
-          const postsRef = collection(db, "posts");
-          const q = query(postsRef, orderBy("createdAt", "desc"));
+          let userDocRef = undefined;
+          if (!!user.isMentor) {
+            userDocRef = doc(db, "users/" + currentUser.uid);
+          } else {
+            userDocRef = doc(db, "users/" + user.assignedMentorFreshmen.value);
+          }
+          const q = query(
+            collection(db, "posts"),
+            where("user", "==", userDocRef),
+            orderBy("createdAt", "desc")
+          );
+          // const q = query(postsRef, orderBy("createdAt", "desc"));
 
           const unsubscribe = onSnapshot(q, snapshot => {
             const updatedPosts = [];
@@ -99,12 +131,21 @@ const Homepage = () => {
         }
       }
     }
-  }, [user]);
+  }, [user, currentUser.uid]);
 
   return (
     <>
       <Navigation />
       <main className="xl:max-w-7xl xl:mx-auto max-w-full px-5 sm:px-[8%]">
+        {showModal.show && (
+          <EditModal
+            onClose={handleClose}
+            comment={showModal.comment}
+            comIndex={showModal.comIndex}
+            docId={showModal.docId}
+            docFromDb={showModal.docFromDb}
+          />
+        )}
         <div className="flex flex-col">
           <h1 className="text-3xl my-5 font-semibold">
             Dobro došli {currentUser.displayName}! 👋
@@ -128,7 +169,19 @@ const Homepage = () => {
                     key={item.docId}
                     postId={item.docId}
                     postDetail={item}
-                    onDeleteHandler={onDelete}
+                    onEditHandler={async (index, docId) => {
+                      const docRef = doc(db, "posts", docId);
+                      const docForChange = await getDoc(docRef).then(doc =>
+                        doc.data()
+                      );
+                      setShowModal({
+                        show: true,
+                        comment: docForChange.comments[index].comment,
+                        comIndex: index,
+                        docId: docId,
+                      });
+                    }}
+                    onDeleteHandler={onDeleteHandler}
                   />
                 );
               }
@@ -138,7 +191,33 @@ const Homepage = () => {
                     key={item.docId}
                     postId={item.docId}
                     postDetail={item}
-                    onDeleteHandler={onDelete}
+                    onDeleteHandler={onDeleteHandler}
+                    editPostHandler={async postId => {
+                      const docRef = doc(db, "posts", postId);
+                      const docForChange = await getDoc(docRef).then(doc =>
+                        doc.data()
+                      );
+                      setShowModal({
+                        show: true,
+                        comment: "",
+                        comIndex: "",
+                        docId: postId,
+                        docFromDb: docForChange,
+                      });
+                    }}
+                    onEditHandler={async (index, docId) => {
+                      const docRef = doc(db, "posts", docId);
+                      const docForChange = await getDoc(docRef).then(doc =>
+                        doc.data()
+                      );
+                      setShowModal({
+                        show: true,
+                        comment: docForChange.comments[index].comment,
+                        comIndex: index,
+                        docId: docId,
+                        docFromDb: "",
+                      });
+                    }}
                   />
                 );
               }
