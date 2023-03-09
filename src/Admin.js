@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import Navigation from "./Navigation";
 import {
 	collection,
@@ -15,11 +15,12 @@ import AdminUsersTable, {
 } from "./AdminUsersTable";
 import { FaChevronRight, FaChevronDown } from "react-icons/fa";
 import ReactSelect from "react-select";
+import { AuthContext } from "./context/AuthContext";
 
 function Admin() {
-	const userId = localStorage.getItem("uid");
+	const { currentUser } = useContext(AuthContext);
 	const [users, setUsers] = useState([]);
-	const [admins, setAdmins] = useState([0]);
+	const [admins, setAdmins] = useState([]);
 	const [mentors, setMentors] = useState([]);
 	const [freshmen, setFreshmen] = useState([]);
 	const [showModal, setShowModal] = useState(false);
@@ -46,7 +47,10 @@ function Admin() {
 						value: doc.data().uid,
 						label: doc.data().displayName,
 					});
-				} else if (doc.data().assignedMentorFreshmen == null) {
+				} else if (
+					doc.data().assignedMentorFreshmen == null &&
+					!doc.data().isAdmin
+				) {
 					freshmanDocs.push({
 						value: doc.data().uid,
 						label: doc.data().displayName,
@@ -195,6 +199,7 @@ function Admin() {
 										Dodaj novog admina
 									</button>
 								</div>
+								{/* Admins table */}
 								<table className="shadow-md overflow-hidden rounded-lg">
 									<thead className="bg-gray-50">
 										<tr>
@@ -207,41 +212,51 @@ function Admin() {
 										</tr>
 									</thead>
 									<tbody className="divide-y divide-gray-200">
-										{admins.map((admin, index) => {
-											return (
-												<tr key={index}>
-													<td className="px-2 sm:px-6 py-4 whitespace-nowrap">
-														<div className="flex items-center">
-															<div className="flex-shrink-0 h-10 w-10">
-																<img
-																	className="h-10 w-10 rounded-full"
-																	src={admin.photoURL}
-																	alt="Slika profila"
-																/>
-															</div>
-															<div className="ml-2 sm:ml-4">
-																<div className="text-sm font-medium text-gray-900">
-																	{admin.displayName}
+										{(admins.length > 0 &&
+											admins.map((admin, index) => {
+												return (
+													<tr key={index}>
+														<td className="px-2 sm:px-6 py-4 whitespace-nowrap">
+															<div className="flex items-center">
+																<div className="flex-shrink-0 h-10 w-10">
+																	<img
+																		className="h-10 w-10 rounded-full"
+																		src={admin.photoURL}
+																		alt="Slika profila"
+																	/>
 																</div>
-																<div className="text-sm text-gray-500">
-																	{admin.email}
+																<div className="ml-2 sm:ml-4">
+																	<div className="text-sm font-medium text-gray-900">
+																		{admin.displayName}
+																	</div>
+																	<div className="text-sm text-gray-500">
+																		{admin.email}
+																	</div>
 																</div>
 															</div>
-														</div>
-													</td>
-													<td className="px-2 sm:px-6 py-4 whitespace-nowrap">
-														<button
-															type="button"
-															onClick={handleRemoveAdmin(admin.uid)}
-															disabled={admin.uid === userId}
-															className="text-sm border bg-red-500 hover:bg-red-600 text-white p-1.5 rounded-lg transition disabled:bg-red-300 disabled:cursor-not-allowed"
-														>
-															Ukloni admina
-														</button>
-													</td>
-												</tr>
-											);
-										})}
+														</td>
+														<td className="px-2 sm:px-6 py-4 whitespace-nowrap">
+															<button
+																type="button"
+																onClick={handleRemoveAdmin(admin.uid)}
+																disabled={admin.uid === currentUser.uid}
+																className="text-sm border bg-red-500 hover:bg-red-600 text-white p-1.5 rounded-lg transition disabled:bg-red-300 disabled:cursor-not-allowed"
+															>
+																Ukloni admina
+															</button>
+														</td>
+													</tr>
+												);
+											})) || (
+											<tr>
+												<td
+													colSpan={2}
+													className="p-4 text-center text-gray-500 font-medium"
+												>
+													Učitavanje ...
+												</td>
+											</tr>
+										)}
 									</tbody>
 								</table>
 							</div>
