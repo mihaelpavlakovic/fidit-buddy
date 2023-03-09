@@ -10,6 +10,7 @@ import {
   doc,
   arrayRemove,
   updateDoc,
+  where,
 } from "firebase/firestore";
 import { useState, useEffect, useContext, useCallback } from "react";
 import { AuthContext } from "../context/AuthContext";
@@ -55,8 +56,18 @@ const Homepage = () => {
     if (user !== null) {
       if (user.isAdmin === false) {
         if (!Object.is(user.assignedMentorFreshmen, null)) {
-          const postsRef = collection(db, "posts");
-          const q = query(postsRef, orderBy("createdAt", "desc"));
+          let userDocRef = undefined;
+          if (!!user.isMentor) {
+            userDocRef = doc(db, "users/" + currentUser.uid);
+          } else {
+            userDocRef = doc(db, "users/" + user.assignedMentorFreshmen.value);
+          }
+          const q = query(
+            collection(db, "posts"),
+            where("user", "==", userDocRef),
+            orderBy("createdAt", "desc")
+          );
+          // const q = query(postsRef, orderBy("createdAt", "desc"));
 
           const unsubscribe = onSnapshot(q, snapshot => {
             const updatedPosts = [];
@@ -99,7 +110,9 @@ const Homepage = () => {
         }
       }
     }
-  }, [user]);
+  }, [user, currentUser.uid]);
+
+  console.log(docs);
 
   return (
     <>
