@@ -80,7 +80,7 @@ const Profile = () => {
       userData();
     }
   }, [userData, currentUser]);
-  console.log(user?.isMentor);
+
   return (
     <>
       <Navigation />
@@ -145,6 +145,42 @@ const Profile = () => {
               </form>
             </div>
           </div>
+          {user?.isMentor && (
+            <div className="border-2 border-solid rounded-md">
+              <h2 className="text-lg p-3 border-b-2">Povratne informacije</h2>
+              <div className="flex flex-col items-center gap-4 my-5">
+                <p>
+                  Vaša ocjena kao mentora{" "}
+                  <span className="block text-center mt-3 font-semibold text-4xl">
+                    {Math.round((user?.reviewMark / user?.reviewCount) * 100) /
+                      100}
+                  </span>
+                </p>
+                <p>
+                  Ocjenilo vas je ukupno studenata{" "}
+                  <span className="block text-center mt-3 font-semibold text-4xl">
+                    {user?.reviewCount}
+                  </span>
+                </p>
+                <p>Poruke od studenata</p>
+                {user?.reviewsFrom.length > 3
+                  ? user?.reviewsFrom.slice(-3).map((review, i) => {
+                      return (
+                        <p key={i} className="italic text-gray-500">
+                          “{review.messageFromStudent}”
+                        </p>
+                      );
+                    })
+                  : user?.reviewsFrom.map((review, i) => {
+                      return (
+                        <p key={i} className="italic text-gray-500">
+                          “{review.messageFromStudent}”
+                        </p>
+                      );
+                    })}
+              </div>
+            </div>
+          )}
           {!user?.isMentor && <Feedback user={user} />}
         </div>
       </main>

@@ -7,45 +7,54 @@ import { AuthContext } from "./context/AuthContext";
 const Feedback = ({ user }) => {
   const [rating, setRating] = useState(null);
   const [hover, setHover] = useState(null);
+  const [message, setMessage] = useState("");
   const { currentUser } = useContext(AuthContext);
-
   const rateMentorHandler = async e => {
     e.preventDefault();
+    if (
+      window.confirm(
+        "Jeste li sigurni da želite ocijenit mentora? Ova akcije se više ne može ponovno izvesti."
+      ) === true
+    ) {
+      const mentorUid = user.assignedMentorFreshmen.value;
+      const docRef = doc(db, "users", mentorUid);
+      const docSnap = await getDoc(docRef);
+      const data = docSnap.exists() ? docSnap.data() : null;
+      const currentUserRef = doc(db, "users", currentUser.uid);
 
-    const mentorUid = user.assignedMentorFreshmen.value;
-    const docRef = doc(db, "users", mentorUid);
-    const docSnap = await getDoc(docRef);
-    const data = docSnap.exists() ? docSnap.data() : null;
-    const currentUserRef = doc(db, "users", currentUser.uid);
-
-    await updateDoc(currentUserRef, {
-      givenReviewMark: rating,
-      voted: true,
-    });
-
-    if (data === null || data === undefined) return null;
-    let increasedCounter =
-      data.reviewCount === null || data.reviewCount === undefined
-        ? 1
-        : data.reviewCount + 1;
-
-    await updateDoc(docRef, {
-      reviewCount: increasedCounter,
-      reviewMark:
-        data.reviewMark === null || data.reviewMark === undefined
-          ? rating
-          : data.reviewMark + rating,
-      reviewsFrom:
-        data.reviewsFrom === null || data.reviewsFrom === undefined
-          ? [currentUser.uid]
-          : arrayUnion(currentUser.uid),
-    })
-      .then(() => {
-        alert("Uspješno ste ocijenili mentora.");
-      })
-      .catch(error => {
-        console.log(error);
+      await updateDoc(currentUserRef, {
+        givenReviewMark: rating,
+        voted: true,
       });
+
+      if (data === null || data === undefined) return null;
+      let increasedCounter =
+        data.reviewCount === null || data.reviewCount === undefined
+          ? 1
+          : data.reviewCount + 1;
+
+      await updateDoc(docRef, {
+        reviewCount: increasedCounter,
+        reviewMark:
+          data.reviewMark === null || data.reviewMark === undefined
+            ? rating
+            : data.reviewMark + rating,
+        reviewsFrom:
+          data.reviewsFrom === null || data.reviewsFrom === undefined
+            ? [{ uidOfStudent: currentUser.uid, messageFromStudent: message }]
+            : arrayUnion({
+                uidOfStudent: currentUser.uid,
+                messageFromStudent: message,
+              }),
+      })
+        .then(() => {
+          alert("Uspješno ste ocijenili mentora.");
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    }
+    return;
   };
 
   return (
@@ -103,6 +112,19 @@ const Feedback = ({ user }) => {
                 </label>
               );
             })}
+          </div>
+          <div className="mt-2 flex flex-col items-center">
+            <label htmlFor="message">Poruka uz ocjenu</label>
+            <textarea
+              className="border-2 border-solid border-teal-500 rounded-md mt-2 p-2"
+              name="message"
+              id="message"
+              cols="50"
+              rows="5"
+              required
+              placeholder="Odličan mentor, komunikativan..."
+              onChange={e => setMessage(e.target.value)}
+            ></textarea>
           </div>
           <button
             type="submit"
