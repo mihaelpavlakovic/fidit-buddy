@@ -6,6 +6,7 @@ import { db, storage } from "./firebase";
 import { ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";
 import { updateDoc, doc, getDoc } from "firebase/firestore";
 import { updateProfile } from "firebase/auth";
+import { BiEdit } from "react-icons/bi";
 
 const Profile = () => {
   const { currentUser } = useContext(AuthContext);
@@ -80,12 +81,12 @@ const Profile = () => {
       userData();
     }
   }, [userData, currentUser]);
-  console.log(user?.isMentor);
+
   return (
     <>
       <Navigation />
       <main className="xl:max-w-7xl xl:mx-auto max-w-full m-5 sm:px-[8%]">
-        <div className="flex flex-col gap-10">
+        <div className="flex flex-col gap-4">
           <h1 className="text-3xl mb-5 font-semibold">Postavke korisnika</h1>
           <div className="border-2 border-solid rounded-md">
             <p className="text-lg p-3 border-b-2">Slika profila</p>
@@ -145,7 +146,72 @@ const Profile = () => {
               </form>
             </div>
           </div>
-          {!user?.isMentor && <Feedback user={user} />}
+          <div className="flex flex-col lg:flex-row justify-center gap-4">
+            <div className="border-2 border-solid rounded-md w-full">
+              <div className="p-3 border-b-2 flex justify-between items-center">
+                <h2 className="text-lg">Osobne informacije</h2>
+                <BiEdit className="text-gray-500 cursor-pointer hover:text-gray-700" />
+              </div>
+              <table className="flex p-3">
+                <tbody className="flex flex-col gap-1">
+                  <tr>
+                    <td className="w-[4.5rem]">Ime:</td>
+                    <td>{user?.displayName}</td>
+                  </tr>
+                  <tr>
+                    <td className="w-[4.5rem]">Email:</td>
+                    <td>{user?.email}</td>
+                  </tr>
+                  <tr>
+                    <td className="w-[4.5rem]">JMBAG:</td>
+                    <td>{user?.jmbag}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div className="w-full">
+              {user?.isMentor && (
+                <div className="border-2 border-solid rounded-md">
+                  <h2 className="text-lg p-3 border-b-2">
+                    Povratne informacije
+                  </h2>
+                  <div className="flex flex-col items-center gap-4 my-5">
+                    <p>
+                      Vaša ocjena kao mentora{" "}
+                      <span className="block text-center mt-3 font-semibold text-4xl">
+                        {Math.round(
+                          (user?.reviewMark / user?.reviewCount) * 100
+                        ) / 100}
+                      </span>
+                    </p>
+                    <p>
+                      Ocjenilo vas je ukupno studenata{" "}
+                      <span className="block text-center mt-3 font-semibold text-4xl">
+                        {user?.reviewCount}
+                      </span>
+                    </p>
+                    <p>Poruke od studenata</p>
+                    {user?.reviewsFrom.length > 3
+                      ? user?.reviewsFrom.slice(-3).map((review, i) => {
+                          return (
+                            <p key={i} className="italic text-gray-500">
+                              “{review.messageFromStudent}”
+                            </p>
+                          );
+                        })
+                      : user?.reviewsFrom.map((review, i) => {
+                          return (
+                            <p key={i} className="italic text-gray-500">
+                              “{review.messageFromStudent}”
+                            </p>
+                          );
+                        })}
+                  </div>
+                </div>
+              )}
+              {!user?.isMentor && <Feedback user={user} />}
+            </div>
+          </div>
         </div>
       </main>
     </>
