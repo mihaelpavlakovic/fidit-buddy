@@ -49,6 +49,7 @@ const Feedback = ({ user }) => {
       })
         .then(() => {
           alert("Uspješno ste ocijenili mentora.");
+          setMessage("");
         })
         .catch(error => {
           console.log(error);

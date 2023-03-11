@@ -6,6 +6,7 @@ import { db, storage } from "./firebase";
 import { ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";
 import { updateDoc, doc, getDoc } from "firebase/firestore";
 import { updateProfile } from "firebase/auth";
+import { BiEdit } from "react-icons/bi";
 
 const Profile = () => {
   const { currentUser } = useContext(AuthContext);
@@ -144,6 +145,28 @@ const Profile = () => {
                 )}
               </form>
             </div>
+          </div>
+          <div className="border-2 border-solid rounded-md">
+            <div className="p-3 border-b-2 flex justify-between items-center">
+              <h2 className="text-lg">Osobne informacije</h2>
+              <BiEdit className="text-gray-500 cursor-pointer hover:text-gray-700" />
+            </div>
+            <table className="flex p-3">
+              <tbody>
+                <tr>
+                  <td className="w-[4.5rem]">Ime:</td>
+                  <td>{user?.displayName}</td>
+                </tr>
+                <tr>
+                  <td className="w-[4.5rem]">Email:</td>
+                  <td>{user?.email}</td>
+                </tr>
+                <tr>
+                  <td className="w-[4.5rem]">JMBAG:</td>
+                  <td>{user?.jmbag}</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
           {user?.isMentor && (
             <div className="border-2 border-solid rounded-md">
