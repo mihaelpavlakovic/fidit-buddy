@@ -28,7 +28,6 @@ function Admin() {
 
 	useEffect(() => {
 		const userCollRef = collection(db, "users");
-		//const q = query(userCollRef, where("isAdmin", "==", false));
 
 		const unsub = onSnapshot(userCollRef, (snap) => {
 			const userDocs = [];

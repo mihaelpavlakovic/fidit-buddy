@@ -10,29 +10,33 @@ import Profile from "./Profile";
 import CreatePost from "./CreatePost";
 import Admin from "./Admin";
 import PermissionDenied from "./PermissionDenied";
+import ChatPage from "./Chat/ChatPage";
+import MessagesPageSec from "./Chat/MessagesPageSec";
 
 function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route element={<PrivateRoutes />}>
-          <Route element={<PrivateRoutes isAdminRoute="true" />}>
-            <Route path="/admin" element={<Admin />} />
-          </Route>
-          <Route element={<PrivateRoutes isMentorRoute="true" />}>
-            <Route path="/kreiraj-objavu" element={<CreatePost />} />
-          </Route>
-          <Route path="/" element={<Homepage />} exact />
-          <Route path="/poruke" element={<MessagesPage />} />
-          <Route path="/profil" element={<Profile />} />
-        </Route>
-        <Route path="/prijava" element={<Login />} />
-        <Route path="/registracija" element={<Registration />} />
-        <Route path="/promjena-lozinke" element={<PasswordReset />} />
-        <Route path="/odbijen-pristup" element={<PermissionDenied />} />
-      </Routes>
-    </BrowserRouter>
-  );
+	return (
+		<BrowserRouter>
+			<Routes>
+				<Route element={<PrivateRoutes />}>
+					<Route element={<PrivateRoutes isAdminRoute="true" />}>
+						<Route path="/admin" element={<Admin />} />
+					</Route>
+					<Route element={<PrivateRoutes isMentorRoute="true" />}>
+						<Route path="/kreiraj-objavu" element={<CreatePost />} />
+					</Route>
+					<Route path="/" element={<Homepage />} exact />
+					<Route path="/poruke" element={<MessagesPage />} />
+					<Route path="/chat" element={<ChatPage />} />
+					<Route path="/messages" element={<MessagesPageSec />} />
+					<Route path="/profil" element={<Profile />} />
+				</Route>
+				<Route path="/prijava" element={<Login />} />
+				<Route path="/registracija" element={<Registration />} />
+				<Route path="/promjena-lozinke" element={<PasswordReset />} />
+				<Route path="/odbijen-pristup" element={<PermissionDenied />} />
+			</Routes>
+		</BrowserRouter>
+	);
 }
 
 export default App;
