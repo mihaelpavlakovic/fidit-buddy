@@ -1,16 +1,25 @@
-import { onSnapshot } from "firebase/firestore";
+import {
+	arrayUnion,
+	doc,
+	onSnapshot,
+	Timestamp,
+	updateDoc,
+} from "firebase/firestore";
 import { useContext, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { BiArrowBack } from "react-icons/bi";
 import { FiPaperclip, FiSend } from "react-icons/fi";
 import { BiImageAdd } from "react-icons/bi";
 import { AuthContext } from "../context/AuthContext";
+import { db } from "../firebase";
+import { uuidv4 } from "@firebase/util";
 
 const MessagesPageSec = ({
-	senderUid,
+	interlocutorUid,
 	senderName,
 	senderPhoto,
-	messagesDocRef,
+	messagesUid,
+	lastChatUid,
 }) => {
 	let navigate = useNavigate();
 	const messagesEndRef = useRef(null);
@@ -18,37 +27,64 @@ const MessagesPageSec = ({
 	const [messages, setMessages] = useState([]);
 	const { currentUser } = useContext(AuthContext);
 
+	const [text, setText] = useState("");
+
 	if (state) {
-		senderUid = state.value;
+		interlocutorUid = state.value;
 		senderName = state.label;
 		senderPhoto = state.image;
-		messagesDocRef = state.messDocRef;
-		console.log(state);
+		messagesUid = state.messagesUid;
+		lastChatUid = state.lastChatUid;
 	}
 
 	const scrollToBottom = () => {
 		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
 	};
 
-	useEffect(() => {
-		scrollToBottom();
-	}, []);
+	const handleSendMessage = async () => {
+		const updateLastMessage = async (userUid) => {
+			await updateDoc(doc(db, "users", userUid, "lastChats", lastChatUid), {
+				lastMessage: text,
+				received: Timestamp.now(),
+				senderUid: currentUser.uid,
+			});
+		};
+
+		if (text) {
+			if (messagesUid) {
+				await updateDoc(doc(db, "messages", messagesUid), {
+					messages: arrayUnion({
+						id: uuidv4(),
+						senderUid: currentUser.uid,
+						dateTime: Timestamp.now(),
+						text: text,
+					}),
+				});
+				updateLastMessage(currentUser.uid);
+				updateLastMessage(interlocutorUid);
+			}
+			setText("");
+		}
+	};
 
 	useEffect(() => {
-		if (messagesDocRef) {
-			const unsub = onSnapshot(messagesDocRef, (doc) => {
+		scrollToBottom();
+	}, [messages]);
+
+	useEffect(() => {
+		if (messagesUid) {
+			const unsub = onSnapshot(doc(db, "messages", messagesUid), (doc) => {
 				setMessages(doc.data().messages);
 			});
 			return unsub;
 		} else {
 			setMessages([]);
 		}
-	}, [messagesDocRef]);
+	}, [messagesUid]);
 
 	return (
 		<>
-			{/* <Navigation /> */}
-			<main className="w-full">
+			<main className="flex flex-col absolute md:relative inset-0 w-full">
 				{/* Header */}
 				<div className="flex items-center bg-teal-500 md:bg-white text-white md:text-black shadow-md md:shadow-none sticky top-0 md:py-4 md:border-b-2">
 					<button
@@ -71,7 +107,7 @@ const MessagesPageSec = ({
 				</div>
 
 				{/* Messages container */}
-				<div className="flex flex-col p-4 gap-2 h-[calc(100%-138px)]">
+				<div className="flex-1 md:flex-initial flex-col p-4 gap-2 overflow-auto md:h-[calc(100vh-210px)]">
 					{messages.length > 0 &&
 						messages.map((message, index) => {
 							return (
@@ -121,11 +157,13 @@ const MessagesPageSec = ({
 				</div>
 
 				{/* Message input */}
-				<div className="flex fixed md:relative w-full bottom-0 p-2 gap-2 border-t-2">
+				<div className="flex w-full p-2 gap-2 border-t-2">
 					<div className="w-full relative">
 						<input
 							className="w-full h-full border p-2 rounded-md pr-20 outline-teal-500"
 							type="text"
+							onChange={(e) => setText(e.target.value)}
+							value={text}
 							placeholder="Unesi poruku..."
 						/>
 						<span className="absolute inset-y-0 right-0 grid place-content-center m-1 text-gray-400">
@@ -139,7 +177,10 @@ const MessagesPageSec = ({
 							</div>
 						</span>
 					</div>
-					<button className="p-3 bg-teal-500 text-white rounded-md hover:bg-teal-600">
+					<button
+						onClick={handleSendMessage}
+						className="p-3 bg-teal-500 text-white rounded-md hover:bg-teal-600"
+					>
 						<FiSend size={22} />
 					</button>
 				</div>

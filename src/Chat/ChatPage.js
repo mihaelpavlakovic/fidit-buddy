@@ -1,6 +1,6 @@
 import { collection, onSnapshot } from "firebase/firestore";
 import { useContext, useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import ReactSelect from "react-select";
 import { AuthContext } from "../context/AuthContext";
 import { db } from "../firebase";
@@ -17,6 +17,11 @@ const ChatPage = () => {
 
 	const handleSelect = (e) => {
 		if (e != null) {
+			const existingChat = lastChats.find((x) => x.interlocutorUid === e.value);
+			if (existingChat) {
+				e.messagesUid = existingChat.messagesUid;
+				e.lastChatUid = existingChat.id;
+			}
 			let w = window.innerWidth;
 			if (w >= 768) {
 				setSelectedUser(e);
@@ -32,16 +37,16 @@ const ChatPage = () => {
 	const handleSelectExisting = (chat) => {
 		let w = window.innerWidth;
 		const chatData = {
-			value: chat.senderUid,
+			value: chat.interlocutorUid,
 			label: chat.senderName,
 			image: chat.senderPhoto,
-			messDocRef: chat.messagesDocRef,
+			messagesUid: chat.messagesUid,
+			lastChatUid: chat.id,
 		};
 
 		if (w >= 768) {
 			setSelectedUser(chatData);
 		} else {
-			console.log(chat);
 			navigate("/messages", {
 				state: chatData,
 			});
@@ -73,7 +78,9 @@ const ChatPage = () => {
 			const unsub = onSnapshot(lastChatsRef, (snap) => {
 				const lastChatsDocs = [];
 				snap.forEach((doc) => {
-					const userData = users.find((x) => x.uid === doc.data().senderUid);
+					const userData = users.find(
+						(x) => x.uid === doc.data().interlocutorUid
+					);
 					const senderPhoto = userData?.photoURL;
 					const senderName = userData?.displayName;
 					lastChatsDocs.push({
@@ -104,9 +111,9 @@ const ChatPage = () => {
 	);
 
 	return (
-		<div className="flex flex-col h-screen">
+		<div className="flex flex-col absolute inset-0">
 			<Navigation />
-			<main className="md:flex justify-center h-full">
+			<main className="md:flex justify-center h-ful">
 				<div className="md:flex md:w-full lg:w-4/5 xl:w-2/3 2xl:w-3/5 md:border-x-2">
 					<div className="flex flex-col md:w-3/5 md:border-r-2">
 						<h1 className="text-3xl mx-6 mt-4 font-bold md:my-4">Razgovori</h1>
@@ -178,10 +185,11 @@ const ChatPage = () => {
 
 					<div className="hidden md:flex w-full">
 						<MessagesPageSec
-							senderUid={selectedUser?.value}
+							interlocutorUid={selectedUser?.value}
 							senderName={selectedUser?.label}
 							senderPhoto={selectedUser?.image}
-							messagesDocRef={selectedUser?.messDocRef}
+							messagesUid={selectedUser?.messagesUid}
+							lastChatUid={selectedUser?.lastChatUid}
 						/>
 					</div>
 				</div>
