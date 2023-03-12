@@ -1,7 +1,14 @@
-import Navigation from "../Navigation";
+// react imports
+import { useState, useEffect, useContext, useCallback } from "react";
+import { Link } from "react-router-dom";
+
+// component imports
+import Navigation from "../../components/Navigation";
 import Post from "./Post";
-import EditModal from "../EditModal";
-import { db } from "../firebase";
+import EditModal from "../../utils/EditModal";
+
+// fireabse imports
+import { db } from "../../database/firebase";
 import {
   collection,
   onSnapshot,
@@ -13,9 +20,9 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
-import { useState, useEffect, useContext, useCallback } from "react";
-import { AuthContext } from "../context/AuthContext";
-import { Link } from "react-router-dom";
+
+// context imports
+import { AuthContext } from "../../context/AuthContext";
 
 const Homepage = () => {
   const { currentUser } = useContext(AuthContext);

@@ -1,14 +1,21 @@
-import { useFormik } from "formik";
-import * as Yup from "yup";
+// react imports
+import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { auth } from "./firebase";
+
+// component imports
+import Modal from "../utils/Modal";
+
+// fireabse imports
+import { auth } from "../database/firebase";
 import {
   browserLocalPersistence,
   signInWithEmailAndPassword,
   setPersistence,
 } from "firebase/auth";
-import Modal from "./Modal";
-import { useState } from "react";
+
+// library imports
+import { useFormik } from "formik";
+import * as Yup from "yup";
 
 const Login = () => {
   const navigate = useNavigate();

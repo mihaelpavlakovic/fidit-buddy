@@ -1,7 +1,8 @@
-import { useFormik } from "formik";
-import * as Yup from "yup";
+// react imports
 import { useNavigate, Link } from "react-router-dom";
-import { auth, db } from "./firebase";
+
+// firebase imports
+import { auth, db } from "../database/firebase";
 import {
   createUserWithEmailAndPassword,
   updateProfile,
@@ -9,6 +10,10 @@ import {
   browserSessionPersistence,
 } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
+
+// library imports
+import { useFormik } from "formik";
+import * as Yup from "yup";
 
 const Registration = () => {
   const navigate = useNavigate();

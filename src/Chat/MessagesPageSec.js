@@ -1,3 +1,9 @@
+// react imports
+import { useContext, useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+
+// firebase imports
+import { db } from "../database/firebase";
 import {
 	addDoc,
 	arrayUnion,
@@ -8,14 +14,14 @@ import {
 	Timestamp,
 	updateDoc,
 } from "firebase/firestore";
-import { useContext, useEffect, useRef, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { BiArrowBack } from "react-icons/bi";
-import { FiPaperclip, FiSend } from "react-icons/fi";
-import { BiImageAdd } from "react-icons/bi";
-import { AuthContext } from "../context/AuthContext";
-import { db } from "../firebase";
 import { uuidv4 } from "@firebase/util";
+
+// library imports
+import { BiArrowBack, BiImageAdd } from "react-icons/bi";
+import { FiPaperclip, FiSend } from "react-icons/fi";
+
+// context imports
+import { AuthContext } from "../context/AuthContext";
 
 const MessagesPageSec = ({
 	interlocutorUid,

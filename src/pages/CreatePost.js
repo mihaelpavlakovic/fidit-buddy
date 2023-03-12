@@ -1,12 +1,21 @@
-import { useFormik } from "formik";
-import * as Yup from "yup";
-import Navigation from "./Navigation";
-import { db, storage } from "./firebase";
+// react imports
+import { useState, useContext } from "react";
+import { useNavigate } from "react-router";
+
+// component imports
+import Navigation from "../components/Navigation";
+
+// fireabse imports
+import { db, storage } from "../database/firebase";
 import { ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";
 import { doc, addDoc, collection, Timestamp } from "firebase/firestore";
-import { useNavigate } from "react-router";
-import { useState, useContext } from "react";
-import { AuthContext } from "./context/AuthContext";
+
+// library imports
+import { useFormik } from "formik";
+import * as Yup from "yup";
+
+// context imports
+import { AuthContext } from "../context/AuthContext";
 
 const CreatePost = () => {
   const [imgUrl, setImgUrl] = useState([]);

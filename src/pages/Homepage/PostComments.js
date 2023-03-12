@@ -1,6 +1,11 @@
+// react imports
 import { useContext } from "react";
-import { AuthContext } from "../context/AuthContext";
+
+// library imports
 import { BiEdit, BiTrash } from "react-icons/bi";
+
+// context imports
+import { AuthContext } from "../../context/AuthContext";
 
 const PostComments = ({ comments, onDeleteHandler, onEditHandler }) => {
   const { currentUser } = useContext(AuthContext);

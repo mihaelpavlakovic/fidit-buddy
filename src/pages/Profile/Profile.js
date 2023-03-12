@@ -1,12 +1,21 @@
+// react imports
 import { useContext, useEffect, useCallback, useState, useRef } from "react";
-import { AuthContext } from "./context/AuthContext";
-import Navigation from "./Navigation";
+
+// component imports
+import Navigation from "../../components/Navigation";
 import Feedback from "./Feedback";
-import { db, storage } from "./firebase";
+
+// firebase imports
+import { db, storage } from "../../database/firebase";
 import { ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";
 import { updateDoc, doc, getDoc } from "firebase/firestore";
 import { updateProfile } from "firebase/auth";
+
+// library imports
 import { BiEdit } from "react-icons/bi";
+
+// context imports
+import { AuthContext } from "../../context/AuthContext";
 
 const Profile = () => {
   const { currentUser } = useContext(AuthContext);

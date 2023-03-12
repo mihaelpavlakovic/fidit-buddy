@@ -1,8 +1,18 @@
+// react imports
+import { useContext } from "react";
+
+// component imports
 import PostComments from "./PostComments";
+
+// library imports
 import { FiSend } from "react-icons/fi";
 import { BiEdit, BiTrash } from "react-icons/bi";
 import { AiFillFilePdf } from "react-icons/ai";
 import { useFormik } from "formik";
+
+// fireabse imports
+import { db, storage } from "../../database/firebase";
+import { ref, deleteObject } from "firebase/storage";
 import {
   doc,
   getDoc,
@@ -10,10 +20,9 @@ import {
   deleteDoc,
   Timestamp,
 } from "firebase/firestore";
-import { ref, deleteObject } from "firebase/storage";
-import { db, storage } from "../firebase";
-import { AuthContext } from "../context/AuthContext";
-import { useContext } from "react";
+
+// context imports
+import { AuthContext } from "../../context/AuthContext";
 
 const Post = ({
   postDetail,
