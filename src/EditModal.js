@@ -38,7 +38,6 @@ const Modal = ({ onClose, comment, comIndex, docId, docFromDb }) => {
       })
         .then(() => {
           onClose();
-          alert("Komentar je uspjesno ažuriran.");
         })
         .catch(error => {
           console.log(error);
@@ -50,7 +49,6 @@ const Modal = ({ onClose, comment, comIndex, docId, docFromDb }) => {
       })
         .then(() => {
           onClose();
-          alert("Objava je uspjesno ažuriran.");
         })
         .catch(error => {
           console.log(error);

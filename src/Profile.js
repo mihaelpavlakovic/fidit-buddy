@@ -209,7 +209,9 @@ const Profile = () => {
                   </div>
                 </div>
               )}
-              {!user?.isMentor && <Feedback user={user} />}
+              {!user?.isMentor && user?.assignedMentorFreshmen !== null && (
+                <Feedback user={user} />
+              )}
             </div>
           </div>
         </div>

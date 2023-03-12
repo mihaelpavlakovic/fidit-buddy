@@ -125,6 +125,7 @@ const Feedback = ({ user }) => {
               required
               placeholder="Odličan mentor, komunikativan..."
               onChange={e => setMessage(e.target.value)}
+              value={message}
             ></textarea>
           </div>
           <button

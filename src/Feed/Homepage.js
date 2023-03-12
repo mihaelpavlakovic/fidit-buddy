@@ -179,6 +179,7 @@ const Homepage = () => {
                         comment: docForChange.comments[index].comment,
                         comIndex: index,
                         docId: docId,
+                        docFromDb: "",
                       });
                     }}
                     onDeleteHandler={onDeleteHandler}
