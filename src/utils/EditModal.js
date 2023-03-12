@@ -1,6 +1,9 @@
+// react imports
 import { useState } from "react";
+
+// firebase imports
+import { db } from "../database/firebase";
 import { updateDoc, getDoc, doc } from "firebase/firestore";
-import { db } from "./firebase";
 
 const Modal = ({ onClose, comment, comIndex, docId, docFromDb }) => {
   const [commentValue, setCommentValue] = useState(comment);

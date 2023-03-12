@@ -1,9 +1,14 @@
-import { Outlet, Navigate } from "react-router";
+// react imports
 import { useContext, useEffect, useState } from "react";
-import { AuthContext } from "./context/AuthContext";
+import { Outlet, Navigate } from "react-router";
+
+// firebase imports
+import { db, auth } from "../database/firebase";
 import { doc, getDoc } from "firebase/firestore";
-import { db, auth } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
+
+// context imports
+import { AuthContext } from "../context/AuthContext";
 
 const PrivateRoutes = ({ isAdminRoute, isMentorRoute }) => {
   const { currentUser } = useContext(AuthContext);

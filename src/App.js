@@ -1,42 +1,44 @@
-import "./App.css";
+// react imports
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Login from "./Login";
-import Registration from "./Registration";
-import Homepage from "./Feed/Homepage";
-import PasswordReset from "./PasswordReset";
-import PrivateRoutes from "./PrivateRoutes";
+
+// component imports
+import Login from "./pages/Login";
+import Registration from "./pages/Registration";
+import Homepage from "./pages/Homepage/Homepage";
+import PasswordReset from "./pages/PasswordReset";
+import PrivateRoutes from "./routes/PrivateRoutes";
 import MessagesPage from "./Messages/MessagesPage";
-import Profile from "./Profile";
-import CreatePost from "./CreatePost";
-import Admin from "./Admin";
-import PermissionDenied from "./PermissionDenied";
+import Profile from "./pages/Profile/Profile";
+import CreatePost from "./pages/CreatePost";
+import Admin from "./pages/Admin/Admin";
+import PermissionDenied from "./pages/PermissionDenied";
 import ChatPage from "./Chat/ChatPage";
 import MessagesPageSec from "./Chat/MessagesPageSec";
 
 function App() {
-	return (
-		<BrowserRouter>
-			<Routes>
-				<Route element={<PrivateRoutes />}>
-					<Route element={<PrivateRoutes isAdminRoute="true" />}>
-						<Route path="/admin" element={<Admin />} />
-					</Route>
-					<Route element={<PrivateRoutes isMentorRoute="true" />}>
-						<Route path="/kreiraj-objavu" element={<CreatePost />} />
-					</Route>
-					<Route path="/" element={<Homepage />} exact />
-					<Route path="/poruke" element={<MessagesPage />} />
-					<Route path="/chat" element={<ChatPage />} />
-					<Route path="/messages" element={<MessagesPageSec />} />
-					<Route path="/profil" element={<Profile />} />
-				</Route>
-				<Route path="/prijava" element={<Login />} />
-				<Route path="/registracija" element={<Registration />} />
-				<Route path="/promjena-lozinke" element={<PasswordReset />} />
-				<Route path="/odbijen-pristup" element={<PermissionDenied />} />
-			</Routes>
-		</BrowserRouter>
-	);
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route element={<PrivateRoutes />}>
+          <Route element={<PrivateRoutes isAdminRoute="true" />}>
+            <Route path="/admin" element={<Admin />} />
+          </Route>
+          <Route element={<PrivateRoutes isMentorRoute="true" />}>
+            <Route path="/kreiraj-objavu" element={<CreatePost />} />
+          </Route>
+          <Route path="/" element={<Homepage />} exact />
+          <Route path="/poruke" element={<MessagesPage />} />
+          <Route path="/chat" element={<ChatPage />} />
+          <Route path="/messages" element={<MessagesPageSec />} />
+          <Route path="/profil" element={<Profile />} />
+        </Route>
+        <Route path="/prijava" element={<Login />} />
+        <Route path="/registracija" element={<Registration />} />
+        <Route path="/promjena-lozinke" element={<PasswordReset />} />
+        <Route path="/odbijen-pristup" element={<PermissionDenied />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
 export default App;

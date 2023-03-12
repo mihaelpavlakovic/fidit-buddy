@@ -1,8 +1,15 @@
+// react imports
 import React, { useContext, useState } from "react";
-import { AiFillStar } from "react-icons/ai";
+
+// firebase imports
+import { db } from "../../database/firebase";
 import { getDoc, doc, updateDoc, arrayUnion } from "firebase/firestore";
-import { db } from "./firebase";
-import { AuthContext } from "./context/AuthContext";
+
+// library imports
+import { AiFillStar } from "react-icons/ai";
+
+// context imports
+import { AuthContext } from "../../context/AuthContext";
 
 const Feedback = ({ user }) => {
   const [rating, setRating] = useState(null);

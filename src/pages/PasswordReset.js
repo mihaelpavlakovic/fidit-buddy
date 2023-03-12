@@ -1,8 +1,13 @@
+// react imports
 import { Link } from "react-router-dom";
+
+// firebase imports
+import { auth } from "../database/firebase";
+import { sendPasswordResetEmail } from "firebase/auth";
+
+// library imports
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { auth } from "./firebase";
-import { sendPasswordResetEmail } from "firebase/auth";
 
 const PasswordReset = () => {
   const formik = useFormik({

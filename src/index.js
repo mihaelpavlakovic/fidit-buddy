@@ -1,7 +1,14 @@
+// react imports
 import React from "react";
 import ReactDOM from "react-dom/client";
+
+// styles
 import "./index.css";
+
+// component imports
 import App from "./App";
+
+// context imports
 import { AuthContextProvider } from "./context/AuthContext";
 import { ChatContextProvider } from "./context/ChatContext";
 
