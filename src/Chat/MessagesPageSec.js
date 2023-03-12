@@ -1,7 +1,10 @@
 import {
+	addDoc,
 	arrayUnion,
+	collection,
 	doc,
 	onSnapshot,
+	setDoc,
 	Timestamp,
 	updateDoc,
 } from "firebase/firestore";
@@ -44,9 +47,22 @@ const MessagesPageSec = ({
 	const handleSendMessage = async () => {
 		const updateLastMessage = async (userUid) => {
 			await updateDoc(doc(db, "users", userUid, "lastChats", lastChatUid), {
-				lastMessage: text,
-				received: Timestamp.now(),
+				text: text,
+				dateTime: Timestamp.now(),
 				senderUid: currentUser.uid,
+			});
+		};
+
+		const createLastMessage = async (userUid, docId) => {
+			let interlocutor = userUid;
+			if (userUid === currentUser.uid) interlocutor = interlocutorUid;
+
+			await addDoc(collection(db, "users", userUid, "lastChats"), {
+				text: text,
+				dateTime: Timestamp.now(),
+				senderUid: currentUser.uid,
+				messagesUid: docId,
+				interlocutorUid: interlocutor,
 			});
 		};
 
@@ -60,8 +76,39 @@ const MessagesPageSec = ({
 						text: text,
 					}),
 				});
+
 				updateLastMessage(currentUser.uid);
 				updateLastMessage(interlocutorUid);
+			} else {
+				const messageData = {
+					senderUid: currentUser.uid,
+					dateTime: Timestamp.now(),
+					text: text,
+				};
+
+				await addDoc(collection(db, "messages"), {
+					messages: [
+						{
+							id: uuidv4(),
+							...messageData,
+						},
+					],
+				}).then(async (firstDoc) => {
+					await addDoc(collection(db, "users", currentUser.uid, "lastChats"), {
+						messagesUid: firstDoc.id,
+						interlocutorUid: interlocutorUid,
+						...messageData,
+					}).then(async (secondDoc) => {
+						await setDoc(
+							doc(db, "users", interlocutorUid, "lastChats", secondDoc.id),
+							{
+								messagesUid: firstDoc.id,
+								interlocutorUid: currentUser.uid,
+								...messageData,
+							}
+						);
+					});
+				});
 			}
 			setText("");
 		}
@@ -132,13 +179,21 @@ const MessagesPageSec = ({
 									</div>
 									<div className="max-w-[65%]">
 										<div
-											className={`text-sm text-white p-1.5 rounded-xl ${
+											className={`flex ${
 												message.senderUid === currentUser.uid
-													? "bg-teal-500 rounded-tr-none"
-													: "bg-gray-500 rounded-tl-none"
+													? "justify-end"
+													: "justify-start"
 											}`}
 										>
-											{message.text}
+											<div
+												className={`text-sm w-fit text-white p-1.5 rounded-xl ${
+													message.senderUid === currentUser.uid
+														? "bg-teal-500 rounded-tr-none"
+														: "bg-gray-500 rounded-tl-none"
+												}`}
+											>
+												{message.text}
+											</div>
 										</div>
 										<div className="text-xs text-gray-500 mt-0.5">
 											{message.dateTime.toDate().toLocaleString("hr-HR", {
