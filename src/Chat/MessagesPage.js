@@ -26,7 +26,7 @@ import { AuthContext } from "../context/AuthContext";
 import { ChatContext } from "../context/ChatContext";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
-const MessagesPageSec = () => {
+const MessagesPage = () => {
 	let navigate = useNavigate();
 
 	const messagesEndRef = useRef(null);
@@ -44,6 +44,10 @@ const MessagesPageSec = () => {
 
 	const scrollToBottom = () => {
 		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+	};
+
+	const handleKeydown = (e) => {
+		e.code === "Enter" && handleSendMessage();
 	};
 
 	const handleSendMessage = async () => {
@@ -369,6 +373,7 @@ const MessagesPageSec = () => {
 							className="w-full h-full border p-2 rounded-md shadow-md pr-20 outline-teal-500 disabled:cursor-not-allowed"
 							type="text"
 							onChange={(e) => setText(e.target.value)}
+							onKeyDown={handleKeydown}
 							value={text}
 							disabled={!chatData.user.senderName}
 							placeholder="Unesi poruku..."
@@ -415,4 +420,4 @@ const MessagesPageSec = () => {
 	);
 };
 
-export default MessagesPageSec;
+export default MessagesPage;

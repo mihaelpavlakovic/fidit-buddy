@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 // component imports
 import Navigation from "../components/Navigation";
-import MessagesPageSec from "./MessagesPageSec";
+import MessagesPage from "./MessagesPage";
 
 // firebase imports
 import { db } from "../database/firebase";
@@ -202,7 +202,7 @@ const ChatPage = () => {
 
 					{/* Messages container */}
 					<div className="hidden md:flex w-3/5">
-						<MessagesPageSec />
+						<MessagesPage />
 					</div>
 				</div>
 			</main>
