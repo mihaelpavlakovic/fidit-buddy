@@ -12,6 +12,7 @@ import { collection, onSnapshot } from "firebase/firestore";
 
 // library imports
 import ReactSelect from "react-select";
+import { BiImage } from "react-icons/bi";
 import { AuthContext } from "../context/AuthContext";
 import { ChatContext } from "../context/ChatContext";
 
@@ -115,10 +116,13 @@ const ChatPage = () => {
 			<Navigation />
 			<main className="md:flex justify-center">
 				<div className="md:flex md:w-full lg:w-4/5 xl:w-2/3 2xl:w-3/5 md:border-x-2">
+					{/* Side panel */}
 					<div className="flex flex-col md:w-2/5 md:border-r-2">
+						{/* Header */}
 						<h1 className="text-3xl mx-6 mt-4 font-bold md:my-4">Razgovori</h1>
+						{/* Search Users */}
 						<ReactSelect
-							className="mx-6 my-2 cursor-pointer"
+							className="mx-6 my-2"
 							value={selectedOption}
 							onChange={handleSelect}
 							placeholder={"Pretraži korisnike..."}
@@ -150,7 +154,7 @@ const ChatPage = () => {
 								}),
 							}}
 						/>
-
+						{/* Last Chats Container */}
 						<div className="md:h-[calc(100vh-194px)] md:overflow-auto">
 							{(lastChats.length > 0 &&
 								lastChats.map((chat) => {
@@ -162,7 +166,7 @@ const ChatPage = () => {
 										>
 											<div className="h-12 w-12 flex-shrink-0">
 												<img
-													className="h-12 w-12 rounded-md"
+													className="h-12 w-12 rounded-md shadow-md"
 													src={chat.senderPhoto}
 													alt="Slika profila"
 												/>
@@ -181,7 +185,11 @@ const ChatPage = () => {
 													</div>
 												</div>
 												<div className="text-sm text-gray-500 truncate overflow-hidden">
-													{chat.text}
+													{chat.text || (
+														<div className="flex items-center gap-1">
+															<BiImage size={16} /> <span>Fotografija</span>
+														</div>
+													)}
 												</div>
 											</div>
 										</div>
@@ -192,6 +200,7 @@ const ChatPage = () => {
 						</div>
 					</div>
 
+					{/* Messages container */}
 					<div className="hidden md:flex w-3/5">
 						<MessagesPageSec />
 					</div>

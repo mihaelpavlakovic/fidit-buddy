@@ -19,28 +19,26 @@ import { uuidv4 } from "@firebase/util";
 // library imports
 import { BiArrowBack, BiImageAdd } from "react-icons/bi";
 import { FiPaperclip, FiSend, FiTrash2 } from "react-icons/fi";
+import { ImSpinner2 } from "react-icons/im";
 
 // context imports
 import { AuthContext } from "../context/AuthContext";
 import { ChatContext } from "../context/ChatContext";
-import {
-	getDownloadURL,
-	ref,
-	uploadBytes,
-	uploadBytesResumable,
-} from "firebase/storage";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 const MessagesPageSec = () => {
 	let navigate = useNavigate();
+
 	const messagesEndRef = useRef(null);
 	const [messages, setMessages] = useState([]);
-	const { currentUser } = useContext(AuthContext);
+	const [showTime, setShowTime] = useState(false);
 
 	const [text, setText] = useState("");
 	const [selectedImage, setSelectedImage] = useState(null);
 	const [selectedImageValue, setSelectedImageValue] = useState("");
-	const [showTime, setShowTime] = useState(false);
+	const [loading, setLoading] = useState(false);
 
+	const { currentUser } = useContext(AuthContext);
 	const { chatData } = useContext(ChatContext);
 	const { dispatch } = useContext(ChatContext);
 
@@ -51,31 +49,34 @@ const MessagesPageSec = () => {
 	const handleSendMessage = async () => {
 		let imageUrl = null;
 
+		const messageDataUpdate = {
+			senderUid: currentUser.uid,
+			dateTime: Timestamp.now(),
+			text: text,
+		};
+
 		const updateMessageDoc = async () => {
 			await updateDoc(doc(db, "messages", chatData.chatId), {
 				messages: arrayUnion({
 					id: uuidv4(),
-					senderUid: currentUser.uid,
-					dateTime: Timestamp.now(),
-					text: text,
 					image: imageUrl,
+					...messageDataUpdate,
 				}),
 			});
+			setLoading(false);
 		};
 
 		const updateLastMessage = async (userUid) => {
 			await updateDoc(
 				doc(db, "users", userUid, "lastChats", chatData.user.id),
-				{
-					text: text,
-					dateTime: Timestamp.now(),
-					senderUid: currentUser.uid,
-				}
+				{ ...messageDataUpdate }
 			);
 		};
 
 		if (text || selectedImage) {
+			setLoading(true);
 			if (chatData.chatId !== "null") {
+				// Ovo je dio kada već postoje poruke među korisnicima
 				if (selectedImage) {
 					let imagePath =
 						"chatImages/" +
@@ -88,6 +89,8 @@ const MessagesPageSec = () => {
 					const storageRef = ref(storage, imagePath);
 
 					uploadBytes(storageRef, selectedImage).then((snapshot) => {
+						setSelectedImage(null);
+						setSelectedImageValue("");
 						getDownloadURL(snapshot.ref).then(async (downloadURL) => {
 							imageUrl = downloadURL;
 							updateMessageDoc();
@@ -97,49 +100,84 @@ const MessagesPageSec = () => {
 					});
 				} else {
 					updateMessageDoc();
+					updateLastMessage(currentUser.uid);
+					updateLastMessage(chatData.user.interlocutorUid);
 				}
 			} else {
-				const messageData = {
-					senderUid: currentUser.uid,
-					dateTime: Timestamp.now(),
-					text: text,
-				};
+				// Ovo je dio kada još nemamo međusobnih poruka
+				const messageDocRef = doc(collection(db, "messages"));
 
-				await addDoc(collection(db, "messages"), {
-					messages: [
-						{
-							id: uuidv4(),
-							...messageData,
-						},
-					],
-				}).then(async (firstDoc) => {
-					await addDoc(collection(db, "users", currentUser.uid, "lastChats"), {
-						messagesUid: firstDoc.id,
-						interlocutorUid: chatData.user.interlocutorUid,
-						...messageData,
-					}).then(async (secondDoc) => {
-						let chatUpdated = { ...chatData.user };
-						chatUpdated.messagesUid = firstDoc.id;
-						chatUpdated.id = secondDoc.id;
+				const addAllDocuments = async (imageUrl) => {
+					const messageData = {
+						messagesUid: messageDocRef.id,
+						senderUid: currentUser.uid,
+						dateTime: Timestamp.now(),
+						text: text,
+						image: imageUrl,
+					};
 
-						dispatch({ type: "CHANGE_USER", payload: chatUpdated });
-
-						await setDoc(
-							doc(
-								db,
-								"users",
-								chatData.user.interlocutorUid,
-								"lastChats",
-								secondDoc.id
-							),
+					await setDoc(messageDocRef, {
+						messages: [
 							{
-								messagesUid: firstDoc.id,
-								interlocutorUid: currentUser.uid,
+								id: uuidv4(),
+								...messageData,
+							},
+						],
+					}).then(async () => {
+						await addDoc(
+							collection(db, "users", currentUser.uid, "lastChats"),
+							{
+								interlocutorUid: chatData.user.interlocutorUid,
 								...messageData,
 							}
-						);
+						).then(async (secondDoc) => {
+							let chatUpdated = { ...chatData.user };
+							chatUpdated.messagesUid = messageDocRef.id;
+							chatUpdated.id = secondDoc.id;
+
+							dispatch({ type: "CHANGE_USER", payload: chatUpdated });
+
+							await setDoc(
+								doc(
+									db,
+									"users",
+									chatData.user.interlocutorUid,
+									"lastChats",
+									secondDoc.id
+								),
+								{
+									interlocutorUid: currentUser.uid,
+									...messageData,
+								}
+							);
+
+							setLoading(false);
+						});
 					});
-				});
+				};
+
+				if (selectedImage) {
+					let imagePath =
+						"chatImages/" +
+						String(messageDocRef.id) +
+						"/" +
+						String(uuidv4()) +
+						"/" +
+						selectedImage.name;
+
+					const storageRef = ref(storage, imagePath);
+
+					uploadBytes(storageRef, selectedImage).then((snapshot) => {
+						setSelectedImage(null);
+						setSelectedImageValue("");
+						getDownloadURL(snapshot.ref).then(async (downloadURL) => {
+							imageUrl = downloadURL;
+							addAllDocuments(downloadURL);
+						});
+					});
+				} else {
+					addAllDocuments(null);
+				}
 			}
 			setText("");
 		}
@@ -193,7 +231,7 @@ const MessagesPageSec = () => {
 					<div className="h-10 w-10 mx-4">
 						{(chatData?.user.senderPhoto && (
 							<img
-								className="h-10 w-10 rounded-md"
+								className="h-10 w-10 rounded-md shadow-md"
 								src={chatData?.user.senderPhoto}
 								alt="Slika profila"
 							/>
@@ -219,7 +257,7 @@ const MessagesPageSec = () => {
 								>
 									<div className="h-8 w-8 flex-shrink-0">
 										<img
-											className={`h-8 w-8 rounded-md ${
+											className={`h-8 w-8 rounded-md shadow-md ${
 												getPreviusMessageInfo(message, index) ? "hidden" : ""
 											}`}
 											src={
@@ -241,21 +279,23 @@ const MessagesPageSec = () => {
 													: "justify-start"
 											}`}
 										>
-											<div
-												className={`text-sm w-fit text-white shadow-md px-2.5 py-1.5 rounded-xl ${
-													getCurrentMessageInfo(message)
-														? "bg-teal-500 rounded-tr-none"
-														: "bg-gray-500 rounded-tl-none"
-												} ${
-													getNextMessageInfo(message, index)
-														? getCurrentMessageInfo(message)
-															? "rounded-br-none"
-															: "rounded-bl-none"
-														: ""
-												}`}
-											>
-												{message.text}
-											</div>
+											{message.text && (
+												<div
+													className={`text-sm w-fit text-white shadow-md px-2.5 py-1.5 rounded-xl ${
+														getCurrentMessageInfo(message)
+															? "bg-teal-500 rounded-tr-none"
+															: "bg-gray-500 rounded-tl-none"
+													} ${
+														getNextMessageInfo(message, index)
+															? getCurrentMessageInfo(message)
+																? "rounded-br-none"
+																: "rounded-bl-none"
+															: ""
+													}`}
+												>
+													{message.text}
+												</div>
+											)}
 											{message.image && (
 												<div className="mt-0.5">
 													<img
@@ -270,7 +310,7 @@ const MessagesPageSec = () => {
 																	: "rounded-bl-none"
 																: ""
 														}`}
-														alt="Poslana slika"
+														alt="Poslana/primljena slika"
 														src={message.image}
 													/>
 												</div>
@@ -302,18 +342,17 @@ const MessagesPageSec = () => {
 
 				{/* Message input */}
 				{selectedImage && (
-					<div className="flex justify-center p-1 border-t-2">
+					<div className="md:absolute bottom-16 left-0 right-0 bg-white/50 flex justify-center p-1 border-t-2">
 						<div className="relative">
 							<img
-								className="h-28 rounded-md"
+								className="h-28 rounded-md shadow-md"
 								alt="Pregled odabrane slike"
 								src={URL.createObjectURL(selectedImage)}
 							/>
 							<button
 								type="button"
-								className="absolute top-0 right-0 bg-red-500 text-white m-0.5 p-1 rounded-md"
+								className="absolute top-0 right-0 bg-red-500 hover:bg-red-600 text-white m-0.5 p-1 rounded-md"
 								onClick={() => {
-									console.log(selectedImage);
 									setSelectedImageValue("");
 									setSelectedImage(null);
 								}}
@@ -327,10 +366,11 @@ const MessagesPageSec = () => {
 				<div className="flex w-full p-2 gap-2 border-t-2">
 					<div className="w-full relative">
 						<input
-							className="w-full h-full border p-2 rounded-md pr-20 outline-teal-500"
+							className="w-full h-full border p-2 rounded-md shadow-md pr-20 outline-teal-500 disabled:cursor-not-allowed"
 							type="text"
 							onChange={(e) => setText(e.target.value)}
 							value={text}
+							disabled={!chatData.user.senderName}
 							placeholder="Unesi poruku..."
 						/>
 						<span className="absolute inset-y-0 right-0 grid place-content-center m-1 text-gray-400">
@@ -345,10 +385,14 @@ const MessagesPageSec = () => {
 									accept="image/*"
 									alt="Odabir slike"
 									className="hidden"
+									disabled={!chatData.user.senderName}
 									value={selectedImageValue}
 									onChange={(e) => setSelectedImage(e.target.files[0])}
 								/>
-								<label htmlFor="image" className="p-2 hover:text-gray-600">
+								<label
+									htmlFor="image"
+									className="p-2 hover:text-gray-600 hover:cursor-pointer"
+								>
 									<BiImageAdd size={20} />
 								</label>
 							</div>
@@ -356,9 +400,14 @@ const MessagesPageSec = () => {
 					</div>
 					<button
 						onClick={handleSendMessage}
-						className="p-3 bg-teal-500 text-white rounded-md hover:bg-teal-600"
+						className="p-3 bg-teal-500 text-white rounded-md shadow-md hover:bg-teal-600 disabled:cursor-wait"
+						disabled={loading}
 					>
-						<FiSend size={22} />
+						{loading ? (
+							<ImSpinner2 size={22} className="animate-spin" />
+						) : (
+							<FiSend size={22} />
+						)}
 					</button>
 				</div>
 			</main>
