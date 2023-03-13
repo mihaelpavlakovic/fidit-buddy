@@ -173,7 +173,9 @@ const ChatPage = () => {
 											</div>
 											<div className="flex flex-col ml-4 w-full overflow-hidden">
 												<div className="flex grow justify-between gap-x-2">
-													<div className="font-semibold">{chat.senderName}</div>
+													<div className="font-semibold text-gray-800">
+														{chat.senderName}
+													</div>
 													<div className="text-xs text-gray-500 text-right">
 														{chat.dateTime.toDate().toLocaleString("hr-HR", {
 															day: "numeric",

@@ -1,5 +1,5 @@
 // react imports
-import { useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 // firebase imports
@@ -18,7 +18,7 @@ import { uuidv4 } from "@firebase/util";
 
 // library imports
 import { BiArrowBack, BiImageAdd } from "react-icons/bi";
-import { FiPaperclip, FiSend, FiTrash2 } from "react-icons/fi";
+import { FiDownload, FiPaperclip, FiSend, FiTrash2 } from "react-icons/fi";
 import { ImSpinner2 } from "react-icons/im";
 
 // context imports
@@ -36,6 +36,8 @@ const MessagesPage = () => {
 	const [text, setText] = useState("");
 	const [selectedImage, setSelectedImage] = useState(null);
 	const [selectedImageValue, setSelectedImageValue] = useState("");
+	const [selectedDoc, setSelectedDoc] = useState(null);
+	const [selectedDocValue, setSelectedDocValue] = useState("");
 	const [loading, setLoading] = useState(false);
 
 	const { currentUser } = useContext(AuthContext);
@@ -52,6 +54,7 @@ const MessagesPage = () => {
 
 	const handleSendMessage = async () => {
 		let imageUrl = null;
+		let docUrl = null;
 
 		const messageDataUpdate = {
 			senderUid: currentUser.uid,
@@ -64,6 +67,7 @@ const MessagesPage = () => {
 				messages: arrayUnion({
 					id: uuidv4(),
 					image: imageUrl,
+					document: docUrl,
 					...messageDataUpdate,
 				}),
 			});
@@ -77,31 +81,41 @@ const MessagesPage = () => {
 			);
 		};
 
-		if (text || selectedImage) {
+		if (text || selectedImage || selectedDoc) {
 			setLoading(true);
 			if (chatData.chatId !== "null") {
 				// Ovo je dio kada već postoje poruke među korisnicima
-				if (selectedImage) {
+				if (selectedImage || selectedDoc) {
+					let imgName = "";
+					selectedImage
+						? (imgName = selectedImage.name)
+						: (imgName = selectedDoc.name);
+
 					let imagePath =
 						"chatImages/" +
 						String(chatData.chatId) +
 						"/" +
 						String(uuidv4()) +
 						"/" +
-						selectedImage.name;
+						imgName;
 
 					const storageRef = ref(storage, imagePath);
 
-					uploadBytes(storageRef, selectedImage).then((snapshot) => {
-						setSelectedImage(null);
-						setSelectedImageValue("");
-						getDownloadURL(snapshot.ref).then(async (downloadURL) => {
-							imageUrl = downloadURL;
-							updateMessageDoc();
-							updateLastMessage(currentUser.uid);
-							updateLastMessage(chatData.user.interlocutorUid);
-						});
-					});
+					uploadBytes(storageRef, selectedImage || selectedDoc).then(
+						(snapshot) => {
+							setSelectedImage(null);
+							setSelectedImageValue("");
+							setSelectedDoc(null);
+							setSelectedDocValue("");
+							getDownloadURL(snapshot.ref).then(async (downloadURL) => {
+								if (selectedDoc) docUrl = downloadURL;
+								if (selectedImage) imageUrl = downloadURL;
+								updateMessageDoc();
+								updateLastMessage(currentUser.uid);
+								updateLastMessage(chatData.user.interlocutorUid);
+							});
+						}
+					);
 				} else {
 					updateMessageDoc();
 					updateLastMessage(currentUser.uid);
@@ -118,6 +132,7 @@ const MessagesPage = () => {
 						dateTime: Timestamp.now(),
 						text: text,
 						image: imageUrl,
+						document: docUrl,
 					};
 
 					await setDoc(messageDocRef, {
@@ -160,25 +175,35 @@ const MessagesPage = () => {
 					});
 				};
 
-				if (selectedImage) {
+				if (selectedImage || selectedDoc) {
+					let imgName = "";
+					selectedImage
+						? (imgName = selectedImage.name)
+						: (imgName = selectedDoc.name);
+
 					let imagePath =
 						"chatImages/" +
 						String(messageDocRef.id) +
 						"/" +
 						String(uuidv4()) +
 						"/" +
-						selectedImage.name;
+						imgName;
 
 					const storageRef = ref(storage, imagePath);
 
-					uploadBytes(storageRef, selectedImage).then((snapshot) => {
-						setSelectedImage(null);
-						setSelectedImageValue("");
-						getDownloadURL(snapshot.ref).then(async (downloadURL) => {
-							imageUrl = downloadURL;
-							addAllDocuments(downloadURL);
-						});
-					});
+					uploadBytes(storageRef, selectedImage || selectedDoc).then(
+						(snapshot) => {
+							setSelectedImage(null);
+							setSelectedImageValue("");
+							setSelectedDoc(null);
+							setSelectedDocValue("");
+							getDownloadURL(snapshot.ref).then(async (downloadURL) => {
+								if (selectedDoc) docUrl = downloadURL;
+								if (selectedImage) imageUrl = downloadURL;
+								addAllDocuments(downloadURL);
+							});
+						}
+					);
 				} else {
 					addAllDocuments(null);
 				}
@@ -204,6 +229,20 @@ const MessagesPage = () => {
 	const getCurrentMessageInfo = (message) => {
 		if (message.senderUid === currentUser.uid) return true;
 		return false;
+	};
+
+	const handleDownloadDoc = (url) => {
+		fetch(url)
+			.then((response) => response.blob())
+			.then((blob) => {
+				const url = window.URL.createObjectURL(new Blob([blob]));
+				const link = document.createElement("a");
+				link.href = url;
+				link.setAttribute("download", ref(storage, url).name);
+				document.body.appendChild(link);
+				link.click();
+				link.parentNode.removeChild(link);
+			});
 	};
 
 	useEffect(() => {
@@ -319,6 +358,40 @@ const MessagesPage = () => {
 													/>
 												</div>
 											)}
+											{message.document && (
+												<div
+													className={`text-sm w-fit text-white shadow-md rounded-xl hover:bg-teal-600 ${
+														getCurrentMessageInfo(message)
+															? "bg-teal-500 rounded-tr-none"
+															: "bg-gray-500 rounded-tl-none"
+													} ${
+														getNextMessageInfo(message, index)
+															? getCurrentMessageInfo(message)
+																? "rounded-br-none"
+																: "rounded-bl-none"
+															: ""
+													}`}
+												>
+													<a
+														href={message.document}
+														className="inline-flex items-center gap-2 px-2.5 py-1.5"
+														rel="noreferrer"
+														target="_blank"
+													>
+														<FiDownload size={15} />
+														{ref(storage, message.document).name}
+													</a>
+													{/* Ovo treba vidjet za preuzimanje, CORS policy */}
+													{/* <button
+														type="button"
+														onClick={() => handleDownloadDoc(message.document)}
+														className="inline-flex items-center gap-2 px-2.5 py-1.5"
+													>
+														<FiDownload size={15} />
+														{ref(storage, message.document).name}
+													</button> */}
+												</div>
+											)}
 										</div>
 										<div
 											className={`text-xs text-gray-500 ${
@@ -367,6 +440,24 @@ const MessagesPage = () => {
 					</div>
 				)}
 
+				{selectedDoc && (
+					<div className="md:absolute bottom-16 left-0 right-0 bg-white/50 flex justify-center py-1 px-4 border-t-2">
+						<div className="flex bg-gray-200 text-gray-600 px-2 py-1 rounded-md gap-2 items-center max-w-full">
+							<div className="text-sm truncate">{selectedDoc.name}</div>
+							<button
+								type="button"
+								className="hover:text-gray-900 p-1"
+								onClick={() => {
+									setSelectedDocValue("");
+									setSelectedDoc(null);
+								}}
+							>
+								<FiTrash2 />
+							</button>
+						</div>
+					</div>
+				)}
+
 				<div className="flex w-full p-2 gap-2 border-t-2">
 					<div className="w-full relative">
 						<input
@@ -379,10 +470,22 @@ const MessagesPage = () => {
 							placeholder="Unesi poruku..."
 						/>
 						<span className="absolute inset-y-0 right-0 grid place-content-center m-1 text-gray-400">
-							<div className="flex">
-								<button type="button" className="p-2 hover:text-gray-600">
+							<div className="flex items-center">
+								<input
+									type="file"
+									id="file"
+									alt="Odabir datoteke"
+									className="hidden"
+									disabled={!chatData.user.senderName || selectedImage}
+									value={selectedDocValue}
+									onChange={(e) => setSelectedDoc(e.target.files[0])}
+								/>
+								<label
+									htmlFor="file"
+									className="p-2 hover:text-gray-600 hover:cursor-pointer"
+								>
 									<FiPaperclip size={18} />
-								</button>
+								</label>
 
 								<input
 									type="file"
@@ -390,7 +493,7 @@ const MessagesPage = () => {
 									accept="image/*"
 									alt="Odabir slike"
 									className="hidden"
-									disabled={!chatData.user.senderName}
+									disabled={!chatData.user.senderName || selectedDoc}
 									value={selectedImageValue}
 									onChange={(e) => setSelectedImage(e.target.files[0])}
 								/>
