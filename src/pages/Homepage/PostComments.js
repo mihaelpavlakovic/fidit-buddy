@@ -50,7 +50,7 @@ const PostComments = ({ comments, onDeleteHandler, onEditHandler }) => {
                   addClasses="pt-1.5"
                   onClick={onEditHandler}
                 >
-                  <BiEdit className="text-[14px] mr-2" />
+                  <BiEdit className="mr-2" size={15} />
                 </Button>
                 <Button
                   text=""
@@ -59,7 +59,7 @@ const PostComments = ({ comments, onDeleteHandler, onEditHandler }) => {
                   addClasses="pt-1.5"
                   onClick={onDeleteHandler}
                 >
-                  <BiTrash className="text-[14px]" />
+                  <BiTrash size={15} />
                 </Button>
               </>
             )}

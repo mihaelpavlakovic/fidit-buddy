@@ -139,7 +139,7 @@ const Post = ({
                         addClasses="pt-2 mr-2"
                         onClick={() => editPostHandler(postId)}
                       >
-                        <BiEdit className="text-[14px]" />
+                        <BiEdit size={20} />
                       </Button>
                       <Button
                         text=""
@@ -148,7 +148,7 @@ const Post = ({
                         addClasses="pt-2"
                         onClick={() => deletePostHandler(postId)}
                       >
-                        <BiTrash className="text-[14px]" />
+                        <BiTrash size={20} />
                       </Button>
                     </>
                   )}
