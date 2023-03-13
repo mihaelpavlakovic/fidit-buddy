@@ -1,6 +1,6 @@
 // react imports
 import { useContext, useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 // firebase imports
 import { db } from "../database/firebase";
@@ -22,18 +22,29 @@ import { FiPaperclip, FiSend } from "react-icons/fi";
 
 // context imports
 import { AuthContext } from "../context/AuthContext";
-import { ChatContext } from "../context/ChatContext";
 
-const MessagesPageSec = () => {
+const MessagesPageSec = ({
+	interlocutorUid,
+	senderName,
+	senderPhoto,
+	messagesUid,
+	lastChatUid,
+}) => {
 	let navigate = useNavigate();
 	const messagesEndRef = useRef(null);
+	const { state } = useLocation();
 	const [messages, setMessages] = useState([]);
 	const { currentUser } = useContext(AuthContext);
 
 	const [text, setText] = useState("");
 
-	const { chatData } = useContext(ChatContext);
-	const { dispatch } = useContext(ChatContext);
+	if (state) {
+		interlocutorUid = state.value;
+		senderName = state.label;
+		senderPhoto = state.image;
+		messagesUid = state.messagesUid;
+		lastChatUid = state.lastChatUid;
+	}
 
 	const scrollToBottom = () => {
 		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -41,19 +52,16 @@ const MessagesPageSec = () => {
 
 	const handleSendMessage = async () => {
 		const updateLastMessage = async (userUid) => {
-			await updateDoc(
-				doc(db, "users", userUid, "lastChats", chatData.user.id),
-				{
-					text: text,
-					dateTime: Timestamp.now(),
-					senderUid: currentUser.uid,
-				}
-			);
+			await updateDoc(doc(db, "users", userUid, "lastChats", lastChatUid), {
+				text: text,
+				dateTime: Timestamp.now(),
+				senderUid: currentUser.uid,
+			});
 		};
 
 		if (text) {
-			if (chatData.chatId !== "null") {
-				await updateDoc(doc(db, "messages", chatData.chatId), {
+			if (messagesUid) {
+				await updateDoc(doc(db, "messages", messagesUid), {
 					messages: arrayUnion({
 						id: uuidv4(),
 						senderUid: currentUser.uid,
@@ -63,7 +71,7 @@ const MessagesPageSec = () => {
 				});
 
 				updateLastMessage(currentUser.uid);
-				updateLastMessage(chatData.user.interlocutorUid);
+				updateLastMessage(interlocutorUid);
 			} else {
 				const messageData = {
 					senderUid: currentUser.uid,
@@ -79,25 +87,14 @@ const MessagesPageSec = () => {
 						},
 					],
 				}).then(async (firstDoc) => {
+					messagesUid = firstDoc.id;
 					await addDoc(collection(db, "users", currentUser.uid, "lastChats"), {
 						messagesUid: firstDoc.id,
-						interlocutorUid: chatData.user.interlocutorUid,
+						interlocutorUid: interlocutorUid,
 						...messageData,
 					}).then(async (secondDoc) => {
-						let chatUpdated = { ...chatData.user };
-						chatUpdated.messagesUid = firstDoc.id;
-						chatUpdated.id = secondDoc.id;
-
-						dispatch({ type: "CHANGE_USER", payload: chatUpdated });
-
 						await setDoc(
-							doc(
-								db,
-								"users",
-								chatData.user.interlocutorUid,
-								"lastChats",
-								secondDoc.id
-							),
+							doc(db, "users", interlocutorUid, "lastChats", secondDoc.id),
 							{
 								messagesUid: firstDoc.id,
 								interlocutorUid: currentUser.uid,
@@ -116,14 +113,15 @@ const MessagesPageSec = () => {
 	}, [messages]);
 
 	useEffect(() => {
-		setMessages([]);
-		const unSub = onSnapshot(doc(db, "messages", chatData.chatId), (doc) => {
-			doc.exists() && setMessages(doc.data().messages);
-		});
-		return () => {
-			unSub();
+		const getMessages = () => {
+			const unsub = onSnapshot(doc(db, "messages", messagesUid), (doc) => {
+				setMessages(doc.data().messages);
+			});
+			return unsub;
 		};
-	}, [chatData.chatId]);
+
+		messagesUid ? getMessages() : setMessages([]);
+	}, [messagesUid]);
 
 	return (
 		<>
@@ -138,15 +136,15 @@ const MessagesPageSec = () => {
 						<BiArrowBack size={30} />
 					</button>
 					<div className="h-10 w-10 mx-4">
-						{(chatData?.user.senderPhoto && (
+						{(senderPhoto && (
 							<img
 								className="h-10 w-10 rounded-md"
-								src={chatData?.user.senderPhoto}
+								src={senderPhoto}
 								alt="Slika profila"
 							/>
 						)) || <div className="h-10 w-10 rounded-md bg-gray-200" />}
 					</div>
-					<h2 className="text-xl font-medium">{chatData?.user.senderName}</h2>
+					<h2 className="text-xl font-medium">{senderName}</h2>
 				</div>
 
 				{/* Messages container */}
@@ -168,7 +166,7 @@ const MessagesPageSec = () => {
 											src={
 												message.senderUid === currentUser.uid
 													? currentUser.photoURL
-													: chatData?.user.senderPhoto
+													: senderPhoto
 											}
 											alt="Slika profila"
 										/>

@@ -17,38 +17,51 @@ import { ChatContext } from "../context/ChatContext";
 
 const ChatPage = () => {
 	let navigate = useNavigate();
-
 	const [users, setUsers] = useState([]);
 	const { currentUser } = useContext(AuthContext);
-
 	const { dispatch } = useContext(ChatContext);
 	const [lastChats, setLastChats] = useState([]);
+	const [selectedUser, setSelectedUser] = useState(null);
 	const [selectedOption, setSelectedOption] = useState();
 
 	const handleSelect = (e) => {
 		if (e != null) {
 			const existingChat = lastChats.find((x) => x.interlocutorUid === e.value);
-			const userData = {
-				interlocutorUid: e.value,
-				senderPhoto: e.image,
-				senderName: e.label,
-				messagesUid: existingChat?.messagesUid || "null",
-				id: existingChat?.id || "null",
-			};
-			setSelectedOption("");
-
-			dispatch({ type: "CHANGE_USER", payload: userData });
-
+			if (existingChat) {
+				e.messagesUid = existingChat.messagesUid;
+				e.lastChatUid = existingChat.id;
+			}
 			let w = window.innerWidth;
-			if (w < 768) navigate("/messages");
+			if (w >= 768) {
+				setSelectedUser(e);
+				setSelectedOption(null);
+			} else {
+				navigate("/messages", {
+					state: e,
+				});
+			}
 		}
 	};
 
 	const handleSelectExisting = (chat) => {
+		let w = window.innerWidth;
+		const chatData = {
+			value: chat.interlocutorUid,
+			label: chat.senderName,
+			image: chat.senderPhoto,
+			messagesUid: chat.messagesUid,
+			lastChatUid: chat.id,
+		};
+
 		dispatch({ type: "CHANGE_USER", payload: chat });
 
-		let w = window.innerWidth;
-		if (w < 768) navigate("/messages");
+		if (w >= 768) {
+			setSelectedUser(chatData);
+		} else {
+			navigate("/messages", {
+				state: chatData,
+			});
+		}
 	};
 
 	useEffect(() => {
@@ -91,13 +104,11 @@ const ChatPage = () => {
 				setLastChats(lastChatsDocs);
 			});
 
-			return () => {
-				unsub();
-			};
+			return unsub;
 		};
 
 		currentUser.uid && getChats();
-	}, [users, currentUser.uid]);
+	});
 
 	const formatOptionLabel = ({ value, label, image }) => (
 		<div className="flex items-center">
@@ -115,10 +126,10 @@ const ChatPage = () => {
 			<Navigation />
 			<main className="md:flex justify-center">
 				<div className="md:flex md:w-full lg:w-4/5 xl:w-2/3 2xl:w-3/5 md:border-x-2">
-					<div className="flex flex-col md:w-2/5 md:border-r-2">
+					<div className="flex flex-col md:w-2/5 md:border-r-2 md:h-[calc(100vh-72px)] md:overflow-y-scroll">
 						<h1 className="text-3xl mx-6 mt-4 font-bold md:my-4">Razgovori</h1>
 						<ReactSelect
-							className="mx-6 my-2 cursor-pointer"
+							className="mx-6 my-2"
 							value={selectedOption}
 							onChange={handleSelect}
 							placeholder={"Pretraži korisnike..."}
@@ -142,58 +153,55 @@ const ChatPage = () => {
 								control: (base) => ({
 									...base,
 									borderRadius: 6,
-									cursor: "pointer",
-								}),
-								option: (base) => ({
-									...base,
-									cursor: "pointer",
 								}),
 							}}
 						/>
 
-						<div className="md:h-[calc(100vh-194px)] md:overflow-auto">
-							{(lastChats.length > 0 &&
-								lastChats.map((chat) => {
-									return (
-										<div
-											key={chat.id}
-											onClick={() => handleSelectExisting(chat)}
-											className="flex items-center px-6 py-3 hover:bg-gray-100 hover:md:bg-teal-100 transition cursor-pointer"
-										>
-											<div className="h-12 w-12 flex-shrink-0">
-												<img
-													className="h-12 w-12 rounded-md"
-													src={chat.senderPhoto}
-													alt="Slika profila"
-												/>
+						{(lastChats.length > 0 &&
+							lastChats.map((chat) => {
+								return (
+									<div
+										key={chat.id}
+										onClick={() => handleSelectExisting(chat)}
+										className="flex items-center px-6 py-3 hover:bg-gray-100 hover:md:bg-teal-100 transition cursor-pointer"
+									>
+										<div className="h-12 w-12 flex-shrink-0">
+											<img
+												className="h-12 w-12 rounded-md"
+												src={chat.senderPhoto}
+												alt="Slika profila"
+											/>
+										</div>
+										<div className="flex flex-col ml-4 w-full overflow-hidden">
+											<div className="flex grow justify-between gap-x-2">
+												<div className="font-semibold">{chat.senderName}</div>
+												<div className="text-xs text-gray-500 text-right">
+													{chat.dateTime.toDate().toLocaleString("hr-HR", {
+														day: "numeric",
+														month: "numeric",
+														year: "numeric",
+														hour: "2-digit",
+														minute: "2-digit",
+													})}
+												</div>
 											</div>
-											<div className="flex flex-col ml-4 w-full overflow-hidden">
-												<div className="flex grow justify-between gap-x-2">
-													<div className="font-semibold">{chat.senderName}</div>
-													<div className="text-xs text-gray-500 text-right">
-														{chat.dateTime.toDate().toLocaleString("hr-HR", {
-															day: "numeric",
-															month: "numeric",
-															year: "numeric",
-															hour: "2-digit",
-															minute: "2-digit",
-														})}
-													</div>
-												</div>
-												<div className="text-sm text-gray-500 truncate overflow-hidden">
-													{chat.text}
-												</div>
+											<div className="text-sm text-gray-500 truncate overflow-hidden">
+												{chat.text}
 											</div>
 										</div>
-									);
-								})) || (
-								<div className="flex justify-center m-4">Nema poruka</div>
-							)}
-						</div>
+									</div>
+								);
+							})) || <div className="flex justify-center m-4">Nema poruka</div>}
 					</div>
 
 					<div className="hidden md:flex w-3/5">
-						<MessagesPageSec />
+						<MessagesPageSec
+							interlocutorUid={selectedUser?.value}
+							senderName={selectedUser?.label}
+							senderPhoto={selectedUser?.image}
+							messagesUid={selectedUser?.messagesUid}
+							lastChatUid={selectedUser?.lastChatUid}
+						/>
 					</div>
 				</div>
 			</main>
