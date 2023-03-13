@@ -175,7 +175,7 @@ const Profile = () => {
                   addClasses=""
                   onClick={() => setShowModal(true)}
                 >
-                  <BiEdit />
+                  <BiEdit size={20} />
                 </Button>
               </div>
               <table className="flex p-3">
@@ -196,7 +196,7 @@ const Profile = () => {
               </table>
             </div>
             <div className="w-full">
-              {user?.isMentor && (
+              {user?.isMentor && user?.reviewsFrom !== undefined && (
                 <div className="border-2 border-solid rounded-md">
                   <h2 className="text-lg p-3 border-b-2">
                     Povratne informacije
