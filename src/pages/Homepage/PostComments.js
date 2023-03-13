@@ -1,6 +1,9 @@
 // react imports
 import { useContext } from "react";
 
+// component imports
+import Button from "../../utils/Button";
+
 // library imports
 import { BiEdit, BiTrash } from "react-icons/bi";
 
@@ -12,7 +15,7 @@ const PostComments = ({ comments, onDeleteHandler, onEditHandler }) => {
   return (
     <div className="w-full bg-gray-100 p-2 sm:px-4 flex gap-3 mb-2">
       <img
-        className="w-8 h-8 rounded-md"
+        className="w-8 h-8 rounded-md mt-1"
         src={comments.user.photoURL}
         alt="Profilna slika korisnika"
       />
@@ -40,18 +43,24 @@ const PostComments = ({ comments, onDeleteHandler, onEditHandler }) => {
             </div>
             {currentUser.uid === comments.user.uid && (
               <>
-                <button
+                <Button
+                  text=""
+                  btnAction="button"
+                  btnType="icon"
+                  addClasses="pt-1.5"
                   onClick={onEditHandler}
-                  className="pt-1.5 transition ease-in-out hover:-translate-y-1 hover:scale-110 hover:text-teal-600 duration-300"
                 >
                   <BiEdit className="text-[14px] mr-2" />
-                </button>
-                <button
+                </Button>
+                <Button
+                  text=""
+                  btnAction="button"
+                  btnType="icon"
+                  addClasses="pt-1.5"
                   onClick={onDeleteHandler}
-                  className="pt-1.5 transition ease-in-out hover:-translate-y-1 hover:scale-110 hover:text-teal-600 duration-300"
                 >
                   <BiTrash className="text-[14px]" />
-                </button>
+                </Button>
               </>
             )}
           </div>

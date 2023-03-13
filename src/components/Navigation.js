@@ -2,6 +2,9 @@
 import { useState, useCallback, useEffect, useContext } from "react";
 import { Link } from "react-router-dom";
 
+// component imports
+import Button from "../utils/Button";
+
 // firebase imports
 import { db, auth } from "../database/firebase";
 import { doc, getDoc } from "firebase/firestore";
@@ -108,14 +111,13 @@ const Navigation = () => {
               userNav
             )}
             <li>
-              <button
-                onClick={() => {
-                  signOut(auth);
-                }}
-                className="lg:px-5 ml-1 py-2 block w-full text-teal-500 bg-white rounded-lg hover:bg-gray-200"
-              >
-                Logout
-              </button>
+              <Button
+                text="Odjavi se"
+                btnAction="button"
+                btnType="secondary"
+                addClasses="lg:px-5 ml-1 py-2 block w-full"
+                onClick={() => signOut(auth)}
+              />
             </li>
           </ul>
         </nav>

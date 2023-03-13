@@ -4,6 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 
 // component imports
 import Modal from "../utils/Modal";
+import Button from "../utils/Button";
 
 // fireabse imports
 import { auth } from "../database/firebase";
@@ -110,12 +111,12 @@ const Login = () => {
                 onBlur={formik.handleBlur}
               />
             </div>
-            <button
-              type="submit"
-              className="bg-teal-500 text-sm text-white py-3 mt-6 rounded-lg w-full hover:bg-teal-600 hover:font-semibold"
-            >
-              Prijavi se!
-            </button>
+            <Button
+              text="Prijavi se!"
+              btnAction="submit"
+              btnType="primary"
+              addClasses="py-3 mt-6 w-full"
+            />
             <p className="text-center text-gray-500 text-sm mt-5">
               Nemate kreiran račun? Možete ga kreirati{" "}
               <Link

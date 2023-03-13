@@ -1,6 +1,9 @@
 // react imports
 import { Link } from "react-router-dom";
 
+// component imports
+import Button from "../utils/Button";
+
 // firebase imports
 import { auth } from "../database/firebase";
 import { sendPasswordResetEmail } from "firebase/auth";
@@ -66,12 +69,12 @@ const PasswordReset = () => {
                 onBlur={formik.handleBlur}
               />
             </div>
-            <button
-              type="submit"
-              className="bg-teal-500 text-sm text-white py-3 mt-6 rounded-lg w-full hover:bg-teal-600 hover:font-semibold"
-            >
-              Pošalji
-            </button>
+            <Button
+              text="Pošalji"
+              btnAction="submit"
+              btnType="primary"
+              addClasses="py-3 mt-6 w-full"
+            />
             <p className="text-center text-gray-500 text-sm mt-5">
               Zalutali ste? Za povratak kliknite{" "}
               <Link

@@ -13,6 +13,7 @@ import {
 
 // component imports
 import Navigation from "../../components/Navigation";
+import Button from "../../utils/Button";
 import AdminUsersTable, {
   AvatarCell,
   SelectColumnFilter,
@@ -198,14 +199,14 @@ function Admin() {
             <h1 className="text-3xl font-semibold">Pregled administratora</h1>
             <div className="flex justify-center my-2">
               <div className="w-fit">
-                <div className="flex justify-end">
-                  <button
-                    type="button"
+                <div className="flex justify-end mb-2">
+                  <Button
+                    text="Dodaj novog admina"
+                    btnAction="button"
+                    btnType="primary"
+                    addClasses="w-fit py-2 px-3"
                     onClick={() => setShowModal(true)}
-                    className="text-sm border w-fit bg-teal-500 hover:bg-teal-600 text-white p-1.5 rounded-lg transition mb-2"
-                  >
-                    Dodaj novog admina
-                  </button>
+                  />
                 </div>
                 {/* Admins table */}
                 <table className="shadow-md overflow-hidden rounded-lg">
@@ -244,14 +245,14 @@ function Admin() {
                               </div>
                             </td>
                             <td className="px-2 sm:px-6 py-4 whitespace-nowrap">
-                              <button
-                                type="button"
+                              <Button
+                                text="Ukloni admina"
+                                btnAction="button"
+                                btnType="danger"
+                                addClasses="p-1.5"
+                                isDisabled={admin.uid === currentUser.uid}
                                 onClick={handleRemoveAdmin(admin.uid)}
-                                disabled={admin.uid === currentUser.uid}
-                                className="text-sm border bg-red-500 hover:bg-red-600 text-white p-1.5 rounded-lg transition disabled:bg-red-300 disabled:cursor-not-allowed"
-                              >
-                                Ukloni admina
-                              </button>
+                              />
                             </td>
                           </tr>
                         );
@@ -283,14 +284,6 @@ function Admin() {
                   <h3 className="text-2xl font-semibold">
                     Dodavanje novog admina
                   </h3>
-                  <button
-                    className="p-1 ml-auto bg-transparent border-0 text-black opacity-5 float-right text-3xl leading-none font-semibold outline-none focus:outline-none"
-                    onClick={() => setShowModal(false)}
-                  >
-                    <span className="bg-transparent text-black opacity-5 h-6 w-6 text-2xl block outline-none focus:outline-none">
-                      ×
-                    </span>
-                  </button>
                 </div>
                 {/*body*/}
                 <div className="relative p-6 flex-auto">
@@ -310,21 +303,21 @@ function Admin() {
                   />
                 </div>
                 {/*footer*/}
-                <div className="flex items-center justify-end p-6 border-t border-solid border-slate-200 rounded-b">
-                  <button
-                    className="text-red-500 background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
-                    type="button"
+                <div className="flex items-center justify-center gap-2 p-6 border-t border-solid border-slate-200 rounded-b">
+                  <Button
+                    text="Odustani"
+                    btnAction="button"
+                    btnType="secondary"
+                    addClasses="py-2 w-full"
                     onClick={() => setShowModal(false)}
-                  >
-                    Odustani
-                  </button>
-                  <button
-                    className="bg-teal-500 text-white active:bg-emerald-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
-                    type="button"
+                  />
+                  <Button
+                    text="Dodaj admina"
+                    btnAction="button"
+                    btnType="primary"
+                    addClasses="py-2 w-full"
                     onClick={handleAddAdmin(currentSelection)}
-                  >
-                    Dodaj admina
-                  </button>
+                  />
                 </div>
               </div>
             </div>

@@ -1,3 +1,6 @@
+// component imports
+import Button from "./Button";
+
 const Modal = ({ displayModal, onClose }) => {
   let displayMessage = "";
   if (displayModal) {
@@ -18,12 +21,13 @@ const Modal = ({ displayModal, onClose }) => {
           Došlo je do pogreške... 😔
         </h2>
         <p className="text-gray-500 max-w-lg">{displayMessage}</p>
-        <button
+        <Button
+          text="U redu"
+          btnAction="button"
+          btnType="primary"
+          addClasses="py-3 mt-6 w-1/2"
           onClick={onClose}
-          className="bg-teal-500 text-sm text-white py-3 mt-6 rounded-lg w-1/2 hover:bg-teal-600 hover:font-semibold"
-        >
-          U redu
-        </button>
+        />
       </div>
     </div>
   );

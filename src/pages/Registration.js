@@ -1,6 +1,9 @@
 // react imports
 import { useNavigate, Link } from "react-router-dom";
 
+// component imports
+import Button from "../utils/Button";
+
 // firebase imports
 import { auth, db } from "../database/firebase";
 import {
@@ -221,12 +224,12 @@ const Registration = () => {
                 onBlur={formik.handleBlur}
               />
             </div>
-            <button
-              type="submit"
-              className="bg-teal-500 text-sm text-white py-3 mt-6 rounded-lg w-full hover:bg-teal-600 hover:font-semibold"
-            >
-              Kreiraj račun!
-            </button>
+            <Button
+              text="Kreiraj račun!"
+              btnAction="submit"
+              btnType="primary"
+              addClasses="py-3 mt-6 w-full"
+            />
             <p className="text-center text-gray-500 text-sm mt-5">
               Imate kreiran račun? Možete se prijaviti{" "}
               <Link

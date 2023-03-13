@@ -1,6 +1,9 @@
 // react imports
 import React, { useContext, useState } from "react";
 
+// component imports
+import Button from "../../utils/Button";
+
 // firebase imports
 import { db } from "../../database/firebase";
 import { getDoc, doc, updateDoc, arrayUnion } from "firebase/firestore";
@@ -135,12 +138,12 @@ const Feedback = ({ user }) => {
               value={message}
             ></textarea>
           </div>
-          <button
-            type="submit"
-            className="bg-teal-500 text-sm text-white py-3 my-3 rounded-lg w-[15rem] hover:bg-teal-600 hover:font-semibold"
-          >
-            Ocjeni
-          </button>
+          <Button
+            text="Ocjeni"
+            btnAction="submit"
+            btnType="primary"
+            addClasses="py-3 my-3 w-[15rem]"
+          />
         </form>
       )}
     </div>

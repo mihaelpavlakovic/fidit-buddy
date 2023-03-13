@@ -4,6 +4,7 @@ import { useNavigate } from "react-router";
 
 // component imports
 import Navigation from "../components/Navigation";
+import Button from "../utils/Button";
 
 // fireabse imports
 import { db, storage } from "../database/firebase";
@@ -104,7 +105,7 @@ const CreatePost = () => {
       <main className="w-full flex justify-center">
         <form
           onSubmit={formik.handleSubmit}
-          className="rounded-lg sm:w-5/6 md:w-1/2 shadow-xl m-5   border"
+          className="rounded-lg sm:w-5/6 xl:w-1/2 shadow-xl m-5   border"
         >
           <div className="text-gray-700 p-5 sm:p-20">
             <h1 className="text-3xl">Kreiraj objavu:</h1>
@@ -174,27 +175,27 @@ const CreatePost = () => {
                     setNewFiles(files);
                   }}
                 />
-                <div className="flex gap-2 items-center justify-center">
+                <div className="flex gap-2 items-center justify-center mt-3">
                   <progress
-                    className="mt-2 rounded"
+                    className="w-full"
                     value={progresspercent}
                     max="100"
                   />
-                  <button
-                    className="text-teal-500 text-sm rounded-lg border-2 border-teal-500 border-solid p-1 mt-2 hover:bg-teal-600 hover:text-white"
-                    type="button"
+                  <Button
+                    text="Upload"
+                    btnAction="button"
+                    btnType="secondary"
+                    addClasses="py-1 w-1/6"
                     onClick={uploadImages}
-                  >
-                    Upload
-                  </button>
+                  />
                 </div>
               </div>
-              <button
-                type="submit"
-                className="bg-teal-500 text-sm text-white py-3 mt-4 rounded-lg w-full hover:bg-teal-600 hover:font-semibold"
-              >
-                Objavi
-              </button>
+              <Button
+                text="Objavi"
+                btnAction="submit"
+                btnType="primary"
+                addClasses="py-3 w-full"
+              />
             </div>
           </div>
         </form>

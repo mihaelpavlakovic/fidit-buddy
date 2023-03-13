@@ -4,6 +4,7 @@ import { useContext, useEffect, useCallback, useState, useRef } from "react";
 // component imports
 import Navigation from "../../components/Navigation";
 import Feedback from "./Feedback";
+import Button from "../../utils/Button";
 
 // firebase imports
 import { db, storage } from "../../database/firebase";
@@ -100,14 +101,14 @@ const Profile = () => {
           <div className="border-2 border-solid rounded-md">
             <p className="text-lg p-3 border-b-2">Slika profila</p>
             <div className="flex flex-col md:flex-row items-center">
-              <div className="flex-1 flex items-center justify-center">
+              <div className="w-full flex items-center justify-center">
                 <img
                   className="p-3 lg:w-[70%]"
                   src={currentUser.photoURL}
                   alt="Slika profila"
                 />
               </div>
-              <form className="flex-1 p-3 w-full">
+              <form className="p-5 w-full">
                 <label
                   htmlFor="fileInput"
                   className="block text-sm mb-4 flex items-center"
@@ -134,21 +135,21 @@ const Profile = () => {
                       min="0"
                       max="100"
                     />
-                    <div className="mt-3 flex flex-col md:flex-row justify-between">
-                      <button
-                        className="mr-2 w-full text-teal-500 text-sm rounded-lg border-2 border-teal-500 border-solid p-1 mt-2 hover:bg-teal-600 hover:font-semibold hover:text-white"
-                        type="button"
+                    <div className="mt-3 flex flex-col gap-2 md:flex-row justify-between">
+                      <Button
+                        text="Učitaj"
+                        btnAction="button"
+                        btnType="primary"
+                        addClasses="w-full p-1 mt-2"
                         onClick={uploadImage}
-                      >
-                        Upload
-                      </button>
-                      <button
-                        className="w-full text-red-500 text-sm rounded-lg border-2 border-red-500 border-solid p-1 mt-2 hover:bg-red-500 hover:font-semibold hover:text-white"
-                        type="button"
+                      />
+                      <Button
+                        text="Ukloni sliku"
+                        btnAction="button"
+                        btnType="secondary"
+                        addClasses="w-full p-1 mt-2"
                         onClick={reset}
-                      >
-                        Ukloni sliku
-                      </button>
+                      />
                     </div>
                   </div>
                 )}
@@ -203,14 +204,20 @@ const Profile = () => {
                     {user?.reviewsFrom.length > 3
                       ? user?.reviewsFrom.slice(-3).map((review, i) => {
                           return (
-                            <p key={i} className="italic text-gray-500">
+                            <p
+                              key={i}
+                              className="italic text-gray-500 text-center"
+                            >
                               “{review.messageFromStudent}”
                             </p>
                           );
                         })
                       : user?.reviewsFrom.map((review, i) => {
                           return (
-                            <p key={i} className="italic text-gray-500">
+                            <p
+                              key={i}
+                              className="italic text-gray-500 text-center"
+                            >
                               “{review.messageFromStudent}”
                             </p>
                           );

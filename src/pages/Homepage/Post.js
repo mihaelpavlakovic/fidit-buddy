@@ -3,6 +3,7 @@ import { useContext } from "react";
 
 // component imports
 import PostComments from "./PostComments";
+import Button from "../../utils/Button";
 
 // library imports
 import { FiSend } from "react-icons/fi";
@@ -110,15 +111,13 @@ const Post = ({
             alt="Slika profila student-mentora"
           />
           <div className="w-full">
-            <div className="flex items-center">
-              <h3 className="flex-auto font-semibold flex items-center">
-                {postDetail.user.displayName}
-                {postDetail.user.isMentor && (
-                  <span className="text-xs font-normal ml-2 bg-gray-200 px-2 py-0.5 rounded-full">
-                    mentor
-                  </span>
-                )}
-              </h3>
+            <div className="flex items-center justify-between">
+              <div className="flex flex-col">
+                <h3 className="flex-auto font-semibold flex items-center">
+                  {postDetail.user.displayName}
+                </h3>
+                <p className="text-sm text-gray-500">{postDetail.user.email}</p>
+              </div>
               <div className="text-xs text-gray-500">
                 <div>
                   {postDetail.createdAt
@@ -134,26 +133,29 @@ const Post = ({
                 <div className="text-right">
                   {currentUser.uid === postDetail.user.uid && (
                     <>
-                      <button
+                      <Button
+                        text=""
+                        btnAction="button"
+                        btnType="icon"
+                        addClasses="pt-2 mr-2"
                         onClick={() => editPostHandler(postId)}
-                        className="pt-2 transition ease-in-out hover:-translate-y-1 hover:scale-110 hover:text-teal-600 duration-300"
                       >
-                        <BiEdit className="text-[14px] mr-2" />
-                      </button>
-                      <button
+                        <BiEdit className="text-[14px]" />
+                      </Button>
+                      <Button
+                        text=""
+                        btnAction="button"
+                        btnType="icon"
+                        addClasses="pt-2"
                         onClick={() => deletePostHandler(postId)}
-                        className="pt-2 transition ease-in-out hover:-translate-y-1 hover:scale-110 hover:text-teal-600 duration-300"
                       >
                         <BiTrash className="text-[14px]" />
-                      </button>
+                      </Button>
                     </>
                   )}
                 </div>
               </div>
             </div>
-            <p className="flex text-sm text-gray-500">
-              {postDetail.user.email}
-            </p>
           </div>
         </div>
         <div>
@@ -214,12 +216,14 @@ const Post = ({
             onChange={formik.handleChange}
             value={formik.values.comment}
           ></textarea>
-          <button
-            type="submit"
-            className="w-full md:w-1/6 bg-teal-500 text-sm text-white py-3 rounded-lg hover:bg-teal-600"
+          <Button
+            text=""
+            btnAction="submit"
+            btnType="primary"
+            addClasses="py-3 w-full md:w-1/6"
           >
             <FiSend className="w-full" />
-          </button>
+          </Button>
         </form>
       </div>
     </div>

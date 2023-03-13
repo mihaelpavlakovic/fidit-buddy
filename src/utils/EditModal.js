@@ -1,6 +1,9 @@
 // react imports
 import { useState } from "react";
 
+// component imports
+import Button from "./Button";
+
 // firebase imports
 import { db } from "../database/firebase";
 import { updateDoc, getDoc, doc } from "firebase/firestore";
@@ -113,18 +116,19 @@ const Modal = ({ onClose, comment, comIndex, docId, docFromDb }) => {
                 </div>
               </>
             )}
-            <button
-              type="submit"
-              className="bg-teal-500 text-sm text-white py-3 mt-3 rounded-lg w-full hover:bg-teal-600 hover:font-semibold"
-            >
-              {comIndex !== "" ? "Ažuriraj komentar" : "Ažuriraj objavu"}
-            </button>
-            <button
+            <Button
+              text={comIndex !== "" ? "Ažuriraj komentar" : "Ažuriraj objavu"}
+              btnAction="submit"
+              btnType="primary"
+              addClasses="py-3 mt-2.5 w-full"
+            />
+            <Button
+              text="Odustani"
+              btnAction="button"
+              btnType="secondary"
+              addClasses="py-3 mt-2.5 w-full"
               onClick={onClose}
-              className="text-sm text-teal-500 py-3 mt-2.5 rounded-lg border-2 border-teal-500 w-full hover:border-teal-600 hover:font-semibold"
-            >
-              Odustani
-            </button>
+            />
           </div>
         </form>
       </div>
