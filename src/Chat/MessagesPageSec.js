@@ -3,7 +3,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 // firebase imports
-import { db } from "../database/firebase";
+import { db, storage } from "../database/firebase";
 import {
 	addDoc,
 	arrayUnion,
@@ -18,11 +18,17 @@ import { uuidv4 } from "@firebase/util";
 
 // library imports
 import { BiArrowBack, BiImageAdd } from "react-icons/bi";
-import { FiPaperclip, FiSend } from "react-icons/fi";
+import { FiPaperclip, FiSend, FiTrash2 } from "react-icons/fi";
 
 // context imports
 import { AuthContext } from "../context/AuthContext";
 import { ChatContext } from "../context/ChatContext";
+import {
+	getDownloadURL,
+	ref,
+	uploadBytes,
+	uploadBytesResumable,
+} from "firebase/storage";
 
 const MessagesPageSec = () => {
 	let navigate = useNavigate();
@@ -31,6 +37,9 @@ const MessagesPageSec = () => {
 	const { currentUser } = useContext(AuthContext);
 
 	const [text, setText] = useState("");
+	const [selectedImage, setSelectedImage] = useState(null);
+	const [selectedImageValue, setSelectedImageValue] = useState("");
+	const [showTime, setShowTime] = useState(false);
 
 	const { chatData } = useContext(ChatContext);
 	const { dispatch } = useContext(ChatContext);
@@ -40,6 +49,20 @@ const MessagesPageSec = () => {
 	};
 
 	const handleSendMessage = async () => {
+		let imageUrl = null;
+
+		const updateMessageDoc = async () => {
+			await updateDoc(doc(db, "messages", chatData.chatId), {
+				messages: arrayUnion({
+					id: uuidv4(),
+					senderUid: currentUser.uid,
+					dateTime: Timestamp.now(),
+					text: text,
+					image: imageUrl,
+				}),
+			});
+		};
+
 		const updateLastMessage = async (userUid) => {
 			await updateDoc(
 				doc(db, "users", userUid, "lastChats", chatData.user.id),
@@ -51,19 +74,30 @@ const MessagesPageSec = () => {
 			);
 		};
 
-		if (text) {
+		if (text || selectedImage) {
 			if (chatData.chatId !== "null") {
-				await updateDoc(doc(db, "messages", chatData.chatId), {
-					messages: arrayUnion({
-						id: uuidv4(),
-						senderUid: currentUser.uid,
-						dateTime: Timestamp.now(),
-						text: text,
-					}),
-				});
+				if (selectedImage) {
+					let imagePath =
+						"chatImages/" +
+						String(chatData.chatId) +
+						"/" +
+						String(uuidv4()) +
+						"/" +
+						selectedImage.name;
 
-				updateLastMessage(currentUser.uid);
-				updateLastMessage(chatData.user.interlocutorUid);
+					const storageRef = ref(storage, imagePath);
+
+					uploadBytes(storageRef, selectedImage).then((snapshot) => {
+						getDownloadURL(snapshot.ref).then(async (downloadURL) => {
+							imageUrl = downloadURL;
+							updateMessageDoc();
+							updateLastMessage(currentUser.uid);
+							updateLastMessage(chatData.user.interlocutorUid);
+						});
+					});
+				} else {
+					updateMessageDoc();
+				}
 			} else {
 				const messageData = {
 					senderUid: currentUser.uid,
@@ -109,6 +143,25 @@ const MessagesPageSec = () => {
 			}
 			setText("");
 		}
+	};
+
+	const getPreviusMessageInfo = (message, index) => {
+		if (index > 0) {
+			if (messages[index - 1].senderUid === message.senderUid) return true;
+		}
+		return false;
+	};
+
+	const getNextMessageInfo = (message, index) => {
+		if (index < messages.length - 1) {
+			if (messages[index + 1].senderUid === message.senderUid) return true;
+		}
+		return false;
+	};
+
+	const getCurrentMessageInfo = (message) => {
+		if (message.senderUid === currentUser.uid) return true;
+		return false;
 	};
 
 	useEffect(() => {
@@ -157,16 +210,20 @@ const MessagesPageSec = () => {
 								<div
 									key={index}
 									className={`flex w-full gap-2 ${
-										message.senderUid === currentUser.uid
+										getCurrentMessageInfo(message)
 											? "flex-row-reverse"
 											: "flex-row"
+									} ${
+										getPreviusMessageInfo(message, index) ? "mt-0.5" : "mt-4"
 									}`}
 								>
 									<div className="h-8 w-8 flex-shrink-0">
 										<img
-											className="h-8 w-8 rounded-md"
+											className={`h-8 w-8 rounded-md ${
+												getPreviusMessageInfo(message, index) ? "hidden" : ""
+											}`}
 											src={
-												message.senderUid === currentUser.uid
+												getCurrentMessageInfo(message)
 													? currentUser.photoURL
 													: chatData?.user.senderPhoto
 											}
@@ -175,23 +232,59 @@ const MessagesPageSec = () => {
 									</div>
 									<div className="max-w-[65%]">
 										<div
-											className={`flex ${
-												message.senderUid === currentUser.uid
-													? "justify-end"
+											onClick={() =>
+												setShowTime(message.id === showTime ? null : message.id)
+											}
+											className={`flex flex-col ${
+												getCurrentMessageInfo(message)
+													? "justify-end items-end"
 													: "justify-start"
 											}`}
 										>
 											<div
-												className={`text-sm w-fit text-white p-1.5 rounded-xl ${
-													message.senderUid === currentUser.uid
+												className={`text-sm w-fit text-white shadow-md px-2.5 py-1.5 rounded-xl ${
+													getCurrentMessageInfo(message)
 														? "bg-teal-500 rounded-tr-none"
 														: "bg-gray-500 rounded-tl-none"
+												} ${
+													getNextMessageInfo(message, index)
+														? getCurrentMessageInfo(message)
+															? "rounded-br-none"
+															: "rounded-bl-none"
+														: ""
 												}`}
 											>
 												{message.text}
 											</div>
+											{message.image && (
+												<div className="mt-0.5">
+													<img
+														className={`rounded-xl shadow-md ${
+															getCurrentMessageInfo(message)
+																? "rounded-tr-none"
+																: "rounded-tl-none"
+														} ${
+															getNextMessageInfo(message, index)
+																? getCurrentMessageInfo(message)
+																	? "rounded-br-none"
+																	: "rounded-bl-none"
+																: ""
+														}`}
+														alt="Poslana slika"
+														src={message.image}
+													/>
+												</div>
+											)}
 										</div>
-										<div className="text-xs text-gray-500 mt-0.5">
+										<div
+											className={`text-xs text-gray-500 ${
+												showTime === message.id ? "" : "hidden"
+											} ${
+												getCurrentMessageInfo(message)
+													? "text-right"
+													: "text-left"
+											}`}
+										>
 											{message.dateTime.toDate().toLocaleString("hr-HR", {
 												day: "numeric",
 												month: "numeric",
@@ -208,6 +301,29 @@ const MessagesPageSec = () => {
 				</div>
 
 				{/* Message input */}
+				{selectedImage && (
+					<div className="flex justify-center p-1 border-t-2">
+						<div className="relative">
+							<img
+								className="h-28 rounded-md"
+								alt="Pregled odabrane slike"
+								src={URL.createObjectURL(selectedImage)}
+							/>
+							<button
+								type="button"
+								className="absolute top-0 right-0 bg-red-500 text-white m-0.5 p-1 rounded-md"
+								onClick={() => {
+									console.log(selectedImage);
+									setSelectedImageValue("");
+									setSelectedImage(null);
+								}}
+							>
+								<FiTrash2 />
+							</button>
+						</div>
+					</div>
+				)}
+
 				<div className="flex w-full p-2 gap-2 border-t-2">
 					<div className="w-full relative">
 						<input
@@ -222,9 +338,19 @@ const MessagesPageSec = () => {
 								<button type="button" className="p-2 hover:text-gray-600">
 									<FiPaperclip size={18} />
 								</button>
-								<button type="button" className="p-2 hover:text-gray-600">
+
+								<input
+									type="file"
+									id="image"
+									accept="image/*"
+									alt="Odabir slike"
+									className="hidden"
+									value={selectedImageValue}
+									onChange={(e) => setSelectedImage(e.target.files[0])}
+								/>
+								<label htmlFor="image" className="p-2 hover:text-gray-600">
 									<BiImageAdd size={20} />
-								</button>
+								</label>
 							</div>
 						</span>
 					</div>
