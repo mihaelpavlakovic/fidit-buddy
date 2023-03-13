@@ -5,6 +5,7 @@ import { useContext, useEffect, useCallback, useState, useRef } from "react";
 import Navigation from "../../components/Navigation";
 import Feedback from "./Feedback";
 import Button from "../../utils/Button";
+import EditNameModal from "../../utils/EditNameModal";
 
 // firebase imports
 import { db, storage } from "../../database/firebase";
@@ -27,11 +28,14 @@ const Profile = () => {
   const types = ["image/png", "image/jpeg", "image/jpg"];
   const refValue = useRef();
   const [user, setUser] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
   const reset = () => {
     refValue.current.value = "";
     setNewFile(null);
   };
+
+  const handleClose = () => setShowModal(false);
 
   const handleSelect = e => {
     let selected = e.target.files[0];
@@ -93,12 +97,13 @@ const Profile = () => {
     if (currentUser) {
       userData();
     }
-  }, [userData, currentUser]);
+  }, [userData, currentUser, currentUser.displayName]);
 
   return (
     <>
       <Navigation />
       <main className="xl:max-w-7xl xl:mx-auto max-w-full m-5 sm:px-[8%]">
+        {showModal && <EditNameModal onClose={handleClose} user={user} />}
         <div className="flex flex-col gap-4">
           <h1 className="text-3xl mb-5 font-semibold">Postavke korisnika</h1>
           <div className="border-2 border-solid rounded-md">
@@ -163,7 +168,15 @@ const Profile = () => {
             <div className="border-2 border-solid rounded-md w-full">
               <div className="p-3 border-b-2 flex justify-between items-center">
                 <h2 className="text-lg">Osobne informacije</h2>
-                <BiEdit className="text-gray-500 cursor-pointer hover:text-gray-700" />
+                <Button
+                  text=""
+                  btnAction="button"
+                  btnType="icon"
+                  addClasses=""
+                  onClick={() => setShowModal(true)}
+                >
+                  <BiEdit />
+                </Button>
               </div>
               <table className="flex p-3">
                 <tbody className="flex flex-col gap-1">
