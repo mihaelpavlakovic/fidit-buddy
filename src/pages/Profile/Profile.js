@@ -14,6 +14,7 @@ import { updateProfile } from "firebase/auth";
 
 // library imports
 import { BiEdit } from "react-icons/bi";
+import { toast } from "react-toastify";
 
 // context imports
 import { AuthContext } from "../../context/AuthContext";
@@ -59,7 +60,7 @@ const Profile = () => {
         setProgress(progress);
       },
       error => {
-        alert(error);
+        toast.error("Došlo je do pogreške pri učitavanju slike u bazu");
       },
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then(async downloadURL => {
@@ -69,6 +70,8 @@ const Profile = () => {
           await updateDoc(doc(db, "users", currentUser.uid), {
             photoURL: downloadURL,
           });
+          toast.success("Slika profila uspješno ažurirana");
+          setNewFile(null);
         });
       }
     );

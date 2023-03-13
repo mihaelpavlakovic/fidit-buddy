@@ -22,6 +22,9 @@ import {
   Timestamp,
 } from "firebase/firestore";
 
+// library imports
+import { toast } from "react-toastify";
+
 // context imports
 import { AuthContext } from "../../context/AuthContext";
 
@@ -71,9 +74,9 @@ const Post = ({
       try {
         updateDoc(docRef, createComment);
         values.comment = "";
-        console.log("Comment created...");
+        toast.success("Uspješno ste ostavili komentar");
       } catch (error) {
-        console.log(error);
+        toast.error("Došlo je do pogreške u ostavljanju komentara");
       }
     },
   });
@@ -85,18 +88,14 @@ const Post = ({
       const docRef = doc(db, "posts", postId);
       Object.entries(postDetail.data).forEach(item => {
         let documentRef = ref(storage, item[1].documentURL);
-        deleteObject(documentRef)
-          .then(() => console.log("Dokument uspjesno izbrisan"))
-          .catch(err => console.log(err));
+        deleteObject(documentRef);
       });
 
       await deleteDoc(docRef)
-        .then(() => {
-          alert("Objava uspjesno obrisana.");
-        })
-        .catch(error => {
-          console.log(error);
-        });
+        .then(() => toast.success("Objava uspješno izbrisana"))
+        .catch(() =>
+          toast.error("Došlo je do pogreške prilikom brisanja objave")
+        );
     }
     return;
   };

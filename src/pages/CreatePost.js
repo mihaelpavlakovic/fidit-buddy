@@ -14,6 +14,7 @@ import { doc, addDoc, collection, Timestamp } from "firebase/firestore";
 // library imports
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { toast } from "react-toastify";
 
 // context imports
 import { AuthContext } from "../context/AuthContext";
@@ -44,9 +45,6 @@ const CreatePost = () => {
           );
           setProgresspercent(progress);
         },
-        error => {
-          alert(error);
-        },
         async () => {
           await getDownloadURL(uploadTask.snapshot.ref).then(downloadURLs => {
             links.push({ documentURL: downloadURLs, documentName: item.name });
@@ -56,8 +54,12 @@ const CreatePost = () => {
     });
 
     Promise.all(promises)
-      .then(() => console.log("All images uploaded"))
-      .catch(err => console.log(err));
+      .then(() => toast.success("Svi priloženi dokumenti su učitani"))
+      .catch(() =>
+        toast.error(
+          "Došlo je do pogreške pri učitavanju priloženih dokumenata u bazu"
+        )
+      );
 
     setImgUrl(links);
     setNewFiles([]);
@@ -91,10 +93,10 @@ const CreatePost = () => {
 
       try {
         addDoc(collection(db, "posts"), createPost);
-        console.log("Document created...");
+        toast.success("Objava uspješno kreirana");
         navigate("/");
       } catch (error) {
-        console.log(error);
+        toast.error("Došlo je do pogreške prilikom kreiranja objave");
       }
     },
   });
@@ -182,7 +184,7 @@ const CreatePost = () => {
                     max="100"
                   />
                   <Button
-                    text="Upload"
+                    text="Učitaj"
                     btnAction="button"
                     btnType="secondary"
                     addClasses="py-1 w-1/6"

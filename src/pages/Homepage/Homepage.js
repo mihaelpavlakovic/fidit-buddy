@@ -21,6 +21,9 @@ import {
   where,
 } from "firebase/firestore";
 
+// library imports
+import { toast } from "react-toastify";
+
 // context imports
 import { AuthContext } from "../../context/AuthContext";
 
@@ -55,10 +58,10 @@ const Homepage = () => {
         comments: arrayRemove(docForDelete.comments[comIndex]),
       })
         .then(() => {
-          alert("Komentar je uspjesno obrisan.");
+          toast.success("Komentar je uspješno obrisan");
         })
-        .catch(error => {
-          console.log(error);
+        .catch(() => {
+          toast.error("Došlo je do pogreške prilikom brisanja komentara.");
         });
     }
     return;
@@ -95,7 +98,6 @@ const Homepage = () => {
             where("user", "==", userDocRef),
             orderBy("createdAt", "desc")
           );
-          // const q = query(postsRef, orderBy("createdAt", "desc"));
 
           const unsubscribe = onSnapshot(q, snapshot => {
             const updatedPosts = [];

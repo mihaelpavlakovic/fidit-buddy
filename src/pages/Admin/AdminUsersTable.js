@@ -31,6 +31,7 @@ import {
   FaAngleRight,
   FaAngleDoubleRight,
 } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 // Define a default UI for filtering
 function GlobalFilter({
@@ -105,8 +106,8 @@ export function RoleCell({ value, column, row }) {
       isMentor: e.target.value === "true",
       assignedMentorFreshmen: deleteField(),
     })
-      .then(() => alert("Studentu je uspješno promijenjena uloga."))
-      .catch(err => console.log(err));
+      .then(() => toast.success("Studentu je uspješno promijenjena uloga"))
+      .catch(() => toast.error("Došlo je do pogreške prilikom dodjele uloga"));
   };
 
   return (
@@ -149,11 +150,6 @@ export function MentorFreshmenCell({ column, row }) {
       let assignedUserUid = null;
       let assignedUsers = null;
 
-      console.log(userUid);
-      console.log(userName);
-      console.log(assignedUser);
-      console.log(option);
-
       // kada dodajemo/uklanjamo brucoše kod mentora
       if (Array.isArray(option)) {
         if (!Array.isArray(assignedUser)) assignedUser = [];
@@ -183,7 +179,9 @@ export function MentorFreshmenCell({ column, row }) {
         } catch (err) {
           console.log(err);
         } finally {
-          alert("Studentu je uspješno promijenjen dodijeljeni mentor/brucoši.");
+          toast.success(
+            "Studentu je uspješno promijenjen dodijeljeni mentor/brucoši"
+          );
         }
       } else {
         await updateDoc(
@@ -202,8 +200,8 @@ export function MentorFreshmenCell({ column, row }) {
               }
         )
           .then(() => {
-            alert(
-              "Studentu je uspješno promijenjen dodijeljeni mentor/brucoši."
+            toast.success(
+              "Studentu je uspješno promijenjen dodijeljeni mentor/brucoši"
             );
           })
           .catch(err => console.log(err));

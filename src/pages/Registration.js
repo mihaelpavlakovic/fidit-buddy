@@ -17,6 +17,7 @@ import { doc, setDoc } from "firebase/firestore";
 // library imports
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { toast } from "react-toastify";
 
 const Registration = () => {
   const navigate = useNavigate();
@@ -78,11 +79,13 @@ const Registration = () => {
               "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png",
           });
           await setDoc(doc(db, "userChats", user.uid), {});
+          toast.success("Uspješno ste kreirali novi korisnički račun");
           navigate("/");
         });
       } catch (err) {
-        console.error(err);
-        alert(err.message);
+        toast.error(
+          "Došlo je do pogreške prilikom kreiranja vašeg korisničkog računa"
+        );
       }
     },
   });

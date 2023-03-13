@@ -8,6 +8,9 @@ import Button from "./Button";
 import { db } from "../database/firebase";
 import { updateDoc, getDoc, doc } from "firebase/firestore";
 
+// library imports
+import { toast } from "react-toastify";
+
 const Modal = ({ onClose, comment, comIndex, docId, docFromDb }) => {
   const [commentValue, setCommentValue] = useState(comment);
   const [postTitleValue, setPostTitleValue] = useState(docFromDb.postTitle);
@@ -43,10 +46,11 @@ const Modal = ({ onClose, comment, comIndex, docId, docFromDb }) => {
         comments: updatedComments,
       })
         .then(() => {
+          toast.success("Uspješno ste uredili komentar");
           onClose();
         })
-        .catch(error => {
-          console.log(error);
+        .catch(() => {
+          toast.error("Došlo je do pogreške pri uređivanju komentara");
         });
     } else {
       await updateDoc(docRef, {
@@ -54,10 +58,11 @@ const Modal = ({ onClose, comment, comIndex, docId, docFromDb }) => {
         postText: postTextValue,
       })
         .then(() => {
+          toast.success("Uspješno ste uredili objavu");
           onClose();
         })
-        .catch(error => {
-          console.log(error);
+        .catch(() => {
+          toast.error("Došlo je do pogreške pri uređivanju objave");
         });
     }
   };

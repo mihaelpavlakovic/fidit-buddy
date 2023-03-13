@@ -15,6 +15,10 @@ import PermissionDenied from "./pages/PermissionDenied";
 import ChatPage from "./Chat/ChatPage";
 import MessagesPageSec from "./Chat/MessagesPageSec";
 
+// library imports
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 function App() {
   return (
     <BrowserRouter>
@@ -37,6 +41,7 @@ function App() {
         <Route path="/promjena-lozinke" element={<PasswordReset />} />
         <Route path="/odbijen-pristup" element={<PermissionDenied />} />
       </Routes>
+      <ToastContainer />
     </BrowserRouter>
   );
 }

@@ -10,6 +10,7 @@ import { getDoc, doc, updateDoc, arrayUnion } from "firebase/firestore";
 
 // library imports
 import { AiFillStar } from "react-icons/ai";
+import { toast } from "react-toastify";
 
 // context imports
 import { AuthContext } from "../../context/AuthContext";
@@ -58,11 +59,11 @@ const Feedback = ({ user }) => {
               }),
       })
         .then(() => {
-          alert("Uspješno ste ocijenili mentora.");
           setMessage("");
+          toast.success("Uspješno ste ocijenili mentora");
         })
-        .catch(error => {
-          console.log(error);
+        .catch(() => {
+          toast.error("Došlo je do pogreške prilikom ocjenjivanja mentora");
         });
     }
     return;

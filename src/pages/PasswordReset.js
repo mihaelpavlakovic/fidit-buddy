@@ -11,6 +11,7 @@ import { sendPasswordResetEmail } from "firebase/auth";
 // library imports
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { toast } from "react-toastify";
 
 const PasswordReset = () => {
   const formik = useFormik({
@@ -28,10 +29,13 @@ const PasswordReset = () => {
     onSubmit: async values => {
       try {
         await sendPasswordResetEmail(auth, values.email);
-        alert("Password reset link sent!");
+        toast.success(
+          "Link za ponovno postavljanje lozinke je poslan na vaš mail"
+        );
       } catch (err) {
-        console.error(err);
-        alert(err.message);
+        toast.error(
+          "Došlo je do pogreške prilikom slanja link za ponovno postavljanje lozinke"
+        );
       }
     },
   });
@@ -44,7 +48,6 @@ const PasswordReset = () => {
         <div className="text-gray-700 p-5 sm:p-10 md:p-20">
           <h1 className="text-3xl pb-2">Ponovno postavite vašu lozinku</h1>
           <div className="mt-6">
-            {/* Email input field */}
             <div className="pb-4">
               <label
                 htmlFor="email"

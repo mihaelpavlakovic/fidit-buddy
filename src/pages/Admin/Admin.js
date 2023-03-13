@@ -23,6 +23,7 @@ import AdminUsersTable, {
 // library imposts
 import { FaChevronRight, FaChevronDown } from "react-icons/fa";
 import ReactSelect from "react-select";
+import { toast } from "react-toastify";
 
 // context imports
 import { AuthContext } from "../../context/AuthContext";
@@ -84,23 +85,27 @@ function Admin() {
       isMentor: e.target.value === "true",
       assignedMentorFreshmen: deleteField(),
     })
-      .then(() => alert("Studentu je uspješno promijenjena uloga."))
-      .catch(err => console.log(err));
+      .then(() => toast.success("Studentu je uspješno promijenjena uloga"))
+      .catch(() => toast.error("Došlo je do pogreške pri promjeni uloga"));
   };
 
   const handleAddAdmin = uid => async e => {
     const getUserDoc = doc(db, "users", uid);
     await updateDoc(getUserDoc, { isAdmin: true })
-      .then(() => alert("Admin je uspješno dodan."))
-      .catch(err => console.log(err))
+      .then(() => toast.success("Admin uloga je uspješno dodana"))
+      .catch(() =>
+        toast.error("Došlo je do pogreške pri dodjeljivanju admin uloge")
+      )
       .finally(() => setShowModal(false));
   };
 
   const handleRemoveAdmin = uid => async e => {
     const getUserDoc = doc(db, "users", uid);
     await updateDoc(getUserDoc, { isAdmin: false })
-      .then(() => alert("Admin je uspješno uklonjen."))
-      .catch(err => console.log(err));
+      .then(() => toast.success("Admin uloga je uspješno uklonjena"))
+      .catch(() =>
+        toast.error("Došlo je do pogreške prilikom uklanjanja admin uloge")
+      );
   };
 
   const columns = useMemo(
@@ -117,9 +122,9 @@ function Admin() {
             {...row.getToggleRowExpandedProps()}
           >
             {row.isExpanded ? (
-              <FaChevronDown size={25} />
+              <FaChevronDown size={15} className="text-gray-500" />
             ) : (
-              <FaChevronRight size={25} />
+              <FaChevronRight size={15} className="text-gray-500" />
             )}
           </span>
         ),
@@ -171,7 +176,9 @@ function Admin() {
     ({ row }) => (
       <div className="text-gray-600 px-8 py-4">
         <div className="mb-2">JMBAG: {row.values.jmbag}</div>
-        <div>Dodijeljeni {row.values.isMentor ? "brucoši:" : "mentor:"}</div>
+        <div className="mb-1">
+          Dodijeljeni {row.values.isMentor ? "brucoši:" : "mentor:"}
+        </div>
         <MentorFreshmenCell
           column={{ freshmen: freshmen, mentors: mentors }}
           row={row}
@@ -197,78 +204,76 @@ function Admin() {
           <hr className="h-1.5 bg-gray-200 rounded" />
           <div className="mt-6 mb-24">
             <h1 className="text-3xl font-semibold">Pregled administratora</h1>
-            <div className="flex justify-center my-2">
-              <div className="w-fit">
-                <div className="flex justify-end mb-2">
-                  <Button
-                    text="Dodaj novog admina"
-                    btnAction="button"
-                    btnType="primary"
-                    addClasses="w-fit py-2 px-3"
-                    onClick={() => setShowModal(true)}
-                  />
-                </div>
-                {/* Admins table */}
-                <table className="shadow-md overflow-hidden rounded-lg">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Admin
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Akcije
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {(admins.length > 0 &&
-                      admins.map((admin, index) => {
-                        return (
-                          <tr key={index}>
-                            <td className="px-2 sm:px-6 py-4 whitespace-nowrap">
-                              <div className="flex items-center">
-                                <div className="flex-shrink-0 h-10 w-10">
-                                  <img
-                                    className="h-10 w-10 rounded-full"
-                                    src={admin.photoURL}
-                                    alt="Slika profila"
-                                  />
+            <div className="flex flex-col justify-center my-2">
+              <div className="flex justify-end mb-2">
+                <Button
+                  text="Dodaj novog admina"
+                  btnAction="button"
+                  btnType="primary"
+                  addClasses="w-fit py-2 px-3"
+                  onClick={() => setShowModal(true)}
+                />
+              </div>
+              {/* Admins table */}
+              <table className="shadow-md overflow-hidden rounded-lg">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Admin
+                    </th>
+                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Akcije
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {(admins.length > 0 &&
+                    admins.map((admin, index) => {
+                      return (
+                        <tr key={index}>
+                          <td className="px-2 sm:px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <div className="flex-shrink-0 h-10 w-10">
+                                <img
+                                  className="h-10 w-10 rounded-full"
+                                  src={admin.photoURL}
+                                  alt="Slika profila"
+                                />
+                              </div>
+                              <div className="ml-2 sm:ml-4">
+                                <div className="text-sm font-medium text-gray-900">
+                                  {admin.displayName}
                                 </div>
-                                <div className="ml-2 sm:ml-4">
-                                  <div className="text-sm font-medium text-gray-900">
-                                    {admin.displayName}
-                                  </div>
-                                  <div className="text-sm text-gray-500">
-                                    {admin.email}
-                                  </div>
+                                <div className="text-sm text-gray-500">
+                                  {admin.email}
                                 </div>
                               </div>
-                            </td>
-                            <td className="px-2 sm:px-6 py-4 whitespace-nowrap">
-                              <Button
-                                text="Ukloni admina"
-                                btnAction="button"
-                                btnType="danger"
-                                addClasses="p-1.5"
-                                isDisabled={admin.uid === currentUser.uid}
-                                onClick={handleRemoveAdmin(admin.uid)}
-                              />
-                            </td>
-                          </tr>
-                        );
-                      })) || (
-                      <tr>
-                        <td
-                          colSpan={2}
-                          className="p-4 text-center text-gray-500 font-medium"
-                        >
-                          Učitavanje ...
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
+                            </div>
+                          </td>
+                          <td className="px-2 sm:px-6 py-4 whitespace-nowrap text-center">
+                            <Button
+                              text="Ukloni admina"
+                              btnAction="button"
+                              btnType="danger"
+                              addClasses="p-1.5"
+                              isDisabled={admin.uid === currentUser.uid}
+                              onClick={handleRemoveAdmin(admin.uid)}
+                            />
+                          </td>
+                        </tr>
+                      );
+                    })) || (
+                    <tr>
+                      <td
+                        colSpan={2}
+                        className="p-4 text-center text-gray-500 font-medium"
+                      >
+                        Učitavanje ...
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
