@@ -144,6 +144,10 @@ export function AvatarCell({ value, column, row }) {
 	);
 }
 
+export function RatingsCell({ value }) {
+	return <div>{value || "Nema"}</div>;
+}
+
 export function MentorFreshmenCell({ column, row }) {
 	const updateMentorFreshmen =
 		(userUid, userName, assignedUser) => async option => {
@@ -237,7 +241,12 @@ export function MentorFreshmenCell({ column, row }) {
 	);
 }
 
-function AdminUsersTable({ columns, data, renderRowSubComponent }) {
+function AdminUsersTable({
+	columns,
+	data,
+	renderRowSubComponent,
+	mentorTable,
+}) {
 	// Use the state and functions returned from useTable to build your UI
 	const {
 		getTableProps,
@@ -299,7 +308,7 @@ function AdminUsersTable({ columns, data, renderRowSubComponent }) {
 					<div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
 						<div className="sm:shadow-md rounded-lg">
 							<table {...getTableProps()} className="min-w-full">
-								<thead className="hidden sm:table-header-group bg-gray-50">
+								<thead className="sticky top-0 z-50 sm:table-header-group bg-gray-50">
 									{headerGroups.map(headerGroup => (
 										<tr {...headerGroup.getHeaderGroupProps()}>
 											{headerGroup.headers.map(column => (
@@ -365,7 +374,7 @@ function AdminUsersTable({ columns, data, renderRowSubComponent }) {
 																			: ""
 																	} ${
 																		cell.column.id === "expander"
-																			? "pl-4 sm:hidden"
+																			? "sm:hidden"
 																			: ""
 																	}`}
 																	role="cell"
@@ -383,7 +392,7 @@ function AdminUsersTable({ columns, data, renderRowSubComponent }) {
 														})}
 													</tr>
 													{row.isExpanded ? (
-														<tr className="sm:hidden">
+														<tr className={`${mentorTable ? "" : "sm:hidden"}`}>
 															<td colSpan={visibleColumns.length}>
 																{renderRowSubComponent({ row })}
 															</td>
@@ -411,24 +420,25 @@ function AdminUsersTable({ columns, data, renderRowSubComponent }) {
 			<div className="py-3 flex items-center justify-between">
 				<div className="flex-1 flex justify-between sm:hidden">
 					<button
-						className="rounded-l-md w-20 border p-2 text-teal-500 hover:bg-teal-50 disabled:cursor-not-allowed disabled:text-gray-400"
+						className="rounded-l-md w-24 border p-2 text-teal-500 hover:bg-teal-50 disabled:cursor-not-allowed disabled:text-gray-400"
 						onClick={() => previousPage()}
 						disabled={!canPreviousPage}
 					>
-						Previous
+						Prethodna
 					</button>
 					<button
-						className="rounded-r-md w-20 border p-2 text-teal-500 hover:bg-teal-50 disabled:cursor-not-allowed disabled:text-gray-400"
+						className="rounded-r-md w-24 border p-2 text-teal-500 hover:bg-teal-50 disabled:cursor-not-allowed disabled:text-gray-400"
 						onClick={() => nextPage()}
 						disabled={!canNextPage}
 					>
-						Next
+						Sljedeća
 					</button>
 				</div>
 				<div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
 					<div className="flex gap-x-2 items-baseline">
 						<span className="text-sm text-gray-700">
-							Page <span className="font-medium">{state.pageIndex + 1}</span> of{" "}
+							Stranica{" "}
+							<span className="font-medium">{state.pageIndex + 1}</span> od{" "}
 							<span className="font-medium">{pageOptions.length}</span>
 						</span>
 						<label>
@@ -442,7 +452,7 @@ function AdminUsersTable({ columns, data, renderRowSubComponent }) {
 							>
 								{[5, 10, 20].map(pageSize => (
 									<option key={pageSize} value={pageSize}>
-										Show {pageSize}
+										Prikaži {pageSize}
 									</option>
 								))}
 							</select>
