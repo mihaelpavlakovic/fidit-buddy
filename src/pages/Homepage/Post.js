@@ -164,7 +164,12 @@ const Post = ({
 				<div className="flex flex-wrap gap-2 overflow-hidden">
 					{postDetail.data.size !== 0 &&
 						Object.entries(postDetail.data).map((item, index) => {
-							if (item[1].documentURL.includes(".pdf")) {
+							if (
+								item[1].documentURL.includes(".pdf") ||
+								item[1].documentURL.includes(".txt") ||
+								item[1].documentURL.includes(".docx") ||
+								item[1].documentURL.includes(".doc")
+							) {
 								return (
 									<a
 										key={index}

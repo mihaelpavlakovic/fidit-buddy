@@ -1,8 +1,10 @@
 // react imports
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { useState } from "react";
 
 // component imports
 import Button from "../utils/Button";
+import Modal from "../utils/Modal";
 
 // firebase imports
 import { auth, db } from "../database/firebase";
@@ -11,6 +13,8 @@ import {
 	updateProfile,
 	setPersistence,
 	browserSessionPersistence,
+	sendEmailVerification,
+	signOut,
 } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 
@@ -20,7 +24,8 @@ import * as Yup from "yup";
 import { toast } from "react-toastify";
 
 const Registration = () => {
-	const navigate = useNavigate();
+	const [info, setInfo] = useState("");
+	const handleClose = () => setInfo("");
 
 	const formik = useFormik({
 		initialValues: {
@@ -51,7 +56,7 @@ const Registration = () => {
 				.max(10, "Mora sadržavat točno 10 znamenki"),
 		}),
 
-		onSubmit: async values => {
+		onSubmit: async (values, { resetForm }) => {
 			try {
 				setPersistence(auth, browserSessionPersistence).then(async () => {
 					const res = await createUserWithEmailAndPassword(
@@ -59,6 +64,7 @@ const Registration = () => {
 						values.email,
 						values.password
 					);
+
 					const user = res.user;
 					await updateProfile(user, {
 						displayName: values.name,
@@ -78,8 +84,16 @@ const Registration = () => {
 						photoURL:
 							"https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png",
 					});
+
+					sendEmailVerification(auth.currentUser).then(() => {
+						signOut(auth);
+						let verInfo = { message: "verification-required" };
+						setInfo(verInfo);
+						resetForm();
+					});
+
 					toast.success("Uspješno ste kreirali novi korisnički račun");
-					navigate("/");
+					toast.info("Poslali smo Vam email za verifikaciju kreiranog računa.");
 				});
 			} catch (err) {
 				toast.error(
@@ -91,6 +105,7 @@ const Registration = () => {
 
 	return (
 		<main className="items-center flex justify-center sm:min-h-screen">
+			<Modal onClose={handleClose} displayModal={info} />
 			<form
 				onSubmit={formik.handleSubmit}
 				className="rounded-lg shadow-xl m-5 sm:w-5/6 lg:w-1/2"

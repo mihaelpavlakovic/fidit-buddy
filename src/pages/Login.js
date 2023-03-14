@@ -12,6 +12,7 @@ import {
 	browserLocalPersistence,
 	signInWithEmailAndPassword,
 	setPersistence,
+	signOut,
 } from "firebase/auth";
 
 // library imports
@@ -41,8 +42,20 @@ const Login = () => {
 		onSubmit: async values => {
 			setPersistence(auth, browserLocalPersistence)
 				.then(async () => {
-					await signInWithEmailAndPassword(auth, values.email, values.password);
-					navigate("/");
+					await signInWithEmailAndPassword(
+						auth,
+						values.email,
+						values.password
+					).then(userCredential => {
+						// const user = userCredential.user;
+						// if (user.emailVerified) navigate("/");
+						// else {
+						// 	signOut(auth);
+						// 	let error = { message: "not-verified" };
+						// 	setError(error);
+						// }
+						navigate("/");
+					});
 				})
 				.catch(error => setError(error));
 		},
