@@ -231,19 +231,19 @@ const MessagesPage = () => {
 		return false;
 	};
 
-	const handleDownloadDoc = url => {
-		fetch(url)
-			.then(response => response.blob())
-			.then(blob => {
-				const url = window.URL.createObjectURL(new Blob([blob]));
-				const link = document.createElement("a");
-				link.href = url;
-				link.setAttribute("download", ref(storage, url).name);
-				document.body.appendChild(link);
-				link.click();
-				link.parentNode.removeChild(link);
-			});
-	};
+	// const handleDownloadDoc = url => {
+	// 	fetch(url)
+	// 		.then(response => response.blob())
+	// 		.then(blob => {
+	// 			const url = window.URL.createObjectURL(new Blob([blob]));
+	// 			const link = document.createElement("a");
+	// 			link.href = url;
+	// 			link.setAttribute("download", ref(storage, url).name);
+	// 			document.body.appendChild(link);
+	// 			link.click();
+	// 			link.parentNode.removeChild(link);
+	// 		});
+	// };
 
 	useEffect(() => {
 		scrollToBottom();
@@ -382,14 +382,14 @@ const MessagesPage = () => {
 														{ref(storage, message.document).name}
 													</a>
 													{/* Ovo treba vidjet za preuzimanje, CORS policy */}
-													<button
+													{/* <button
 														type="button"
 														onClick={() => handleDownloadDoc(message.document)}
 														className="inline-flex items-center gap-2 px-2.5 py-1.5 bg-teal-600"
 													>
 														<FiDownload size={15} />
 														{ref(storage, message.document).name}
-													</button>
+													</button> */}
 												</div>
 											)}
 										</div>

@@ -190,6 +190,7 @@ function Admin() {
 			<Navigation />
 			<main className="flex justify-center flex-wrap">
 				<div className="w-full sm:w-auto sm:min-w-[60%] px-4 sm:px-6 lg:px-8 py-4">
+					{/* All students table */}
 					<h1 className="text-3xl font-semibold">Pregled svih korisnika</h1>
 					<div className="my-4">
 						<AdminUsersTable
@@ -198,8 +199,11 @@ function Admin() {
 							renderRowSubComponent={renderRowSubComponent}
 						/>
 					</div>
+
 					<hr className="h-1.5 bg-gray-200 rounded" />
-					<div className="mt-6 mb-24">
+
+					{/* All admins table */}
+					<div className="mt-6 mb-10">
 						<h1 className="text-3xl font-semibold">Pregled administratora</h1>
 						<div className="flex flex-col justify-center my-2">
 							<div className="flex justify-end mb-2">
@@ -273,8 +277,18 @@ function Admin() {
 							</table>
 						</div>
 					</div>
+
+					<hr className="h-1.5 bg-gray-200 rounded" />
+
+					{/* Mentors ratings */}
+					<div className="mt-6 mb-24">
+						<h1 className="text-3xl font-semibold">Ocjene metora</h1>
+						<div className="m-4">{JSON.stringify(users[1])}</div>
+					</div>
 				</div>
 			</main>
+
+			{/* Modal for add new admins */}
 			{showModal ? (
 				<>
 					<div className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none">

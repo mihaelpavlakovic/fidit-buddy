@@ -247,15 +247,17 @@ const Profile = () => {
 								{!user?.isMentor && user?.assignedMentorFreshmen !== null ? (
 									<Feedback user={user} />
 								) : (
-									<div className="border-2 border-solid rounded-md h-full">
-										<h2 className="text-xl border-b-2 border-solid p-3">
-											Ocjenite mentora
-										</h2>
-										<p className="text-center mt-2">
-											Dodijeljeni mentor:{"  "}
-											<span className="font-semibold">Nema</span>
-										</p>
-									</div>
+									!user?.isMentor && (
+										<div className="border-2 border-solid rounded-md h-full">
+											<h2 className="text-xl border-b-2 border-solid p-3">
+												Ocjenite mentora
+											</h2>
+											<p className="text-center mt-2">
+												Dodijeljeni mentor:{"  "}
+												<span className="font-semibold">Nema</span>
+											</p>
+										</div>
+									)
 								)}
 							</div>
 						)}
