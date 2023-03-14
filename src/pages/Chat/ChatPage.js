@@ -89,7 +89,10 @@ const ChatPage = () => {
 						...doc.data(),
 					});
 				});
-				setLastChats(lastChatsDocs);
+				const sortedChats = lastChatsDocs.sort(
+					(a, b) => b.dateTime - a.dateTime
+				);
+				setLastChats(sortedChats);
 			});
 
 			return () => {
