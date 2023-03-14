@@ -28,6 +28,7 @@ import { toast } from "react-toastify";
 
 // context imports
 import { AuthContext } from "../../context/AuthContext";
+import { AiFillStar } from "react-icons/ai";
 
 function Admin() {
 	const { currentUser } = useContext(AuthContext);
@@ -226,12 +227,35 @@ function Admin() {
 
 	const renderRowReviews = useCallback(
 		({ row }) => (
-			<div className="flex text-gray-600 px-8 py-4">
-				<div>Marko</div>
-				<div>Jako dobar mentor</div>
+			<div className="border-b-2">
+				{row.original?.reviewsFrom?.map((review, index) => {
+					return (
+						<div
+							key={index}
+							className="flex flex-col md:flex-row text-gray-600 px-6 md:px-8 py-3 md:py-4 gap-1 md:gap-8"
+						>
+							<div className="flex md:w-1/4  md:flex-col md:text-center md:self-center gap-4 md:gap-1">
+								<div>
+									{
+										data.find(user => user.uid === review.uidOfStudent)
+											.displayName
+									}
+								</div>
+								<div className="flex items-center justify-center">
+									{[...Array(review.rating)].map((star, i) => {
+										return <AiFillStar key={i} color={"#ffc107"} />;
+									})}
+								</div>
+							</div>
+							<div className="md:w-3/4 italic text-sm sm:text-base text-gray-500 md:text-center md:self-center">
+								"{review.messageFromStudent}"
+							</div>
+						</div>
+					);
+				})}
 			</div>
 		),
-		[]
+		[data]
 	);
 
 	return (

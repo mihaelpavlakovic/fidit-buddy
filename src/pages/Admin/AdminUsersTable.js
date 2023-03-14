@@ -145,7 +145,7 @@ export function AvatarCell({ value, column, row }) {
 }
 
 export function RatingsCell({ value }) {
-	return <div>{value || "Nema"}</div>;
+	return <div className="text-center">{value || "Nema"}</div>;
 }
 
 export function MentorFreshmenCell({ column, row }) {
