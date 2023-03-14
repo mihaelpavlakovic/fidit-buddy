@@ -283,7 +283,7 @@ function Admin() {
 					{/* Mentors ratings */}
 					<div className="mt-6 mb-24">
 						<h1 className="text-3xl font-semibold">Ocjene metora</h1>
-						<div className="m-4">{JSON.stringify(users[1])}</div>
+						<div className="m-4">U izradi</div>
 					</div>
 				</div>
 			</main>

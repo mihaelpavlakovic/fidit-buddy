@@ -54,16 +54,16 @@ const Navigation = () => {
 						to="/admin"
 						className="lg:px-5 py-1 block hover:border-b-4 border-white ease-in-out duration-100"
 					>
-						Admin Panel
+						Admin panel
 					</Link>
 				</li>
 			)}
 			<li>
 				<Link
-					to="/chat"
+					to="/poruke"
 					className="lg:px-5 py-1 block hover:border-b-4 border-white ease-in-out duration-100"
 				>
-					Chat
+					Poruke
 				</Link>
 			</li>
 			{user?.isMentor && (

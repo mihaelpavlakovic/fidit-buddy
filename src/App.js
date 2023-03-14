@@ -11,8 +11,8 @@ import Profile from "./pages/Profile/Profile";
 import CreatePost from "./pages/CreatePost";
 import Admin from "./pages/Admin/Admin";
 import PermissionDenied from "./pages/PermissionDenied";
-import ChatPage from "./Chat/ChatPage";
-import MessagesPage from "./Chat/MessagesPage";
+import ChatPage from "./pages/Chat/ChatPage";
+import MessagesPage from "./pages/Chat/MessagesPage";
 
 // library imports
 import { ToastContainer } from "react-toastify";
@@ -30,8 +30,8 @@ function App() {
 						<Route path="/kreiraj-objavu" element={<CreatePost />} />
 					</Route>
 					<Route path="/" element={<Homepage />} exact />
-					<Route path="/chat" element={<ChatPage />} />
-					<Route path="/messages" element={<MessagesPage />} />
+					<Route path="/poruke" element={<ChatPage />} />
+					<Route path="/razgovor" element={<MessagesPage />} />
 					<Route path="/profil" element={<Profile />} />
 				</Route>
 				<Route path="/prijava" element={<Login />} />

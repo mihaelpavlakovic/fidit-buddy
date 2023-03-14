@@ -3,7 +3,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 // firebase imports
-import { db, storage } from "../database/firebase";
+import { db, storage } from "../../database/firebase";
 import {
 	addDoc,
 	arrayUnion,
@@ -22,8 +22,8 @@ import { FiDownload, FiPaperclip, FiSend, FiTrash2 } from "react-icons/fi";
 import { ImSpinner2 } from "react-icons/im";
 
 // context imports
-import { AuthContext } from "../context/AuthContext";
-import { ChatContext } from "../context/ChatContext";
+import { AuthContext } from "../../context/AuthContext";
+import { ChatContext } from "../../context/ChatContext";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 const MessagesPage = () => {

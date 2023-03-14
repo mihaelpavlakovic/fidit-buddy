@@ -3,18 +3,18 @@ import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 // component imports
-import Navigation from "../components/Navigation";
+import Navigation from "../../components/Navigation";
 import MessagesPage from "./MessagesPage";
 
 // firebase imports
-import { db } from "../database/firebase";
+import { db } from "../../database/firebase";
 import { collection, onSnapshot } from "firebase/firestore";
 
 // library imports
 import ReactSelect from "react-select";
 import { BiImage } from "react-icons/bi";
-import { AuthContext } from "../context/AuthContext";
-import { ChatContext } from "../context/ChatContext";
+import { AuthContext } from "../../context/AuthContext";
+import { ChatContext } from "../../context/ChatContext";
 
 const ChatPage = () => {
 	let navigate = useNavigate();
@@ -41,7 +41,7 @@ const ChatPage = () => {
 			dispatch({ type: "CHANGE_USER", payload: userData });
 
 			let w = window.innerWidth;
-			if (w < 768) navigate("/messages");
+			if (w < 768) navigate("/razgovor");
 		}
 	};
 
@@ -49,7 +49,7 @@ const ChatPage = () => {
 		dispatch({ type: "CHANGE_USER", payload: chat });
 
 		let w = window.innerWidth;
-		if (w < 768) navigate("/messages");
+		if (w < 768) navigate("/razgovor");
 	};
 
 	useEffect(() => {
