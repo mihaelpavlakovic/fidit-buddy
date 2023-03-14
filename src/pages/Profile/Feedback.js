@@ -20,6 +20,7 @@ const Feedback = ({ user }) => {
 	const [hover, setHover] = useState(null);
 	const [message, setMessage] = useState("");
 	const { currentUser } = useContext(AuthContext);
+
 	const rateMentorHandler = async e => {
 		e.preventDefault();
 		if (
@@ -56,6 +57,7 @@ const Feedback = ({ user }) => {
 						: arrayUnion({
 								uidOfStudent: currentUser.uid,
 								messageFromStudent: message,
+								rating: rating,
 						  }),
 			})
 				.then(() => {

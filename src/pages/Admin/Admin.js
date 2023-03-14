@@ -18,6 +18,7 @@ import AdminUsersTable, {
 	AvatarCell,
 	SelectColumnFilter,
 	MentorFreshmenCell,
+	RatingsCell,
 } from "./AdminUsersTable";
 
 // library imposts
@@ -27,6 +28,7 @@ import { toast } from "react-toastify";
 
 // context imports
 import { AuthContext } from "../../context/AuthContext";
+import { AiFillStar } from "react-icons/ai";
 
 function Admin() {
 	const { currentUser } = useContext(AuthContext);
@@ -119,9 +121,9 @@ function Admin() {
 						{...row.getToggleRowExpandedProps()}
 					>
 						{row.isExpanded ? (
-							<FaChevronDown size={15} className="text-gray-500" />
+							<FaChevronDown size={20} className="text-gray-500 m-2.5" />
 						) : (
-							<FaChevronRight size={15} className="text-gray-500" />
+							<FaChevronRight size={20} className="text-gray-500 m-2.5" />
 						)}
 					</span>
 				),
@@ -168,6 +170,44 @@ function Admin() {
 		[mentors, freshmen]
 	);
 
+	const mentorColumns = useMemo(
+		() => [
+			{
+				Header: "Više",
+				id: "expanderReviews",
+				Cell: ({ row }) => (
+					<span
+						className="flex justify-center"
+						{...row.getToggleRowExpandedProps()}
+					>
+						{row.isExpanded ? (
+							<FaChevronDown size={20} className="text-gray-500 m-2.5" />
+						) : (
+							<FaChevronRight size={20} className="text-gray-500 m-2.5" />
+						)}
+					</span>
+				),
+			},
+			{
+				Header: "Mentor",
+				accessor: "displayName",
+				Cell: AvatarCell,
+				imgAccessor: "photoURL",
+				emailAccessor: "email",
+			},
+			{
+				Header: "Ocjena",
+				accessor: calculateRating,
+				Cell: RatingsCell,
+			},
+		],
+		[]
+	);
+
+	function calculateRating(row) {
+		return Number(Math.round((row?.reviewMark / row?.reviewCount) * 100) / 100);
+	}
+
 	// Create a function that will render our row sub components
 	const renderRowSubComponent = useCallback(
 		({ row }) => (
@@ -183,6 +223,39 @@ function Admin() {
 			</div>
 		),
 		[freshmen, mentors]
+	);
+
+	const renderRowReviews = useCallback(
+		({ row }) => (
+			<div className="border-b-2">
+				{row.original?.reviewsFrom?.map((review, index) => {
+					return (
+						<div
+							key={index}
+							className="flex flex-col md:flex-row text-gray-600 px-6 md:px-8 py-3 md:py-4 gap-1 md:gap-8"
+						>
+							<div className="flex md:w-1/4  md:flex-col md:text-center md:self-center gap-4 md:gap-1">
+								<div>
+									{
+										data.find(user => user.uid === review.uidOfStudent)
+											.displayName
+									}
+								</div>
+								<div className="flex items-center justify-center">
+									{[...Array(review.rating)].map((star, i) => {
+										return <AiFillStar key={i} color={"#ffc107"} />;
+									})}
+								</div>
+							</div>
+							<div className="md:w-3/4 italic text-sm sm:text-base text-gray-500 md:text-center md:self-center">
+								"{review.messageFromStudent}"
+							</div>
+						</div>
+					);
+				})}
+			</div>
+		),
+		[data]
 	);
 
 	return (
@@ -281,9 +354,16 @@ function Admin() {
 					<hr className="h-1.5 bg-gray-200 rounded" />
 
 					{/* Mentors ratings */}
-					<div className="mt-6 mb-24">
-						<h1 className="text-3xl font-semibold">Ocjene metora</h1>
-						<div className="m-4">U izradi</div>
+					<div className="my-6">
+						<h1 className="text-3xl font-semibold">Ocjene mentora</h1>
+						<div className="my-4">
+							<AdminUsersTable
+								columns={mentorColumns}
+								data={data.filter(user => user.isMentor)}
+								renderRowSubComponent={renderRowReviews}
+								mentorTable={true}
+							/>
+						</div>
 					</div>
 				</div>
 			</main>

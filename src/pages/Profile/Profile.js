@@ -206,7 +206,7 @@ const Profile = () => {
 											<p>
 												Vaša ocjena kao mentora{" "}
 												<span className="block text-center mt-3 font-semibold text-4xl">
-													{user.reviewCount
+													{user.reviewCount > 0
 														? Math.round(
 																(user?.reviewMark / user?.reviewCount) * 100
 														  ) / 100
