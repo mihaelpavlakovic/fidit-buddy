@@ -26,9 +26,9 @@ const ChatPage = () => {
 	const [lastChats, setLastChats] = useState([]);
 	const [selectedOption, setSelectedOption] = useState();
 
-	const handleSelect = (e) => {
+	const handleSelect = e => {
 		if (e != null) {
-			const existingChat = lastChats.find((x) => x.interlocutorUid === e.value);
+			const existingChat = lastChats.find(x => x.interlocutorUid === e.value);
 			const userData = {
 				interlocutorUid: e.value,
 				senderPhoto: e.image,
@@ -45,7 +45,7 @@ const ChatPage = () => {
 		}
 	};
 
-	const handleSelectExisting = (chat) => {
+	const handleSelectExisting = chat => {
 		dispatch({ type: "CHANGE_USER", payload: chat });
 
 		let w = window.innerWidth;
@@ -55,9 +55,9 @@ const ChatPage = () => {
 	useEffect(() => {
 		const userCollRef = collection(db, "users");
 
-		const unsub = onSnapshot(userCollRef, (snap) => {
+		const unsub = onSnapshot(userCollRef, snap => {
 			const userDocs = [];
-			snap.forEach((doc) => {
+			snap.forEach(doc => {
 				userDocs.push({ id: doc.id, ...doc.data() });
 			});
 			setUsers(userDocs);
@@ -74,11 +74,11 @@ const ChatPage = () => {
 				currentUser.uid,
 				"lastChats"
 			);
-			const unsub = onSnapshot(lastChatsRef, (snap) => {
+			const unsub = onSnapshot(lastChatsRef, snap => {
 				const lastChatsDocs = [];
-				snap.forEach((doc) => {
+				snap.forEach(doc => {
 					const userData = users.find(
-						(x) => x.uid === doc.data().interlocutorUid
+						x => x.uid === doc.data().interlocutorUid
 					);
 					const senderPhoto = userData?.photoURL;
 					const senderName = userData?.displayName;
@@ -127,14 +127,14 @@ const ChatPage = () => {
 							onChange={handleSelect}
 							placeholder={"Pretraži korisnike..."}
 							formatOptionLabel={formatOptionLabel}
-							options={users.map((user) => {
+							options={users.map(user => {
 								return {
 									value: user.uid,
 									label: user.displayName,
 									image: user.photoURL,
 								};
 							})}
-							theme={(theme) => ({
+							theme={theme => ({
 								...theme,
 								colors: {
 									...theme.colors,
@@ -143,12 +143,12 @@ const ChatPage = () => {
 								},
 							})}
 							styles={{
-								control: (base) => ({
+								control: base => ({
 									...base,
 									borderRadius: 6,
 									cursor: "pointer",
 								}),
-								option: (base) => ({
+								option: base => ({
 									...base,
 									cursor: "pointer",
 								}),
@@ -157,7 +157,7 @@ const ChatPage = () => {
 						{/* Last Chats Container */}
 						<div className="md:h-[calc(100vh-194px)] md:overflow-auto">
 							{(lastChats.length > 0 &&
-								lastChats.map((chat) => {
+								lastChats.map(chat => {
 									return (
 										<div
 											key={chat.id}
@@ -166,7 +166,7 @@ const ChatPage = () => {
 										>
 											<div className="h-12 w-12 flex-shrink-0">
 												<img
-													className="h-12 w-12 rounded-md shadow-md"
+													className="h-12 w-12 rounded-md shadow-md object-cover"
 													src={chat.senderPhoto}
 													alt="Slika profila"
 												/>

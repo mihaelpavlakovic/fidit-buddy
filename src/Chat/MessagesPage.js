@@ -1,5 +1,5 @@
 // react imports
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 // firebase imports
@@ -48,7 +48,7 @@ const MessagesPage = () => {
 		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
 	};
 
-	const handleKeydown = (e) => {
+	const handleKeydown = e => {
 		e.code === "Enter" && handleSendMessage();
 	};
 
@@ -74,7 +74,7 @@ const MessagesPage = () => {
 			setLoading(false);
 		};
 
-		const updateLastMessage = async (userUid) => {
+		const updateLastMessage = async userUid => {
 			await updateDoc(
 				doc(db, "users", userUid, "lastChats", chatData.user.id),
 				{ ...messageDataUpdate }
@@ -102,12 +102,12 @@ const MessagesPage = () => {
 					const storageRef = ref(storage, imagePath);
 
 					uploadBytes(storageRef, selectedImage || selectedDoc).then(
-						(snapshot) => {
+						snapshot => {
 							setSelectedImage(null);
 							setSelectedImageValue("");
 							setSelectedDoc(null);
 							setSelectedDocValue("");
-							getDownloadURL(snapshot.ref).then(async (downloadURL) => {
+							getDownloadURL(snapshot.ref).then(async downloadURL => {
 								if (selectedDoc) docUrl = downloadURL;
 								if (selectedImage) imageUrl = downloadURL;
 								updateMessageDoc();
@@ -125,7 +125,7 @@ const MessagesPage = () => {
 				// Ovo je dio kada još nemamo međusobnih poruka
 				const messageDocRef = doc(collection(db, "messages"));
 
-				const addAllDocuments = async (imageUrl) => {
+				const addAllDocuments = async imageUrl => {
 					const messageData = {
 						messagesUid: messageDocRef.id,
 						senderUid: currentUser.uid,
@@ -149,7 +149,7 @@ const MessagesPage = () => {
 								interlocutorUid: chatData.user.interlocutorUid,
 								...messageData,
 							}
-						).then(async (secondDoc) => {
+						).then(async secondDoc => {
 							let chatUpdated = { ...chatData.user };
 							chatUpdated.messagesUid = messageDocRef.id;
 							chatUpdated.id = secondDoc.id;
@@ -192,12 +192,12 @@ const MessagesPage = () => {
 					const storageRef = ref(storage, imagePath);
 
 					uploadBytes(storageRef, selectedImage || selectedDoc).then(
-						(snapshot) => {
+						snapshot => {
 							setSelectedImage(null);
 							setSelectedImageValue("");
 							setSelectedDoc(null);
 							setSelectedDocValue("");
-							getDownloadURL(snapshot.ref).then(async (downloadURL) => {
+							getDownloadURL(snapshot.ref).then(async downloadURL => {
 								if (selectedDoc) docUrl = downloadURL;
 								if (selectedImage) imageUrl = downloadURL;
 								addAllDocuments(downloadURL);
@@ -226,15 +226,15 @@ const MessagesPage = () => {
 		return false;
 	};
 
-	const getCurrentMessageInfo = (message) => {
+	const getCurrentMessageInfo = message => {
 		if (message.senderUid === currentUser.uid) return true;
 		return false;
 	};
 
-	const handleDownloadDoc = (url) => {
+	const handleDownloadDoc = url => {
 		fetch(url)
-			.then((response) => response.blob())
-			.then((blob) => {
+			.then(response => response.blob())
+			.then(blob => {
 				const url = window.URL.createObjectURL(new Blob([blob]));
 				const link = document.createElement("a");
 				link.href = url;
@@ -251,7 +251,7 @@ const MessagesPage = () => {
 
 	useEffect(() => {
 		setMessages([]);
-		const unSub = onSnapshot(doc(db, "messages", chatData.chatId), (doc) => {
+		const unSub = onSnapshot(doc(db, "messages", chatData.chatId), doc => {
 			doc.exists() && setMessages(doc.data().messages);
 		});
 		return () => {
@@ -274,7 +274,7 @@ const MessagesPage = () => {
 					<div className="h-10 w-10 mx-4">
 						{(chatData?.user.senderPhoto && (
 							<img
-								className="h-10 w-10 rounded-md shadow-md"
+								className="h-10 w-10 rounded-md shadow-md object-cover"
 								src={chatData?.user.senderPhoto}
 								alt="Slika profila"
 							/>
@@ -300,7 +300,7 @@ const MessagesPage = () => {
 								>
 									<div className="h-8 w-8 flex-shrink-0">
 										<img
-											className={`h-8 w-8 rounded-md shadow-md ${
+											className={`h-8 w-8 rounded-md shadow-md object-cover ${
 												getPreviusMessageInfo(message, index) ? "hidden" : ""
 											}`}
 											src={
@@ -382,14 +382,14 @@ const MessagesPage = () => {
 														{ref(storage, message.document).name}
 													</a>
 													{/* Ovo treba vidjet za preuzimanje, CORS policy */}
-													{/* <button
+													<button
 														type="button"
 														onClick={() => handleDownloadDoc(message.document)}
-														className="inline-flex items-center gap-2 px-2.5 py-1.5"
+														className="inline-flex items-center gap-2 px-2.5 py-1.5 bg-teal-600"
 													>
 														<FiDownload size={15} />
 														{ref(storage, message.document).name}
-													</button> */}
+													</button>
 												</div>
 											)}
 										</div>
@@ -463,7 +463,7 @@ const MessagesPage = () => {
 						<input
 							className="w-full h-full border p-2 rounded-md shadow-md pr-20 outline-teal-500 disabled:cursor-not-allowed"
 							type="text"
-							onChange={(e) => setText(e.target.value)}
+							onChange={e => setText(e.target.value)}
 							onKeyDown={handleKeydown}
 							value={text}
 							disabled={!chatData.user.senderName}
@@ -478,7 +478,7 @@ const MessagesPage = () => {
 									className="hidden"
 									disabled={!chatData.user.senderName || selectedImage}
 									value={selectedDocValue}
-									onChange={(e) => setSelectedDoc(e.target.files[0])}
+									onChange={e => setSelectedDoc(e.target.files[0])}
 								/>
 								<label
 									htmlFor="file"
@@ -495,7 +495,7 @@ const MessagesPage = () => {
 									className="hidden"
 									disabled={!chatData.user.senderName || selectedDoc}
 									value={selectedImageValue}
-									onChange={(e) => setSelectedImage(e.target.files[0])}
+									onChange={e => setSelectedImage(e.target.files[0])}
 								/>
 								<label
 									htmlFor="image"
