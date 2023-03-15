@@ -23,12 +23,12 @@ import AdminUsersTable, {
 
 // library imposts
 import { FaChevronRight, FaChevronDown } from "react-icons/fa";
+import { AiFillStar } from "react-icons/ai";
 import ReactSelect from "react-select";
 import { toast } from "react-toastify";
 
 // context imports
 import { AuthContext } from "../../context/AuthContext";
-import { AiFillStar } from "react-icons/ai";
 
 function Admin() {
 	const { currentUser } = useContext(AuthContext);

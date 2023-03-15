@@ -47,14 +47,13 @@ const Login = () => {
 						values.email,
 						values.password
 					).then(userCredential => {
-						// const user = userCredential.user;
-						// if (user.emailVerified) navigate("/");
-						// else {
-						// 	signOut(auth);
-						// 	let error = { message: "not-verified" };
-						// 	setError(error);
-						// }
-						navigate("/");
+						const user = userCredential.user;
+						if (user.emailVerified) navigate("/");
+						else {
+							signOut(auth);
+							let error = { message: "not-verified" };
+							setError(error);
+						}
 					});
 				})
 				.catch(error => setError(error));

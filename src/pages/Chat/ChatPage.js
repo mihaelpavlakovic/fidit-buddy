@@ -13,6 +13,8 @@ import { collection, onSnapshot } from "firebase/firestore";
 // library imports
 import ReactSelect from "react-select";
 import { BiImage } from "react-icons/bi";
+
+// context imports
 import { AuthContext } from "../../context/AuthContext";
 import { ChatContext } from "../../context/ChatContext";
 

@@ -15,6 +15,7 @@ import {
 	updateDoc,
 } from "firebase/firestore";
 import { uuidv4 } from "@firebase/util";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 // library imports
 import { BiArrowBack, BiImageAdd } from "react-icons/bi";
@@ -24,7 +25,6 @@ import { ImSpinner2 } from "react-icons/im";
 // context imports
 import { AuthContext } from "../../context/AuthContext";
 import { ChatContext } from "../../context/ChatContext";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 const MessagesPage = () => {
 	let navigate = useNavigate();
