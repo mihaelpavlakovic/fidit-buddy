@@ -6,19 +6,14 @@ import { useNavigate, Link } from "react-router-dom";
 import Modal from "../utils/Modal";
 import Button from "../utils/Button";
 
-// fireabse imports
-import { auth } from "../database/firebase";
-import {
-  browserLocalPersistence,
-  signInWithEmailAndPassword,
-  setPersistence,
-} from "firebase/auth";
-
 // library imports
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { useDispatch } from "react-redux";
+import { login } from "../store/Actions/UserActions";
 
 const Login = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const handleClose = () => setError("");
@@ -39,17 +34,8 @@ const Login = () => {
     }),
 
     onSubmit: async values => {
-      setPersistence(auth, browserLocalPersistence)
-        .then(async () => {
-          await signInWithEmailAndPassword(
-            auth,
-            values.email,
-            values.password
-          ).then(() => {
-            navigate("/");
-          });
-        })
-        .catch(error => setError(error));
+      dispatch(login({ email: values.email, password: values.password }));
+      navigate("/");
     },
   });
 

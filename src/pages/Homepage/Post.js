@@ -1,8 +1,6 @@
-// react imports
-import { useContext } from "react";
-
 // redux imports
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { deletePostAction } from "../../store/Actions/DatabaseActions";
 
 // component imports
 import PostComments from "./PostComments";
@@ -21,9 +19,8 @@ import { doc, getDoc, updateDoc, Timestamp } from "firebase/firestore";
 // library imports
 import { toast } from "react-toastify";
 
-// context imports
-import { AuthContext } from "../../context/AuthContext";
-import { deletePostAction } from "../../store/Actions/DatabaseActions";
+// helper imports
+import { formatDateTime } from "../../helper/functions";
 
 const Post = ({
   postDetail,
@@ -32,7 +29,7 @@ const Post = ({
   onEditHandler,
   editPostHandler,
 }) => {
-  const { currentUser } = useContext(AuthContext);
+  const stateUser = useSelector(state => state.user.user);
   const dispatch = useDispatch();
   const formik = useFormik({
     initialValues: {
@@ -40,7 +37,7 @@ const Post = ({
     },
 
     onSubmit: async values => {
-      const userRef = doc(db, "users", currentUser.uid);
+      const userRef = doc(db, "users", stateUser.uid);
       const docRef = doc(db, "posts", postDetail.docId);
       const docSnap = await getDoc(docRef);
       let createComment = {};
@@ -86,12 +83,6 @@ const Post = ({
     return;
   };
 
-  const formatDateTime = timeToFormat => {
-    const [date, time] = timeToFormat.split(/\.(?=[^.]+$)/);
-
-    return `${date.trim()} - ${time.trim()}`;
-  };
-
   return (
     <div className="w-full lg:w-2/3 p-5 sm:px-10 shadow-lg mx-auto mb-10 drop-shadow-md rounded-lg">
       <div className="flex flex-col gap-4">
@@ -112,7 +103,7 @@ const Post = ({
               <div className="text-xs text-gray-500">
                 <div>{formatDateTime(postDetail.createdAt)}</div>
                 <div className="text-right">
-                  {currentUser.uid === postDetail.user.uid && (
+                  {stateUser.uid === postDetail.user.uid && (
                     <>
                       <Button
                         text=""

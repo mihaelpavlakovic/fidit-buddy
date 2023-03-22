@@ -1,5 +1,5 @@
 // react imports
-import { useState, useEffect, useContext, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
 // redux imports
@@ -18,14 +18,10 @@ import EditModal from "../../utils/EditModal";
 import { db } from "../../database/firebase";
 import { getDoc, doc } from "firebase/firestore";
 
-// context imports
-import { AuthContext } from "../../context/AuthContext";
-
 const Homepage = () => {
   const dispatch = useDispatch();
+  const stateUser = useSelector(state => state.user.user);
   const docs = useSelector(state => state.database.posts);
-  const { currentUser } = useContext(AuthContext);
-  const [user, setUser] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [showModalType, setShowModalType] = useState("");
   const [modalData, setModalData] = useState({});
@@ -39,37 +35,24 @@ const Homepage = () => {
     return;
   };
 
-  const userData = useCallback(async () => {
-    if (currentUser && currentUser.uid) {
-      const docRef = doc(db, "users", currentUser.uid);
-      const docSnap = await getDoc(docRef);
-      const data = docSnap.exists() ? setUser(docSnap.data()) : null;
-
-      if (data === null || data === undefined) return null;
-    }
-  }, [currentUser]);
-
   useEffect(() => {
-    if (currentUser) {
-      userData();
-    }
-  }, [userData, currentUser]);
-
-  useEffect(() => {
-    if (user !== null) {
-      if (user.isAdmin === false) {
-        if (!Object.is(user.assignedMentorFreshmen, null)) {
+    if (stateUser !== null) {
+      if (stateUser.isAdmin === false) {
+        if (!Object.is(stateUser.assignedMentorFreshmen, null)) {
           let userDocRef = undefined;
-          if (!!user.isMentor) {
-            userDocRef = doc(db, "users/" + currentUser.uid);
+          if (!!stateUser.isMentor) {
+            userDocRef = doc(db, "users/" + stateUser.uid);
           } else {
-            userDocRef = doc(db, "users/" + user.assignedMentorFreshmen.value);
+            userDocRef = doc(
+              db,
+              "users/" + stateUser.assignedMentorFreshmen?.value
+            );
           }
           dispatch(getAllPostsAction(userDocRef));
         }
       }
     }
-  }, [user, currentUser.uid, dispatch]);
+  }, [stateUser, dispatch]);
 
   return (
     <>
@@ -87,9 +70,9 @@ const Homepage = () => {
         )}
         <div className="flex flex-col">
           <h1 className="text-3xl my-5 font-semibold">
-            Dobro došli {currentUser.displayName}! 👋
+            Dobro došli {stateUser?.displayName}! 👋
           </h1>
-          {user?.isAdmin ? (
+          {stateUser?.isAdmin ? (
             <p className="mt-5">
               Prijavljeni ste kao administrator. Kako bi vidjeli
               administratorsku ploču kliknite{" "}
@@ -102,7 +85,7 @@ const Homepage = () => {
             <p className="mt-5">Trenutačno nema objava.</p>
           ) : (
             docs.map(item => {
-              if (item.user.uid === user?.assignedMentorFreshmen?.value) {
+              if (item.user.uid === stateUser?.assignedMentorFreshmen?.value) {
                 return (
                   <Post
                     key={item.docId}
@@ -125,7 +108,7 @@ const Homepage = () => {
                   />
                 );
               }
-              if (user?.isMentor && user?.uid === item.user.uid) {
+              if (stateUser?.isMentor && stateUser?.uid === item.user.uid) {
                 return (
                   <Post
                     key={item.docId}

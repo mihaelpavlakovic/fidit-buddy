@@ -1,5 +1,5 @@
-// react imports
-import { useContext } from "react";
+// redux imports
+import { useSelector } from "react-redux";
 
 // component imports
 import Button from "../../utils/Button";
@@ -7,17 +7,11 @@ import Button from "../../utils/Button";
 // library imports
 import { BiEdit, BiTrash } from "react-icons/bi";
 
-// context imports
-import { AuthContext } from "../../context/AuthContext";
+// helper imports
+import { formatDateTime } from "../../helper/functions";
 
 const PostComments = ({ comments, onDeleteHandler, onEditHandler }) => {
-  const { currentUser } = useContext(AuthContext);
-
-  const formatDateTime = timeToFormat => {
-    const [date, time] = timeToFormat.split(/\.(?=[^.]+$)/);
-
-    return `${date.trim()} - ${time.trim()}`;
-  };
+  const stateUser = useSelector(state => state.user.user);
 
   return (
     <div className="w-full bg-gray-100 p-2 sm:px-4 flex gap-3 mb-2">
@@ -38,7 +32,7 @@ const PostComments = ({ comments, onDeleteHandler, onEditHandler }) => {
           </h3>
           <div className="text-xs text-gray-500 text-right">
             <div>{formatDateTime(comments.createdAt)}</div>
-            {currentUser.uid === comments.user.uid && (
+            {stateUser.uid === comments.user.uid && (
               <>
                 <Button
                   text=""

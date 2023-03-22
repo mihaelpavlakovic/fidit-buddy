@@ -1,5 +1,8 @@
 // react imports
-import { useContext, useEffect, useCallback, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
+
+// redux imports
+import { useSelector } from "react-redux";
 
 // component imports
 import Navigation from "../../components/Navigation";
@@ -10,24 +13,20 @@ import EditModal from "../../utils/EditModal";
 // firebase imports
 import { db, storage } from "../../database/firebase";
 import { ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";
-import { updateDoc, doc, getDoc } from "firebase/firestore";
+import { updateDoc, doc } from "firebase/firestore";
 import { updateProfile } from "firebase/auth";
 
 // library imports
 import { BiEdit } from "react-icons/bi";
 import { toast } from "react-toastify";
 
-// context imports
-import { AuthContext } from "../../context/AuthContext";
-
 const Profile = () => {
-  const { currentUser } = useContext(AuthContext);
+  const stateUser = useSelector(state => state.user.user);
   const [newFile, setNewFile] = useState(null);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState(null);
   const types = ["image/png", "image/jpeg", "image/jpg"];
   const refValue = useRef();
-  const [user, setUser] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
   const reset = () => {
@@ -52,7 +51,7 @@ const Profile = () => {
   useEffect(() => {}, [newFile]);
 
   const uploadImage = () => {
-    const storageRef = ref(storage, `${currentUser.uid}/${newFile.name}`);
+    const storageRef = ref(storage, `${stateUser.uid}/${newFile.name}`);
     const uploadTask = uploadBytesResumable(storageRef, newFile);
 
     uploadTask.on(
@@ -68,10 +67,10 @@ const Profile = () => {
       },
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then(async downloadURL => {
-          await updateProfile(currentUser, {
+          await updateProfile(stateUser, {
             photoURL: downloadURL,
           });
-          await updateDoc(doc(db, "users", currentUser.uid), {
+          await updateDoc(doc(db, "users", stateUser.uid), {
             photoURL: downloadURL,
           });
           toast.success("Slika profila uspješno ažurirana");
@@ -83,22 +82,6 @@ const Profile = () => {
     setNewFile([]);
   };
 
-  const userData = useCallback(async () => {
-    if (currentUser && currentUser.uid) {
-      const docRef = doc(db, "users", currentUser.uid);
-      const docSnap = await getDoc(docRef);
-      const data = docSnap.exists() ? setUser(docSnap.data()) : null;
-
-      if (data === null || data === undefined) return null;
-    }
-  }, [currentUser]);
-
-  useEffect(() => {
-    if (currentUser) {
-      userData();
-    }
-  }, [userData, currentUser, currentUser.displayName]);
-
   return (
     <>
       <Navigation />
@@ -107,7 +90,7 @@ const Profile = () => {
           <EditModal
             handleCloseModal={closeModalHandler}
             modalType={"editUser"}
-            user={user}
+            user={stateUser}
           />
         )}
         <div className="flex flex-col gap-4">
@@ -118,7 +101,7 @@ const Profile = () => {
               <div className="w-full flex items-center justify-center">
                 <img
                   className="p-3 lg:w-[70%]"
-                  src={currentUser.photoURL}
+                  src={stateUser?.photoURL}
                   alt="Slika profila"
                 />
               </div>
@@ -188,22 +171,22 @@ const Profile = () => {
                 <tbody className="flex flex-col gap-1">
                   <tr>
                     <td className="w-[4.5rem]">Ime:</td>
-                    <td>{user?.displayName}</td>
+                    <td>{stateUser?.displayName}</td>
                   </tr>
                   <tr>
                     <td className="w-[4.5rem]">Email:</td>
-                    <td>{user?.email}</td>
+                    <td>{stateUser?.email}</td>
                   </tr>
                   <tr>
                     <td className="w-[4.5rem]">JMBAG:</td>
-                    <td>{user?.jmbag}</td>
+                    <td>{stateUser?.jmbag}</td>
                   </tr>
                 </tbody>
               </table>
             </div>
-            {!user?.isAdmin && (
+            {!stateUser?.isAdmin && (
               <div className="w-full">
-                {user?.isMentor && (
+                {stateUser?.isMentor && (
                   <div className="border-2 border-solid rounded-md">
                     <h2 className="text-lg p-3 border-b-2">
                       Povratne informacije
@@ -212,9 +195,11 @@ const Profile = () => {
                       <p>
                         Vaša ocjena kao mentora{" "}
                         <span className="block text-center mt-3 font-semibold text-4xl">
-                          {user.reviewCount > 0
+                          {stateUser.reviewCount > 0
                             ? Math.round(
-                                (user?.reviewMark / user?.reviewCount) * 100
+                                (stateUser?.reviewMark /
+                                  stateUser?.reviewCount) *
+                                  100
                               ) / 100
                             : "Nema"}
                         </span>
@@ -222,12 +207,12 @@ const Profile = () => {
                       <p>
                         Ocjenilo vas je ukupno studenata{" "}
                         <span className="block text-center mt-3 font-semibold text-4xl">
-                          {user?.reviewCount || "0"}
+                          {stateUser?.reviewCount || "0"}
                         </span>
                       </p>
                       <p>Poruke od studenata</p>
-                      {user?.reviewsFrom?.length > 3
-                        ? user?.reviewsFrom.slice(-3).map((review, i) => {
+                      {stateUser?.reviewsFrom?.length > 3
+                        ? stateUser?.reviewsFrom.slice(-3).map((review, i) => {
                             return (
                               <p
                                 key={i}
@@ -237,7 +222,7 @@ const Profile = () => {
                               </p>
                             );
                           })
-                        : user?.reviewsFrom?.map((review, i) => {
+                        : stateUser?.reviewsFrom?.map((review, i) => {
                             return (
                               <p
                                 key={i}
@@ -250,10 +235,11 @@ const Profile = () => {
                     </div>
                   </div>
                 )}
-                {!user?.isMentor && user?.assignedMentorFreshmen !== null ? (
-                  <Feedback user={user} />
+                {!stateUser?.isMentor &&
+                stateUser?.assignedMentorFreshmen !== null ? (
+                  <Feedback user={stateUser} />
                 ) : (
-                  !user?.isMentor && (
+                  !stateUser?.isMentor && (
                     <div className="border-2 border-solid rounded-md h-full">
                       <h2 className="text-xl border-b-2 border-solid p-3">
                         Ocjenite mentora
