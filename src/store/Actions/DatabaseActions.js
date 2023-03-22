@@ -21,20 +21,27 @@ import { ref, deleteObject } from "firebase/storage";
 // library imports
 import { toast } from "react-toastify";
 
+const getAllPostsFromMentor = userDocRef => {
+  const q = query(
+    collection(db, "posts"),
+    where("user", "==", userDocRef),
+    orderBy("createdAt", "desc")
+  );
+  return q;
+};
+
+const serializeTimestamp = timestamp => ({
+  seconds: timestamp.seconds,
+  nanoseconds: timestamp.nanoseconds,
+});
+
 export const getAllPostsAction = userDocRef => {
   return async dispatch => {
-    const q = query(
-      collection(db, "posts"),
-      where("user", "==", userDocRef),
-      orderBy("createdAt", "desc")
-    );
+    const q = getAllPostsFromMentor(userDocRef);
 
     const unsubscribe = onSnapshot(q, snapshot => {
+      let posts = [];
       snapshot.forEach(doc => {
-        const serializeTimestamp = timestamp => ({
-          seconds: timestamp.seconds,
-          nanoseconds: timestamp.nanoseconds,
-        });
         const postData = doc.data();
         const createdAt = serializeTimestamp(postData.createdAt);
         let post = {
@@ -55,34 +62,36 @@ export const getAllPostsAction = userDocRef => {
               ...post,
               user: userInfo,
             };
-            dispatch(databaseActions.setPosts(updatedPost));
-          });
-        }
-
-        if (postData.comments) {
-          Promise.all(
-            postData.comments.map(comment =>
-              getDoc(comment.user).then(doc => doc.data())
-            )
-          ).then(commentUsers => {
-            const createdAt = serializeTimestamp(postData.createdAt);
-            const comments = postData.comments.map((comment, index) => ({
-              ...comment,
-              createdAt: new Date(
-                createdAt.seconds * 1000 + createdAt.nanoseconds / 1000000
-              ).toLocaleString("hr-HR", {
-                dateStyle: "short",
-                timeStyle: "short",
-              }),
-              user: commentUsers[index],
-            }));
-            console.log(comments);
-            // dispatch(databaseActions.setPosts(post));
+            post = updatedPost;
+            if (postData.comments) {
+              Promise.all(
+                postData.comments.map(comment =>
+                  getDoc(comment.user).then(doc => doc.data())
+                )
+              ).then(commentUsers => {
+                const createdAt = serializeTimestamp(postData.createdAt);
+                const comments = postData.comments.map((comment, index) => ({
+                  ...comment,
+                  createdAt: new Date(
+                    createdAt.seconds * 1000 + createdAt.nanoseconds / 1000000
+                  ).toLocaleString("hr-HR", {
+                    dateStyle: "short",
+                    timeStyle: "short",
+                  }),
+                  user: commentUsers[index],
+                }));
+                post = { ...post, comments };
+                posts = [...posts, post];
+                dispatch(databaseActions.setPosts(posts));
+              });
+            } else {
+              posts = [...posts, post];
+              dispatch(databaseActions.setPosts(posts));
+            }
           });
         }
       });
     });
-
     return unsubscribe;
   };
 };

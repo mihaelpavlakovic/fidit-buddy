@@ -9,7 +9,7 @@ const databaseSlice = createSlice({
   initialState,
   reducers: {
     setPosts: (state, action) => {
-      state.posts.push(action.payload);
+      state.posts = action.payload;
     },
   },
 });

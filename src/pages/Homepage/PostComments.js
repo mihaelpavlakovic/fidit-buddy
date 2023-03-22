@@ -12,6 +12,13 @@ import { AuthContext } from "../../context/AuthContext";
 
 const PostComments = ({ comments, onDeleteHandler, onEditHandler }) => {
   const { currentUser } = useContext(AuthContext);
+
+  const formatDateTime = timeToFormat => {
+    const [date, time] = timeToFormat.split(/\.(?=[^.]+$)/);
+
+    return `${date.trim()} - ${time.trim()}`;
+  };
+
   return (
     <div className="w-full bg-gray-100 p-2 sm:px-4 flex gap-3 mb-2">
       <img
@@ -30,17 +37,7 @@ const PostComments = ({ comments, onDeleteHandler, onEditHandler }) => {
             )}
           </h3>
           <div className="text-xs text-gray-500 text-right">
-            <div>
-              {comments.createdAt
-                ?.toDate()
-                .toLocaleDateString("hr-HR")
-                .replace(/\s+/g, "")}{" "}
-              -{" "}
-              {comments.createdAt?.toDate().toLocaleTimeString("hr-HR", {
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-            </div>
+            <div>{formatDateTime(comments.createdAt)}</div>
             {currentUser.uid === comments.user.uid && (
               <>
                 <Button
