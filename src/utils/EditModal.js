@@ -1,20 +1,46 @@
 // react imports
-import { useState } from "react";
+import { useState, useContext } from "react";
+
+// redux imports
+import { useDispatch } from "react-redux";
+import {
+  updateCommentAction,
+  updatePostAction,
+} from "../store/Actions/DatabaseActions";
 
 // component imports
 import Button from "./Button";
 
 // firebase imports
 import { db } from "../database/firebase";
-import { updateDoc, getDoc, doc } from "firebase/firestore";
+import { updateDoc, doc } from "firebase/firestore";
+import { updateProfile } from "firebase/auth";
 
 // library imports
 import { toast } from "react-toastify";
 
-const Modal = ({ onClose, comment, comIndex, docId, docFromDb }) => {
+// context imports
+import { AuthContext } from "../context/AuthContext";
+
+const Modal = ({
+  handleCloseModal,
+  modalType,
+  comment = "",
+  comIndex = "",
+  docId = "",
+  docFromDb = "",
+  user = "",
+}) => {
+  const dispatch = useDispatch();
   const [commentValue, setCommentValue] = useState(comment);
   const [postTitleValue, setPostTitleValue] = useState(docFromDb.postTitle);
   const [postTextValue, setPostTextValue] = useState(docFromDb.postText);
+  const [displayName, setDisplayName] = useState(user?.displayName);
+  const { currentUser } = useContext(AuthContext);
+
+  const newDisplayName = e => {
+    setDisplayName(e.target.value);
+  };
 
   const newCommentValue = e => {
     setCommentValue(e.target.value);
@@ -28,41 +54,32 @@ const Modal = ({ onClose, comment, comIndex, docId, docFromDb }) => {
 
   const handleSubmit = async e => {
     e.preventDefault();
-    const docRef = doc(db, "posts", docId);
-    if (comIndex !== "") {
-      const comForChange = await getDoc(docRef).then(
-        doc => doc.data().comments
-      );
-      let updatedComments = [];
-
-      comForChange.forEach(comment => {
-        updatedComments.push({
-          ...comment,
-        });
+    if (modalType === "editComment") {
+      dispatch(updateCommentAction(docId, comIndex, commentValue)).then(() => {
+        handleCloseModal();
       });
-      updatedComments[comIndex].comment = commentValue;
+    } else if (modalType === "editPost") {
+      dispatch(updatePostAction(docId, postTitleValue, postTextValue)).then(
+        () => {
+          handleCloseModal();
+        }
+      );
+    } else {
+      const docRef = doc(db, "users", currentUser.uid);
+
+      await updateProfile(currentUser, {
+        displayName: displayName,
+      });
 
       await updateDoc(docRef, {
-        comments: updatedComments,
+        displayName: displayName,
       })
         .then(() => {
-          toast.success("Uspješno ste uredili komentar");
-          onClose();
+          toast.success("Uspješno ste promijenili ime");
+          handleCloseModal();
         })
         .catch(() => {
-          toast.error("Došlo je do pogreške pri uređivanju komentara");
-        });
-    } else {
-      await updateDoc(docRef, {
-        postTitle: postTitleValue,
-        postText: postTextValue,
-      })
-        .then(() => {
-          toast.success("Uspješno ste uredili objavu");
-          onClose();
-        })
-        .catch(() => {
-          toast.error("Došlo je do pogreške pri uređivanju objave");
+          toast.error("Došlo je do pogreške pri promjeni imena");
         });
     }
   };
@@ -73,7 +90,23 @@ const Modal = ({ onClose, comment, comIndex, docId, docFromDb }) => {
         <h2 className="text-xl font-semibold mb-3">Uredite svoj komentar:</h2>
         <form onSubmit={handleSubmit} className="text-gray-700">
           <div className="mt-4">
-            {comIndex !== "" && (
+            {modalType === "editUser" && (
+              <div className="pb-4">
+                <label htmlFor="displayName" className="block text-sm pb-2">
+                  Vaše ime:
+                </label>
+
+                <input
+                  className="border-2 border-gray-500 p-2 rounded-md w-full focus:border-teal-500 focus:ring-teal-500"
+                  type="text"
+                  name="displayName"
+                  placeholder="Unesi novo ime..."
+                  value={displayName}
+                  onChange={newDisplayName}
+                />
+              </div>
+            )}
+            {modalType === "editComment" && (
               <div className="pb-4">
                 <label htmlFor="comment" className="block text-sm pb-2">
                   Vaš komentar:
@@ -89,7 +122,7 @@ const Modal = ({ onClose, comment, comIndex, docId, docFromDb }) => {
                 />
               </div>
             )}
-            {docFromDb !== "" && (
+            {modalType === "editPost" && (
               <>
                 <div className="pb-4">
                   <label htmlFor="postTitle" className="block text-sm pb-2">
@@ -132,7 +165,7 @@ const Modal = ({ onClose, comment, comIndex, docId, docFromDb }) => {
               btnAction="button"
               btnType="secondary"
               addClasses="py-3 mt-2.5 w-full"
-              onClick={onClose}
+              onClick={handleCloseModal}
             />
           </div>
         </form>

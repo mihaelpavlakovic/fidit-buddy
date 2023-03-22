@@ -26,21 +26,11 @@ const Homepage = () => {
   const docs = useSelector(state => state.database.posts);
   const { currentUser } = useContext(AuthContext);
   const [user, setUser] = useState(null);
-  const [showModal, setShowModal] = useState({
-    show: false,
-    comment: "",
-    comIndex: "",
-    docId: "",
-    docFromDb: "",
-  });
-  const handleClose = () =>
-    setShowModal({
-      show: false,
-      comment: "",
-      comIndex: "",
-      docId: "",
-      docFromDb: "",
-    });
+  const [showModal, setShowModal] = useState(false);
+  const [showModalType, setShowModalType] = useState("");
+  const [modalData, setModalData] = useState({});
+
+  const closeModalHandler = () => setShowModal(!showModal);
 
   const deleteCommentHandler = (comIndex, docId) => {
     if (window.confirm("Potvrdite ukoliko želite obrisati vaš komentar.")) {
@@ -85,13 +75,14 @@ const Homepage = () => {
     <>
       <Navigation />
       <main className="xl:max-w-7xl xl:mx-auto max-w-full px-5 sm:px-[8%]">
-        {showModal.show && (
+        {showModal && (
           <EditModal
-            onClose={handleClose}
-            comment={showModal.comment}
-            comIndex={showModal.comIndex}
-            docId={showModal.docId}
-            docFromDb={showModal.docFromDb}
+            modalType={showModalType}
+            handleCloseModal={closeModalHandler}
+            comment={modalData.comment}
+            comIndex={modalData.comIndex}
+            docId={modalData.docId}
+            docFromDb={modalData.docFromDb}
           />
         )}
         <div className="flex flex-col">
@@ -146,8 +137,9 @@ const Homepage = () => {
                       const docForChange = await getDoc(docRef).then(doc =>
                         doc.data()
                       );
-                      setShowModal({
-                        show: true,
+                      setShowModal(true);
+                      setShowModalType("editPost");
+                      setModalData({
                         comment: "",
                         comIndex: "",
                         docId: postId,
@@ -159,8 +151,9 @@ const Homepage = () => {
                       const docForChange = await getDoc(docRef).then(doc =>
                         doc.data()
                       );
-                      setShowModal({
-                        show: true,
+                      setShowModal(true);
+                      setShowModalType("editComment");
+                      setModalData({
                         comment: docForChange.comments[index].comment,
                         comIndex: index,
                         docId: docId,

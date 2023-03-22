@@ -106,6 +106,47 @@ export const createPostAction = postData => {
   };
 };
 
+export const updatePostAction = (docId, postTitleValue, postTextValue) => {
+  return async () => {
+    const docRef = doc(db, "posts", docId);
+    await updateDoc(docRef, {
+      postTitle: postTitleValue,
+      postText: postTextValue,
+    })
+      .then(() => {
+        toast.success("Uspješno ste uredili objavu");
+      })
+      .catch(() => {
+        toast.error("Došlo je do pogreške pri uređivanju objave");
+      });
+  };
+};
+
+export const updateCommentAction = (docId, commentIndex, commentValue) => {
+  return async () => {
+    const docRef = doc(db, "posts", docId);
+    const commentForChange = await getDoc(docRef).then(
+      doc => doc.data().comments
+    );
+    let updatedComments = [];
+
+    commentForChange.forEach(comment => {
+      updatedComments.push({
+        ...comment,
+      });
+    });
+    updatedComments[commentIndex].comment = commentValue;
+
+    await updateDoc(docRef, {
+      comments: updatedComments,
+    })
+      .then(() => toast.success("Uspješno ste ažurirali komentar"))
+      .catch(() =>
+        toast.error("Došlo je do problema prilikom ažuiranja komentara")
+      );
+  };
+};
+
 export const deletePostAction = (postId, postDetail) => {
   return async () => {
     const docRef = doc(db, "posts", postId);
