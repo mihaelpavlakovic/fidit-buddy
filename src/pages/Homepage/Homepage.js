@@ -24,7 +24,7 @@ import { useTranslation } from "react-i18next";
 const Homepage = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
-  const stateUser = useSelector(state => state.user.user);
+  const stateUser = useSelector(state => state.user.userData);
   const docs = useSelector(state => state.database.posts);
   const [showModal, setShowModal] = useState(false);
   const [showModalType, setShowModalType] = useState("");

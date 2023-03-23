@@ -11,7 +11,7 @@ import Button from "../../utils/Button";
 import EditModal from "../../utils/EditModal";
 
 // firebase imports
-import { db, storage } from "../../database/firebase";
+import { db, storage, auth } from "../../database/firebase";
 import { ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";
 import { updateDoc, doc } from "firebase/firestore";
 import { updateProfile } from "firebase/auth";
@@ -23,7 +23,7 @@ import { useTranslation } from "react-i18next";
 
 const Profile = () => {
   const { t } = useTranslation();
-  const stateUser = useSelector(state => state.user.user);
+  const stateUser = useSelector(state => state.user.userData);
   const [newFile, setNewFile] = useState(null);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState(null);
@@ -69,7 +69,7 @@ const Profile = () => {
       },
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then(async downloadURL => {
-          await updateProfile(stateUser, {
+          await updateProfile(auth.currentUser, {
             photoURL: downloadURL,
           });
           await updateDoc(doc(db, "users", stateUser.uid), {

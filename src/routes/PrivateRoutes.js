@@ -1,17 +1,18 @@
 // react imports
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Outlet, Navigate } from "react-router";
+
+// redux imports
+import { useSelector } from "react-redux";
 
 // firebase imports
 import { db, auth } from "../database/firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 
-// context imports
-import { AuthContext } from "../context/AuthContext";
-
 const PrivateRoutes = ({ isAdminRoute, isMentorRoute }) => {
-  const { currentUser } = useContext(AuthContext);
+  const stateUser = useSelector(state => state.user.userData);
+  console.log(stateUser);
   const [userIsAdmin, setUserIsAdmin] = useState(true);
   const [userIsMentor, setUserIsMentor] = useState(true);
 
@@ -26,7 +27,7 @@ const PrivateRoutes = ({ isAdminRoute, isMentorRoute }) => {
   }, []);
 
   if (!!isAdminRoute) {
-    return currentUser ? (
+    return stateUser ? (
       !!isAdminRoute === userIsAdmin ? (
         <Outlet />
       ) : (
@@ -36,7 +37,7 @@ const PrivateRoutes = ({ isAdminRoute, isMentorRoute }) => {
       <Navigate to="/prijava" />
     );
   } else if (!!isMentorRoute) {
-    return currentUser ? (
+    return stateUser ? (
       !!isMentorRoute === userIsMentor ? (
         <Outlet />
       ) : (
@@ -46,7 +47,7 @@ const PrivateRoutes = ({ isAdminRoute, isMentorRoute }) => {
       <Navigate to={"/prijava"} replace />
     );
   } else {
-    return currentUser ? <Outlet /> : <Navigate to={"/prijava"} replace />;
+    return stateUser ? <Outlet /> : <Navigate to={"/prijava"} replace />;
   }
 };
 

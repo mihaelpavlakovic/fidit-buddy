@@ -31,7 +31,7 @@ import ReactSelect from "react-select";
 import { toast } from "react-toastify";
 
 function Admin() {
-  const stateUser = useSelector(state => state.user.user);
+  const stateUser = useSelector(state => state.user.userData);
   const [users, setUsers] = useState([]);
   const [admins, setAdmins] = useState([]);
   const [mentors, setMentors] = useState([]);

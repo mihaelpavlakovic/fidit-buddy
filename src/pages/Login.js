@@ -36,9 +36,10 @@ const Login = () => {
         .min(8, t("Formik.passwordMin")),
     }),
 
-    onSubmit: async values => {
+    onSubmit: values => {
       dispatch(login({ email: values.email, password: values.password }));
-      navigate("/");
+      // navigate("/");
+      setTimeout(() => navigate("/"), 400);
     },
   });
 

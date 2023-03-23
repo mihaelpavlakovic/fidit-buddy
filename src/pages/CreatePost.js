@@ -1,10 +1,10 @@
 // react imports
-import { useState, useContext } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router";
 
 // redux imports
 import { createPostAction } from "../store/Actions/DatabaseActions";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 // component imports
 import Navigation from "../components/Navigation";
@@ -21,9 +21,6 @@ import * as Yup from "yup";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
 
-// context imports
-import { AuthContext } from "../context/AuthContext";
-
 const CreatePost = () => {
   const { t } = useTranslation();
   const [imgUrl, setImgUrl] = useState([]);
@@ -31,7 +28,7 @@ const CreatePost = () => {
   const [progresspercent, setProgresspercent] = useState(0);
   const [disableBtn, setDisableBtn] = useState(false);
   const navigate = useNavigate();
-  const { currentUser } = useContext(AuthContext);
+  const stateUser = useSelector(state => state.user.userData);
   const dispatch = useDispatch();
 
   const uploadImages = async () => {
@@ -92,7 +89,7 @@ const CreatePost = () => {
     }),
 
     onSubmit: values => {
-      const docRef = doc(db, "users", currentUser.uid);
+      const docRef = doc(db, "users", stateUser.uid);
 
       const createPost = {
         postTitle: values.postTitle,

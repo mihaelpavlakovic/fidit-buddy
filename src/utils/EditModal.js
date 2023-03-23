@@ -1,8 +1,8 @@
 // react imports
-import { useState, useContext } from "react";
+import { useState } from "react";
 
 // redux imports
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import {
   updateCommentAction,
   updatePostAction,
@@ -12,16 +12,13 @@ import {
 import Button from "./Button";
 
 // firebase imports
-import { db } from "../database/firebase";
+import { auth, db } from "../database/firebase";
 import { updateDoc, doc } from "firebase/firestore";
 import { updateProfile } from "firebase/auth";
 
 // library imports
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
-
-// context imports
-import { AuthContext } from "../context/AuthContext";
 
 const Modal = ({
   handleCloseModal,
@@ -40,8 +37,6 @@ const Modal = ({
   const [postTitleValue, setPostTitleValue] = useState(docFromDb.postTitle);
   const [postTextValue, setPostTextValue] = useState(docFromDb.postText);
   const [displayName, setDisplayName] = useState(user?.displayName);
-  const { currentUser } = useContext(AuthContext);
-  // const stateUser = useSelector(state => state.user.user);
 
   const newDisplayName = e => {
     setDisplayName(e.target.value);
@@ -70,9 +65,9 @@ const Modal = ({
         }
       );
     } else {
-      const docRef = doc(db, "users", currentUser.uid);
+      const docRef = doc(db, "users", user.uid);
 
-      await updateProfile(currentUser, {
+      await updateProfile(auth.currentUser, {
         displayName: displayName,
       });
 

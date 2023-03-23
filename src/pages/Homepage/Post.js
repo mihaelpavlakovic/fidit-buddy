@@ -31,7 +31,7 @@ const Post = ({
   editPostHandler,
 }) => {
   const { t } = useTranslation();
-  const stateUser = useSelector(state => state.user.user);
+  const stateUser = useSelector(state => state.user.userData);
   const dispatch = useDispatch();
   const formik = useFormik({
     initialValues: {

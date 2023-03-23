@@ -21,7 +21,7 @@ const Feedback = ({ user }) => {
   const [rating, setRating] = useState(null);
   const [hover, setHover] = useState(null);
   const [message, setMessage] = useState("");
-  const stateUser = useSelector(state => state.user.user);
+  const stateUser = useSelector(state => state.user.userData);
 
   const rateMentorHandler = async e => {
     e.preventDefault();

@@ -11,7 +11,7 @@ import { BiEdit, BiTrash } from "react-icons/bi";
 import { formatDateTime } from "../../helper/functions";
 
 const PostComments = ({ comments, onDeleteHandler, onEditHandler }) => {
-  const stateUser = useSelector(state => state.user.user);
+  const stateUser = useSelector(state => state.user.userData);
 
   return (
     <div className="w-full bg-gray-100 p-2 sm:px-4 flex gap-3 mb-2">
