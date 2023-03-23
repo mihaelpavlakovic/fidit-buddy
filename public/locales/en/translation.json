@@ -1,0 +1,95 @@
+{
+  "Login": {
+    "title": "Log in to your account 👋",
+    "subTitle": "Are you expecting new news on the questions posed to the student-mentor? Sign up and find out the answers to these questions.",
+    "password": "Password",
+    "createAccount": "You haven't created an account? You can create it",
+    "forgotPassword": "Forgot your password? Click"
+  },
+  "Registration": {
+    "title": "Create your account 👋",
+    "subTitle": "Are you new and have a lot of unanswered questions about the newly enrolled college? No problem, join our platform and ask all your questions to student-mentors.",
+    "name": "Name",
+    "password": "Password",
+    "confirmPassword": "Confirm password",
+    "haveAccount": "Have you created an account? You can login"
+  },
+  "PasswordReset": {
+    "title": "Reset your password",
+    "goBack": "Are you lost? To return click"
+  },
+  "Welcome": {
+    "text": "Hi there {{userName}}! 👋"
+  },
+  "Navigation": {
+    "home": "Home",
+    "messages": "Messages",
+    "createPost": "Create Post",
+    "profile": "Profile",
+    "dashboard": "Admin Dashboard"
+  },
+  "CreatePost": {
+    "title": "Create your post",
+    "postTitle": "Title",
+    "postText": "Description",
+    "postAttachments": "Attachments"
+  },
+  "Profile": {
+    "title": "User settings",
+    "picture": "Profile picture",
+    "chooseImage": "Select the new profile image",
+    "info": "User info",
+    "feedback": "Student feedback",
+    "rateMentor": "Rate your mentor",
+    "name": "Name",
+    "freshmenGrade": "Your rating as a mentor",
+    "freshmenNumber": "You were evaluated by the total number of students",
+    "freshmenMessages": "Messages from students"
+  },
+  "Modal": {
+    "postTitle": "Edit post",
+    "commentTitle": "Edit comment",
+    "profileTitle": "Edit profile info",
+    "yourName": "Your name",
+    "postName": "The title of your post",
+    "postDescription": "Your description",
+    "yourComment": "Your comment"
+  },
+  "Placeholders": {
+    "comment": "Write your comment",
+    "postTitle": "Write your title",
+    "postText": "Write your description",
+    "email": "Enter your email address",
+    "password": "Enter your password",
+    "name": "Enter your name",
+    "jmbag": "Enter your JMBAG",
+    "confirmPassword": "Repeat your password"
+  },
+  "Buttons": {
+    "here": "here",
+    "reset": "Remove",
+    "load": "Load",
+    "post": "Create",
+    "login": "Login",
+    "logout": "Logout",
+    "register": "Register",
+    "cancel": "Cancel",
+    "updateProfile": "Update profile",
+    "updatePost": "Update post",
+    "updateComment": "Update comment",
+    "send": "Send"
+  },
+  "Formik": {
+    "nameMax": "The name must contain 40 characters or less",
+    "nameReq": "Name required",
+    "email": "Incorrect email format",
+    "emailReq": "Email required",
+    "passwordReq": "Password required",
+    "passwordMin": "The password is too short - it must be at least 8 characters long",
+    "passwordConfirmReq": "Password confirmation required",
+    "passwordMatch": "Passwords must be the same",
+    "jmbagReq": "JMBAG required",
+    "jmbagMatches": "It must contain only numbers",
+    "jmbagMinMax": "It must contain exactly 10 digits"
+  }
+}

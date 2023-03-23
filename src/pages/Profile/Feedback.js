@@ -14,8 +14,10 @@ import { getDoc, doc, updateDoc, arrayUnion } from "firebase/firestore";
 // library imports
 import { AiFillStar } from "react-icons/ai";
 import { toast } from "react-toastify";
+import { useTranslation } from "react-i18next";
 
 const Feedback = ({ user }) => {
+  const { t } = useTranslation();
   const [rating, setRating] = useState(null);
   const [hover, setHover] = useState(null);
   const [message, setMessage] = useState("");
@@ -73,7 +75,9 @@ const Feedback = ({ user }) => {
 
   return (
     <div className="border-2 border-solid rounded-md">
-      <h2 className="text-xl border-b-2 border-solid p-3">Ocjenite mentora</h2>
+      <h2 className="text-xl border-b-2 border-solid p-3">
+        {t("Profile.rateMentor")}
+      </h2>
       <p className="text-center mt-2">
         Dodijeljeni mentor:{" "}
         <span className="font-semibold">

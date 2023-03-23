@@ -12,6 +12,9 @@ import "./index.css";
 // component imports
 import App from "./App";
 
+// library imports
+import "./i18n";
+
 // context imports
 import { AuthContextProvider } from "./context/AuthContext";
 import { ChatContextProvider } from "./context/ChatContext";

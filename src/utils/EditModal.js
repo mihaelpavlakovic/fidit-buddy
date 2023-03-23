@@ -2,7 +2,7 @@
 import { useState, useContext } from "react";
 
 // redux imports
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   updateCommentAction,
   updatePostAction,
@@ -18,6 +18,7 @@ import { updateProfile } from "firebase/auth";
 
 // library imports
 import { toast } from "react-toastify";
+import { useTranslation } from "react-i18next";
 
 // context imports
 import { AuthContext } from "../context/AuthContext";
@@ -25,18 +26,22 @@ import { AuthContext } from "../context/AuthContext";
 const Modal = ({
   handleCloseModal,
   modalType,
+  modalTitle,
+  submitBtnText,
   comment = "",
   comIndex = "",
   docId = "",
   docFromDb = "",
   user = "",
 }) => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const [commentValue, setCommentValue] = useState(comment);
   const [postTitleValue, setPostTitleValue] = useState(docFromDb.postTitle);
   const [postTextValue, setPostTextValue] = useState(docFromDb.postText);
   const [displayName, setDisplayName] = useState(user?.displayName);
   const { currentUser } = useContext(AuthContext);
+  // const stateUser = useSelector(state => state.user.user);
 
   const newDisplayName = e => {
     setDisplayName(e.target.value);
@@ -87,13 +92,13 @@ const Modal = ({
   return (
     <div className="z-20 fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
       <div className="bg-white p-12 mx-7 w-full sm:w-1/2 lg:w-1/3 rounded-xl">
-        <h2 className="text-xl font-semibold mb-3">Uredite svoj komentar:</h2>
+        <h2 className="text-xl font-semibold mb-3">{modalTitle}:</h2>
         <form onSubmit={handleSubmit} className="text-gray-700">
           <div className="mt-4">
             {modalType === "editUser" && (
               <div className="pb-4">
                 <label htmlFor="displayName" className="block text-sm pb-2">
-                  Vaše ime:
+                  {t("Modal.yourName")}:
                 </label>
 
                 <input
@@ -109,7 +114,7 @@ const Modal = ({
             {modalType === "editComment" && (
               <div className="pb-4">
                 <label htmlFor="comment" className="block text-sm pb-2">
-                  Vaš komentar:
+                  {t("Modal.yourComment")}:
                 </label>
 
                 <input
@@ -126,7 +131,7 @@ const Modal = ({
               <>
                 <div className="pb-4">
                   <label htmlFor="postTitle" className="block text-sm pb-2">
-                    Vaš naslov objave:
+                    {t("Modal.postName")}:
                   </label>
 
                   <input
@@ -140,7 +145,7 @@ const Modal = ({
                 </div>
                 <div className="pb-4">
                   <label htmlFor="postText" className="block text-sm pb-2">
-                    Vaš opis:
+                    {t("Modal.postDescription")}:
                   </label>
 
                   <input
@@ -155,13 +160,13 @@ const Modal = ({
               </>
             )}
             <Button
-              text={comIndex !== "" ? "Ažuriraj komentar" : "Ažuriraj objavu"}
+              text={submitBtnText}
               btnAction="submit"
               btnType="primary"
               addClasses="py-3 mt-2.5 w-full"
             />
             <Button
-              text="Odustani"
+              text={t("Buttons.cancel")}
               btnAction="button"
               btnType="secondary"
               addClasses="py-3 mt-2.5 w-full"

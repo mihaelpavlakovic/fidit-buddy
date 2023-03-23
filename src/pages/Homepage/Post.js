@@ -18,6 +18,7 @@ import { doc, getDoc, updateDoc, Timestamp } from "firebase/firestore";
 
 // library imports
 import { toast } from "react-toastify";
+import { useTranslation } from "react-i18next";
 
 // helper imports
 import { formatDateTime } from "../../helper/functions";
@@ -29,6 +30,7 @@ const Post = ({
   onEditHandler,
   editPostHandler,
 }) => {
+  const { t } = useTranslation();
   const stateUser = useSelector(state => state.user.user);
   const dispatch = useDispatch();
   const formik = useFormik({
@@ -189,7 +191,7 @@ const Post = ({
             rows="1"
             type="text"
             name="comment"
-            placeholder="Napiši svoj komentar"
+            placeholder={t("Placeholders.comment")}
             onChange={formik.handleChange}
             value={formik.values.comment}
           ></textarea>

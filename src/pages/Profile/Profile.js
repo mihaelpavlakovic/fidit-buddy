@@ -19,8 +19,10 @@ import { updateProfile } from "firebase/auth";
 // library imports
 import { BiEdit } from "react-icons/bi";
 import { toast } from "react-toastify";
+import { useTranslation } from "react-i18next";
 
 const Profile = () => {
+  const { t } = useTranslation();
   const stateUser = useSelector(state => state.user.user);
   const [newFile, setNewFile] = useState(null);
   const [progress, setProgress] = useState(0);
@@ -90,13 +92,15 @@ const Profile = () => {
           <EditModal
             handleCloseModal={closeModalHandler}
             modalType={"editUser"}
+            modalTitle={t("Modal.profileTitle")}
+            submitBtnText={t("Buttons.updateProfile")}
             user={stateUser}
           />
         )}
         <div className="flex flex-col gap-4">
-          <h1 className="text-3xl mb-5 font-semibold">Postavke korisnika</h1>
+          <h1 className="text-3xl mb-5 font-semibold">{t("Profile.title")}</h1>
           <div className="border-2 border-solid rounded-md">
-            <p className="text-lg p-3 border-b-2">Slika profila</p>
+            <p className="text-lg p-3 border-b-2">{t("Profile.picture")}</p>
             <div className="flex flex-col md:flex-row items-center">
               <div className="w-full flex items-center justify-center">
                 <img
@@ -110,7 +114,7 @@ const Profile = () => {
                   htmlFor="fileInput"
                   className="block text-sm mb-4 flex items-center"
                 >
-                  Odaberite novu sliku profila:
+                  {t("Profile.chooseImage")}:
                 </label>
                 <input
                   type="file"
@@ -134,14 +138,14 @@ const Profile = () => {
                     />
                     <div className="mt-3 flex flex-col gap-2 md:flex-row justify-between">
                       <Button
-                        text="Učitaj"
+                        text={t("Buttons.load")}
                         btnAction="button"
                         btnType="primary"
                         addClasses="w-full p-1 mt-2"
                         onClick={uploadImage}
                       />
                       <Button
-                        text="Ukloni sliku"
+                        text={t("Buttons.reset")}
                         btnAction="button"
                         btnType="secondary"
                         addClasses="w-full p-1 mt-2"
@@ -156,7 +160,7 @@ const Profile = () => {
           <div className="flex flex-col lg:flex-row justify-center gap-4">
             <div className="border-2 border-solid rounded-md w-full">
               <div className="p-3 border-b-2 flex justify-between items-center">
-                <h2 className="text-lg">Osobne informacije</h2>
+                <h2 className="text-lg">{t("Profile.info")}</h2>
                 <Button
                   text=""
                   btnAction="button"
@@ -170,7 +174,7 @@ const Profile = () => {
               <table className="flex p-3">
                 <tbody className="flex flex-col gap-1">
                   <tr>
-                    <td className="w-[4.5rem]">Ime:</td>
+                    <td className="w-[4.5rem]">{t("Profile.name")}</td>
                     <td>{stateUser?.displayName}</td>
                   </tr>
                   <tr>
@@ -189,11 +193,11 @@ const Profile = () => {
                 {stateUser?.isMentor && (
                   <div className="border-2 border-solid rounded-md">
                     <h2 className="text-lg p-3 border-b-2">
-                      Povratne informacije
+                      {t("Profile.feedback")}
                     </h2>
                     <div className="flex flex-col items-center gap-4 my-5">
                       <p>
-                        Vaša ocjena kao mentora{" "}
+                        {t("Profile.freshmenGrade")}{" "}
                         <span className="block text-center mt-3 font-semibold text-4xl">
                           {stateUser.reviewCount > 0
                             ? Math.round(
@@ -205,12 +209,12 @@ const Profile = () => {
                         </span>
                       </p>
                       <p>
-                        Ocjenilo vas je ukupno studenata{" "}
+                        {t("Profile.freshmenNumber")}{" "}
                         <span className="block text-center mt-3 font-semibold text-4xl">
                           {stateUser?.reviewCount || "0"}
                         </span>
                       </p>
-                      <p>Poruke od studenata</p>
+                      <p>{t("Profile.freshmenMessages")}</p>
                       {stateUser?.reviewsFrom?.length > 3
                         ? stateUser?.reviewsFrom.slice(-3).map((review, i) => {
                             return (

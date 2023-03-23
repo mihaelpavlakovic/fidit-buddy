@@ -19,11 +19,13 @@ import { doc, Timestamp } from "firebase/firestore";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
+import { useTranslation } from "react-i18next";
 
 // context imports
 import { AuthContext } from "../context/AuthContext";
 
 const CreatePost = () => {
+  const { t } = useTranslation();
   const [imgUrl, setImgUrl] = useState([]);
   const [newFiles, setNewFiles] = useState([]);
   const [progresspercent, setProgresspercent] = useState(0);
@@ -118,7 +120,7 @@ const CreatePost = () => {
           className="rounded-lg sm:w-5/6 xl:w-1/2 shadow-xl m-5   border"
         >
           <div className="text-gray-700 p-5 sm:p-20">
-            <h1 className="text-3xl">Kreiraj objavu:</h1>
+            <h1 className="text-3xl">{t("CreatePost.title")}:</h1>
             <div className="mt-4">
               <div className="pb-4">
                 <label
@@ -131,13 +133,13 @@ const CreatePost = () => {
                 >
                   {formik.touched.postTitle && formik.errors.postTitle
                     ? formik.errors.postTitle
-                    : "Naslov"}
+                    : t("CreatePost.postTitle")}
                 </label>
                 <input
                   className="border-2 border-gray-500 p-2 rounded-md w-full focus:outline-none focus:border-teal-500 focus:ring-teal-500 "
                   type="text"
                   name="postTitle"
-                  placeholder="Unesi naziv objave"
+                  placeholder={t("Placeholders.postTitle")}
                   onChange={formik.handleChange}
                   value={formik.values.postTitle}
                   onBlur={formik.handleBlur}
@@ -155,7 +157,7 @@ const CreatePost = () => {
                 >
                   {formik.touched.postText && formik.errors.postText
                     ? formik.errors.postText
-                    : "Objava"}
+                    : t("CreatePost.postText")}
                 </label>
 
                 <textarea
@@ -163,7 +165,7 @@ const CreatePost = () => {
                   className="border-2 border-gray-500 p-2 rounded-md w-full focus:outline-none focus:border-teal-500 focus:ring-teal-500"
                   type="text"
                   name="postText"
-                  placeholder="Unesite tekst objave"
+                  placeholder={t("Placeholders.postText")}
                   onChange={formik.handleChange}
                   value={formik.values.postText}
                   onBlur={formik.handleBlur}
@@ -172,7 +174,7 @@ const CreatePost = () => {
 
               <div className="pb-4">
                 <label htmlFor="fileInput" className={"block text-sm pb-2"}>
-                  Datoteke
+                  {t("CreatePost.postAttachments")}
                 </label>
 
                 <input
@@ -193,7 +195,7 @@ const CreatePost = () => {
                     max="100"
                   />
                   <Button
-                    text="Učitaj"
+                    text={t("Buttons.load")}
                     btnAction="button"
                     btnType="secondary"
                     addClasses="py-1 w-1/6 disabled:cursor-progress"
@@ -203,7 +205,7 @@ const CreatePost = () => {
                 </div>
               </div>
               <Button
-                text="Objavi"
+                text={t("Buttons.post")}
                 btnAction="submit"
                 btnType="primary"
                 isDisabled={disableBtn}

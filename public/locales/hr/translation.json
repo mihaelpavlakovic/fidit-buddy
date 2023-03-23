@@ -1,0 +1,95 @@
+{
+  "Login": {
+    "title": "Prijavi se u svoj račun 👋",
+    "subTitle": "Očekujete nove vijesti na postavljena pitanja student-mentoru? Prijavite se i saznajte odgovore na ta pitanja.",
+    "password": "Lozinka",
+    "createAccount": "Nemate kreiran račun? Možete ga kreirati",
+    "forgotPassword": "Zaboravili ste lozinku? Kliknite"
+  },
+  "Registration": {
+    "title": "Kreiraj svoj račun 👋",
+    "subTitle": "Novi ste i imate puno neodgovorenih pitanja u vezi novo upisanog fakulteta? Nema problema, pridruži se našoj platformi i postavi sva svoja pitanja student-mentorima.",
+    "name": "Ime",
+    "password": "Lozinka",
+    "confirmPassword": "Potvrda lozinke",
+    "haveAccount": "Imate kreiran račun? Možete se prijaviti"
+  },
+  "PasswordReset": {
+    "title": "Ponovno postavite vašu lozinku",
+    "goBack": "Zalutali ste? Za povratak kliknite"
+  },
+  "Welcome": {
+    "text": "Dobro došli {{userName}}! 👋"
+  },
+  "Navigation": {
+    "home": "Naslovna",
+    "messages": "Poruke",
+    "createPost": "Kreiraj Objavu",
+    "profile": "Profil",
+    "dashboard": "Admin Ploča"
+  },
+  "CreatePost": {
+    "title": "Kreiraj objavu",
+    "postTitle": "Naslov",
+    "postText": "Objava",
+    "postAttachments": "Datoteke"
+  },
+  "Profile": {
+    "title": "Postavke korisnika",
+    "picture": "Slika profila",
+    "chooseImage": "Odaberite novu sliku profila",
+    "info": "Osobne informacije",
+    "feedback": "Povratne informacije",
+    "rateMentor": "Ocjenite mentora",
+    "name": "Ime",
+    "freshmenGrade": "Vaša ocjena kao mentora",
+    "freshmenNumber": "Ocjenilo vas je ukupno studenata",
+    "freshmenMessages": "Poruke od studenata"
+  },
+  "Modal": {
+    "postTitle": "Uredite svoju objavu",
+    "commentTitle": "Uredite svoj komentar",
+    "profileTitle": "Uredite svoje informacije",
+    "yourName": "Vaše ime",
+    "postName": "Vaš naslov objave",
+    "postDescription": "Vaš opis",
+    "yourComment": "Vaš komentar"
+  },
+  "Placeholders": {
+    "comment": "Ostavite svoj komentar",
+    "postTitle": "Unesite naziv objave",
+    "postText": "Unesite tekst objave",
+    "email": "Unesi svoju email adresu",
+    "password": "Unesi svoju lozinku",
+    "name": "Unesi svoje ime",
+    "jmbag": "Unesi svoj JMBAG",
+    "confirmPassword": "Ponovite svoju lozinku"
+  },
+  "Buttons": {
+    "here": "ovdje",
+    "reset": "Ukloni sliku",
+    "load": "Učitaj",
+    "post": "Objavi",
+    "login": "Prijavi se",
+    "logout": "Odjavi se",
+    "register": "Kreiraj račun",
+    "cancel": "Odustani",
+    "updateProfile": "Ažuriraj profil",
+    "updatePost": "Ažuriraj objavu",
+    "updateComment": "Ažuriraj komentar",
+    "send": "Pošalji"
+  },
+  "Formik": {
+    "nameMax": "Ime mora sadržavat 40 znakova ili manje",
+    "nameReq": "Ime je obavezno",
+    "email": "Neispravan unos emaila",
+    "emailReq": "Email je obavezan",
+    "passwordReq": "Lozinka je obavezna",
+    "passwordMin": "Lozinka je pre kratka - mora bit minimalno 8 znakova dugačka",
+    "passwordConfirmReq": "Potvrda lozinke je obavezna",
+    "passwordMatch": "Lozinke se moraju podudarat",
+    "jmbagReq": "JMBAG je obavezan",
+    "jmbagMatches": "Mora sadržavat samo brojeve",
+    "jmbagMinMax": "Mora sadržavat točno 10 znamenki"
+  }
+}

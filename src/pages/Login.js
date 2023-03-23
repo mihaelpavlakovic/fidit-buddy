@@ -11,8 +11,11 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useDispatch } from "react-redux";
 import { login } from "../store/Actions/UserActions";
+import { useTranslation } from "react-i18next";
+import i18n from "../i18n";
 
 const Login = () => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [error, setError] = useState("");
@@ -26,11 +29,11 @@ const Login = () => {
 
     validationSchema: Yup.object({
       email: Yup.string()
-        .email("Neispravan unos emaila")
-        .required("Email je obavezan"),
+        .email(t("Formik.email"))
+        .required(t("Formik.emailReq")),
       password: Yup.string()
-        .required("Lozinka je obavezna")
-        .min(8, "Lozinka je pre kratka - mora bit minimalno 8 znakova dugačka"),
+        .required(t("Formik.passwordReq"))
+        .min(8, t("Formik.passwordMin")),
     }),
 
     onSubmit: async values => {
@@ -39,19 +42,20 @@ const Login = () => {
     },
   });
 
+  const changeLanguage = lng => {
+    i18n.changeLanguage(lng);
+  };
+
   return (
-    <main className="items-center flex justify-center sm:min-h-screen">
+    <main className="flex items-center justify-center min-h-screen">
       <Modal onClose={handleClose} displayModal={error} />
       <form
         onSubmit={formik.handleSubmit}
-        className="rounded-lg shadow-xl m-5 sm:w-5/6 lg:w-1/2"
+        className="rounded-lg shadow-xl sm:w-2/3 lg:w-1/2"
       >
-        <div className="text-gray-700 p-5 sm:p-10 md:p-20">
-          <h1 className="text-3xl pb-2">Prijavi se u svoj račun 👋</h1>
-          <p className="text-lg text-gray-500">
-            Očekujete nove vijesti na postavljena pitanja student-mentoru?
-            Prijavite se i saznajte odgovore na ta pitanja.
-          </p>
+        <div className="text-gray-700 p-5 md:p-10">
+          <h1 className="text-3xl pb-2">{t("Login.title")}</h1>
+          <p className="text-lg text-gray-500">{t("Login.subTitle")}</p>
           <div className="mt-4">
             {/* Email input field */}
             <div className="pb-4">
@@ -72,7 +76,7 @@ const Login = () => {
                 className="border-2 border-gray-500 p-2 rounded-md w-full focus:border-teal-500 focus:ring-teal-500 outline-none"
                 type="email"
                 name="email"
-                placeholder="Unesi svoju email adresu"
+                placeholder={t("Placeholders.email")}
                 onChange={formik.handleChange}
                 value={formik.values.email}
                 onBlur={formik.handleBlur}
@@ -90,42 +94,61 @@ const Login = () => {
               >
                 {formik.touched.password && formik.errors.password
                   ? formik.errors.password
-                  : "Lozinka"}
+                  : t("Login.password")}
               </label>
               <input
                 className="border-2 border-gray-500 p-2 rounded-md w-full focus:border-teal-500 focus:ring-teal-500 outline-none"
                 type="password"
                 name="password"
-                placeholder="Unesi svoju lozinku"
+                placeholder={t("Placeholders.password")}
                 onChange={formik.handleChange}
                 value={formik.values.password}
                 onBlur={formik.handleBlur}
               />
             </div>
             <Button
-              text="Prijavi se!"
+              text={t("Buttons.login")}
               btnAction="submit"
               btnType="primary"
               addClasses="py-3 mt-6 w-full"
             />
             <p className="text-center text-gray-500 text-sm mt-5">
-              Nemate kreiran račun? Možete ga kreirati{" "}
+              {t("Login.createAccount")}{" "}
               <Link
                 to="/registracija"
                 className="text-teal-500 hover:underline"
               >
-                ovdje
+                {t("Buttons.here")}
               </Link>
             </p>
             <p className="text-center text-gray-500 text-sm mt-5">
-              Zaboravili ste lozinku? Kliknite{" "}
+              {t("Login.forgotPassword")}{" "}
               <Link
                 to="/promjena-lozinke"
                 className="text-teal-500 hover:underline"
               >
-                ovdje
+                {t("Buttons.here")}
               </Link>
             </p>
+            <div className="flex flex-row flex-wrap gap-2 justify-center mt-8">
+              <p className="text-gray-500 w-full text-center text-sm">
+                Can't understand this language? Change it here:
+              </p>
+              <Button
+                text="hr"
+                btnAction="button"
+                btnType="secondary"
+                addClasses="py-1 px-3"
+                onClick={() => changeLanguage("hr")}
+              />
+              <Button
+                text="en"
+                btnAction="button"
+                btnType="secondary"
+                addClasses="py-1 px-3"
+                onClick={() => changeLanguage("en")}
+              />
+            </div>
           </div>
         </div>
       </form>

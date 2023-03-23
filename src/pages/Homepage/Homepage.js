@@ -18,7 +18,11 @@ import EditModal from "../../utils/EditModal";
 import { db } from "../../database/firebase";
 import { getDoc, doc } from "firebase/firestore";
 
+// library imports
+import { useTranslation } from "react-i18next";
+
 const Homepage = () => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const stateUser = useSelector(state => state.user.user);
   const docs = useSelector(state => state.database.posts);
@@ -61,6 +65,16 @@ const Homepage = () => {
         {showModal && (
           <EditModal
             modalType={showModalType}
+            modalTitle={
+              showModalType === "editPost"
+                ? t("Modal.postTitle")
+                : t("Modal.commentTitle")
+            }
+            submitBtnText={
+              showModalType === "editPost"
+                ? t("Buttons.updatePost")
+                : t("Buttons.updateComment")
+            }
             handleCloseModal={closeModalHandler}
             comment={modalData.comment}
             comIndex={modalData.comIndex}
@@ -70,7 +84,7 @@ const Homepage = () => {
         )}
         <div className="flex flex-col">
           <h1 className="text-3xl my-5 font-semibold">
-            Dobro došli {stateUser?.displayName}! 👋
+            {t("Welcome.text", { userName: stateUser?.displayName })}
           </h1>
           {stateUser?.isAdmin ? (
             <p className="mt-5">

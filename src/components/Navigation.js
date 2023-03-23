@@ -11,8 +11,10 @@ import Button from "../utils/Button";
 
 // library imports
 import { FiMenu } from "react-icons/fi";
+import { useTranslation } from "react-i18next";
 
 const Navigation = () => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
   const stateUser = useSelector(state => state.user.user);
@@ -24,7 +26,7 @@ const Navigation = () => {
           to="/"
           className="lg:px-5 py-1 block hover:border-b-4 border-white ease-in-out duration-100"
         >
-          Naslovna
+          {t("Navigation.home")}
         </Link>
       </li>
       {stateUser?.isAdmin && (
@@ -33,7 +35,7 @@ const Navigation = () => {
             to="/admin"
             className="lg:px-5 py-1 block hover:border-b-4 border-white ease-in-out duration-100"
           >
-            Admin panel
+            {t("Navigation.dashboard")}
           </Link>
         </li>
       )}
@@ -42,7 +44,7 @@ const Navigation = () => {
           to="/poruke"
           className="lg:px-5 py-1 block hover:border-b-4 border-white ease-in-out duration-100"
         >
-          Poruke
+          {t("Navigation.messages")}
         </Link>
       </li>
       {stateUser?.isMentor && (
@@ -51,7 +53,7 @@ const Navigation = () => {
             to="/kreiraj-objavu"
             className="lg:px-5 py-1 block hover:border-b-4 border-white ease-in-out duration-100"
           >
-            Kreiraj Objavu
+            {t("Navigation.createPost")}
           </Link>
         </li>
       )}
@@ -60,7 +62,7 @@ const Navigation = () => {
           to="/profil"
           className="lg:px-5 py-1 block hover:border-b-4 border-white ease-in-out duration-100"
         >
-          Profil
+          {t("Navigation.profile")}
         </Link>
       </li>
     </>
@@ -82,7 +84,7 @@ const Navigation = () => {
             {userNav}
             <li>
               <Button
-                text="Odjavi se"
+                text={t("Buttons.logout")}
                 btnAction="button"
                 btnType="secondary"
                 addClasses="lg:px-5 ml-1 py-2 block w-full"
