@@ -2,7 +2,9 @@
 import { useEffect, useState, useRef } from "react";
 
 // redux imports
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { uploadImage } from "../../store/Actions/DatabaseActions";
+import { databaseActions } from "../../store/Reducers/DatabaseReducers";
 
 // component imports
 import Navigation from "../../components/Navigation";
@@ -10,30 +12,25 @@ import Feedback from "./Feedback";
 import Button from "../../utils/Button";
 import EditModal from "../../utils/EditModal";
 
-// firebase imports
-import { db, storage, auth } from "../../database/firebase";
-import { ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";
-import { updateDoc, doc } from "firebase/firestore";
-import { updateProfile } from "firebase/auth";
-
 // library imports
 import { BiEdit } from "react-icons/bi";
-import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
 
 const Profile = () => {
   const { t } = useTranslation();
+  const dispatch = useDispatch();
   const stateUser = useSelector(state => state.user.userData);
-  const [newFile, setNewFile] = useState(null);
-  const [progress, setProgress] = useState(0);
+  const progress = useSelector(state => state.database.progress);
+  const newFile = useSelector(state => state.database.image);
   const [error, setError] = useState(null);
   const types = ["image/png", "image/jpeg", "image/jpg"];
   const refValue = useRef();
   const [showModal, setShowModal] = useState(false);
+  useEffect(() => {}, [stateUser, newFile]);
 
   const reset = () => {
     refValue.current.value = "";
-    setNewFile(null);
+    dispatch(databaseActions.removeImage());
   };
 
   const closeModalHandler = () => setShowModal(!showModal);
@@ -42,46 +39,18 @@ const Profile = () => {
     let selected = e.target.files[0];
 
     if (selected && types.includes(selected.type)) {
-      setNewFile(selected);
+      dispatch(databaseActions.setImage({ image: selected }));
       setError("");
     } else {
-      setNewFile(null);
+      dispatch(databaseActions.removeImage());
       setError("Odaberite sliku formata .png, .jpeg ili .jpg");
     }
   };
 
   useEffect(() => {}, [newFile]);
 
-  const uploadImage = () => {
-    const storageRef = ref(storage, `${stateUser.uid}/${newFile.name}`);
-    const uploadTask = uploadBytesResumable(storageRef, newFile);
-
-    uploadTask.on(
-      "state_changed",
-      snapshot => {
-        const progress = Math.round(
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-        );
-        setProgress(progress);
-      },
-      error => {
-        toast.error("Došlo je do pogreške pri učitavanju slike u bazu");
-      },
-      () => {
-        getDownloadURL(uploadTask.snapshot.ref).then(async downloadURL => {
-          await updateProfile(auth.currentUser, {
-            photoURL: downloadURL,
-          });
-          await updateDoc(doc(db, "users", stateUser.uid), {
-            photoURL: downloadURL,
-          });
-          toast.success("Slika profila uspješno ažurirana");
-          setNewFile(null);
-        });
-      }
-    );
-
-    setNewFile([]);
+  const uploadImageHandler = () => {
+    dispatch(uploadImage(stateUser));
   };
 
   return (
@@ -128,7 +97,7 @@ const Profile = () => {
                     {error}
                   </p>
                 )}
-                {newFile && (
+                {newFile.length !== 0 && (
                   <div className="flex flex-col mt-3">
                     <progress
                       className="w-full h-2"
@@ -142,7 +111,7 @@ const Profile = () => {
                         btnAction="button"
                         btnType="primary"
                         addClasses="w-full p-1 mt-2"
-                        onClick={uploadImage}
+                        onClick={uploadImageHandler}
                       />
                       <Button
                         text={t("Buttons.reset")}

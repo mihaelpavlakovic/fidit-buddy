@@ -2,7 +2,7 @@
 import { databaseActions } from "../Reducers/DatabaseReducers";
 
 // firebase imports
-import { db, storage } from "../../database/firebase";
+import { db, storage, auth } from "../../database/firebase";
 import {
   addDoc,
   collection,
@@ -16,10 +16,18 @@ import {
   orderBy,
   query,
 } from "firebase/firestore";
-import { ref, deleteObject } from "firebase/storage";
+import {
+  ref,
+  deleteObject,
+  getDownloadURL,
+  uploadBytesResumable,
+} from "firebase/storage";
+import { updateProfile } from "firebase/auth";
 
 // library imports
 import { toast } from "react-toastify";
+import { userActions } from "../Reducers/UserReducers";
+import { getUser } from "./UserActions";
 
 const getAllPostsFromMentor = userDocRef => {
   const q = query(
@@ -144,6 +152,45 @@ export const updateCommentAction = (docId, commentIndex, commentValue) => {
       .catch(() =>
         toast.error("Došlo je do problema prilikom ažuiranja komentara")
       );
+  };
+};
+
+export const uploadImage = stateUser => {
+  return (dispatch, state) => {
+    console.log(state().database.image);
+    const storageRef = ref(
+      storage,
+      `${auth.currentUser.uid}/${state().database.image.name}`
+    );
+    const uploadTask = uploadBytesResumable(storageRef, state().database.image);
+
+    uploadTask.on(
+      "state_changed",
+      snapshot => {
+        const progress = Math.round(
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+        );
+        dispatch(databaseActions.setProgress({ progress }));
+      },
+      error => {
+        toast.error("Došlo je do pogreške pri učitavanju slike u bazu");
+      },
+      () => {
+        getDownloadURL(uploadTask.snapshot.ref).then(async downloadURL => {
+          await updateProfile(auth.currentUser, {
+            photoURL: downloadURL,
+          });
+          await updateDoc(doc(db, "users", auth.currentUser.uid), {
+            photoURL: downloadURL,
+          });
+          dispatch(userActions.LOGIN({ authToken: auth.currentUser.toJSON() }));
+          dispatch(getUser(stateUser));
+          toast.success("Slika profila uspješno ažurirana");
+          dispatch(databaseActions.resetProgress());
+          dispatch(databaseActions.removeImage());
+        });
+      }
+    );
   };
 };
 

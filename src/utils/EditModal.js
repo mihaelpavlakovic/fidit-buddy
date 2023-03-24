@@ -7,6 +7,8 @@ import {
   updateCommentAction,
   updatePostAction,
 } from "../store/Actions/DatabaseActions";
+import { userActions } from "../store/Reducers/UserReducers";
+import { getUser } from "../store/Actions/UserActions";
 
 // component imports
 import Button from "./Button";
@@ -75,6 +77,8 @@ const Modal = ({
         displayName: displayName,
       })
         .then(() => {
+          dispatch(userActions.LOGIN({ authToken: auth.currentUser.toJSON() }));
+          dispatch(getUser(user));
           toast.success("Uspješno ste promijenili ime");
           handleCloseModal();
         })

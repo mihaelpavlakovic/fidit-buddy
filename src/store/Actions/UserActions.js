@@ -10,30 +10,16 @@ import {
   signOut,
 } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
-import { onAuthStateChanged } from "firebase/auth";
 
 // library imports
 import { toast } from "react-toastify";
-
-export const setAuthListener = () => {
-  return (dispatch, state) => {
-    onAuthStateChanged(auth, user => {
-      if (user && !state().user.initialized) {
-        dispatch(userActions.login({ user: auth.currentUser.toJSON() }));
-        dispatch(getUser());
-      }
-      !state().user.initialized && dispatch(userActions.initialized(true));
-    });
-  };
-};
 
 export const login = ({ email, password }) => {
   return async dispatch => {
     setPersistence(auth, browserLocalPersistence)
       .then(async () => {
         await signInWithEmailAndPassword(auth, email, password);
-
-        dispatch(userActions.login({ user: auth.currentUser.toJSON() }));
+        dispatch(userActions.LOGIN({ authToken: auth.currentUser.toJSON() }));
         dispatch(getUser());
       })
       .catch(error => console.log(error));
@@ -41,27 +27,28 @@ export const login = ({ email, password }) => {
 };
 
 export const logout = () => {
-  return async dispatch => {
-    await signOut(auth)
-      .then(() => toast.success("Uspješno ste odjavljeni"))
+  return dispatch => {
+    signOut(auth)
+      .then(() => {
+        dispatch(userActions.logout());
+        toast.success("Uspješno ste odjavljeni");
+      })
       .catch(error => toast.error(error.msg));
-    dispatch(userActions.logout());
   };
 };
 
-export const getUser = () => {
-  return async dispatch => {
-    let user = null;
-    const uid = auth.currentUser.uid;
-
-    const docRef = doc(db, "users", uid);
+export const getUser = user => {
+  return async (dispatch, state) => {
+    const docRef = doc(db, "users", user.uid);
     const docSnap = await getDoc(docRef);
     const fetchedUserData = docSnap.exists() ? docSnap.data() : null;
 
-    user = {
-      ...fetchedUserData,
-    };
+    if (fetchedUserData !== state().user.userData) {
+      let userData = {
+        ...fetchedUserData,
+      };
 
-    dispatch(userActions.setUserData({ user }));
+      dispatch(userActions.setUserData({ userData }));
+    }
   };
 };

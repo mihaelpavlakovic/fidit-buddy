@@ -1,9 +1,15 @@
 // react imports
+import { useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 // redux imports
 import { useDispatch } from "react-redux";
-import { setAuthListener } from "./store/Actions/UserActions";
+import { userActions } from "./store/Reducers/UserReducers";
+
+// firebase imports
+import { auth } from "./database/firebase";
+import { onAuthStateChanged } from "firebase/auth";
+import { getUser } from "./store/Actions/UserActions";
 
 // component imports
 import Login from "./pages/Login";
@@ -25,7 +31,14 @@ import "react-toastify/dist/ReactToastify.css";
 function App() {
   const dispatch = useDispatch();
 
-  dispatch(setAuthListener());
+  useEffect(() => {
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        dispatch(userActions.LOGIN({ authToken: user.toJSON() }));
+        dispatch(getUser(user));
+      }
+    });
+  }, [dispatch]);
 
   return (
     <BrowserRouter>

@@ -1,6 +1,10 @@
 // react imports
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+
+// redux imports
+import { useDispatch, useSelector } from "react-redux";
+import { login } from "../store/Actions/UserActions";
 
 // component imports
 import Modal from "../utils/Modal";
@@ -9,8 +13,6 @@ import Button from "../utils/Button";
 // library imports
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { useDispatch } from "react-redux";
-import { login } from "../store/Actions/UserActions";
 import { useTranslation } from "react-i18next";
 import i18n from "../i18n";
 
@@ -38,14 +40,20 @@ const Login = () => {
 
     onSubmit: values => {
       dispatch(login({ email: values.email, password: values.password }));
-      // navigate("/");
-      setTimeout(() => navigate("/"), 400);
     },
   });
 
   const changeLanguage = lng => {
     i18n.changeLanguage(lng);
   };
+
+  const stateUser = useSelector(state => state.user.userData);
+
+  useEffect(() => {
+    if (stateUser) {
+      navigate("/");
+    }
+  }, [stateUser, navigate]);
 
   return (
     <main className="flex items-center justify-center min-h-screen">

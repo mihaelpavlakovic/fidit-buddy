@@ -2,7 +2,8 @@
 import React, { useState } from "react";
 
 // redux imports
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { getUser } from "../../store/Actions/UserActions";
 
 // component imports
 import Button from "../../utils/Button";
@@ -18,10 +19,15 @@ import { useTranslation } from "react-i18next";
 
 const Feedback = ({ user }) => {
   const { t } = useTranslation();
+  const dispatch = useDispatch();
   const [rating, setRating] = useState(null);
   const [hover, setHover] = useState(null);
   const [message, setMessage] = useState("");
   const stateUser = useSelector(state => state.user.userData);
+  const [voted, setVoted] = useState(
+    stateUser.voted === undefined ? false : true
+  );
+  const [givenReviewMark, setGivenReviewMark] = useState(0);
 
   const rateMentorHandler = async e => {
     e.preventDefault();
@@ -30,7 +36,7 @@ const Feedback = ({ user }) => {
         "Jeste li sigurni da želite ocijenit mentora? Ova akcije se više ne može ponovno izvesti."
       ) === true
     ) {
-      const mentorUid = user.assignedMentorFreshmen.value;
+      const mentorUid = user?.assignedMentorFreshmen?.value;
       const docRef = doc(db, "users", mentorUid);
       const docSnap = await getDoc(docRef);
       const data = docSnap.exists() ? docSnap.data() : null;
@@ -40,6 +46,7 @@ const Feedback = ({ user }) => {
         givenReviewMark: rating,
         voted: true,
       });
+      dispatch(getUser(currentUserRef));
 
       if (data === null || data === undefined) return null;
       let increasedCounter =
@@ -64,6 +71,8 @@ const Feedback = ({ user }) => {
       })
         .then(() => {
           setMessage("");
+          setVoted(true);
+          setGivenReviewMark(rating);
           toast.success("Uspješno ste ocijenili mentora");
         })
         .catch(() => {
@@ -84,13 +93,17 @@ const Feedback = ({ user }) => {
           {user?.assignedMentorFreshmen?.label}
         </span>
       </p>
-      {user?.voted && (
+      {voted && (
         <div className="flex flex-col items-center my-5">
           <p className="text-center mb-2">
             Ocjenili ste svog mentora sa ocjenom{" "}
           </p>
           <div className="flex">
-            {[...Array(user?.givenReviewMark)].map((star, i) => {
+            {[
+              ...Array(
+                givenReviewMark === 0 ? user.givenReviewMark : givenReviewMark
+              ),
+            ].map((star, i) => {
               return (
                 <AiFillStar
                   key={i}
@@ -102,7 +115,7 @@ const Feedback = ({ user }) => {
           </div>
         </div>
       )}
-      {!user?.voted && (
+      {!user?.voted && !voted && (
         <form
           onSubmit={rateMentorHandler}
           className="flex flex-col items-center"

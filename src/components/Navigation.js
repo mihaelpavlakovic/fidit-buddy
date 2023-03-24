@@ -17,7 +17,7 @@ const Navigation = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
-  const stateUser = useSelector(state => state.user.user);
+  const stateUser = useSelector(state => state.user.userData);
 
   const userNav = (
     <>
